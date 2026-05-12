@@ -67,7 +67,10 @@
           <!-- Right actions -->
           <div class="dm-nav-actions">
             <!-- Wishlist -->
-            <button class="dm-icon-btn" aria-label="Verlanglijst">
+            <button
+              class="dm-icon-btn"
+              aria-label="Verlanglijst"
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -83,7 +86,10 @@
             </button>
 
             <!-- Login -->
-            <button class="dm-icon-btn" aria-label="Inloggen">
+            <button
+              class="dm-icon-btn"
+              aria-label="Inloggen"
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"

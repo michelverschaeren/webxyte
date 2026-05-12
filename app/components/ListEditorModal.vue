@@ -3,7 +3,7 @@
     <transition name="backdrop-fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-210 bg-black/70 backdrop-blur-sm"
+        class="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm"
         @click="close()"
       />
     </transition>
@@ -11,7 +11,7 @@
     <transition name="modal-pop">
       <div
         v-if="open"
-        class="fixed inset-0 z-211 flex items-center justify-center p-4 pointer-events-none"
+        class="fixed inset-0 z-[211] flex items-center justify-center p-4 pointer-events-none"
       >
         <div
           class="pointer-events-auto w-full max-w-2xl max-h-[90vh] flex flex-col border border-[#c89868]/30 shadow-2xl"
@@ -87,7 +87,7 @@
                 <button
                   type="button"
                   @click="updateQty(idx, item.quantity - 1)"
-                  class="w-8 h-8 text-[#c89868] hover:bg-white/4 transition-colors text-lg border border-white/10"
+                  class="w-8 h-8 text-[#c89868] hover:bg-white/[0.04] transition-colors text-lg border border-white/10"
                 >
                   −
                 </button>
@@ -106,7 +106,7 @@
                 <button
                   type="button"
                   @click="updateQty(idx, item.quantity + 1)"
-                  class="w-8 h-8 text-[#c89868] hover:bg-white/4 transition-colors text-lg border border-white/10"
+                  class="w-8 h-8 text-[#c89868] hover:bg-white/[0.04] transition-colors text-lg border border-white/10"
                 >
                   +
                 </button>

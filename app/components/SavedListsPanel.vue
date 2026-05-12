@@ -3,7 +3,7 @@
     <transition name="backdrop-fade">
       <div
         v-if="orderLists.panelOpen.value"
-        class="fixed inset-0 z-190 bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-[190] bg-black/60 backdrop-blur-sm"
         @click="orderLists.closePanel()"
       />
     </transition>
@@ -11,7 +11,7 @@
     <transition name="drawer-slide">
       <div
         v-if="orderLists.panelOpen.value"
-        class="fixed top-0 right-0 h-full z-200 shadow-2xl flex flex-col border-l border-[#c89868]/20 transition-[width,max-width] duration-300"
+        class="fixed top-0 right-0 h-full z-[200] shadow-2xl flex flex-col border-l border-[#c89868]/20 transition-[width,max-width] duration-300"
         :class="
           orderLists.panelMaximized.value
             ? 'w-full max-w-none'
