@@ -28,7 +28,7 @@ importers:
         specifier: ^10.3.0
         version: 10.3.0(jiti@2.7.0)
       eslint-plugin-tailwindcss:
-        specifier: 3.18.3
+        specifier: ^3.18.3
         version: 3.18.3(tailwindcss@4.3.0)
       tailwindcss:
         specifier: ^4.1.0
