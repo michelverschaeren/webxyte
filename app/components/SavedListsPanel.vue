@@ -46,23 +46,32 @@
                 — Bestellijsten —
               </p>
               <!-- Normal overview title -->
-              <h2
-                v-if="!isEditing"
-                class="font-bold text-white"
-              >Mijn bestellijsten</h2>
+              <h2 v-if="!isEditing" class="font-bold text-white">
+                Mijn bestellijsten
+              </h2>
               <!-- Breadcrumb when editing -->
-              <nav v-else class="flex items-center gap-1.5 min-w-0" aria-label="Breadcrumb">
+              <nav
+                v-else
+                class="flex items-center gap-1.5 min-w-0"
+                aria-label="Breadcrumb"
+              >
                 <button
                   type="button"
                   @click="orderLists.closeEditor()"
                   class="font-bold text-[#c89868] hover:text-white transition-colors whitespace-nowrap"
-                >Mijn bestellijsten</button>
+                >
+                  Mijn bestellijsten
+                </button>
                 <span class="text-white/30 select-none">/</span>
                 <input
                   v-model="editorDraftName"
                   type="text"
                   class="bg-transparent text-white font-bold focus:outline-none border-b border-transparent focus:border-[#c89868]/50 py-0.5 min-w-0 truncate"
-                  :class="orderLists.panelMaximized.value ? 'text-base max-w-64' : 'text-sm max-w-40'"
+                  :class="
+                    orderLists.panelMaximized.value
+                      ? 'text-base max-w-64'
+                      : 'text-sm max-w-40'
+                  "
                   placeholder="Naam van de lijst"
                 />
               </nav>
@@ -78,8 +87,18 @@
               class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-white/10 hover:text-white"
               title="Terug naar overzicht"
             >
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               Overzicht
             </button>
@@ -113,10 +132,17 @@
             </button>
             <button
               type="button"
-              @click="orderLists.panelMaximized.value = !orderLists.panelMaximized.value"
+              @click="
+                orderLists.panelMaximized.value =
+                  !orderLists.panelMaximized.value
+              "
               class="rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-              :title="orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'"
-              :aria-label="orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'"
+              :title="
+                orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'
+              "
+              :aria-label="
+                orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'
+              "
             >
               <svg
                 v-if="!orderLists.panelMaximized.value"
@@ -126,7 +152,11 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"
+                />
               </svg>
               <svg
                 v-else
@@ -136,7 +166,11 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9H5m5-4v4m5 0h4m-4 0V5m-5 10H5m5 4v-4m5 0h4m-4 0v4" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 9H5m5-4v4m5 0h4m-4 0V5m-5 10H5m5 4v-4m5 0h4m-4 0v4"
+                />
               </svg>
             </button>
             <button
@@ -144,8 +178,18 @@
               class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Sluit"
             >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -161,137 +205,180 @@
         <div v-else class="flex-1 overflow-y-auto">
           <div
             class="mx-auto"
-            :class="orderLists.panelMaximized.value ? 'px-8 sm:px-12 py-8' : 'px-4 py-4'"
-          >
-          <div
-            v-if="orderLists.lists.value.length === 0"
-            class="flex flex-col items-center justify-center h-full gap-4 text-center px-6 py-12"
-          >
-            <div
-              class="w-16 h-16 rounded-full flex items-center justify-center border border-[#c89868]/30"
-            >
-              <svg
-                class="w-7 h-7 text-[#c89868]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-white">
-                Nog geen lijsten opgeslagen
-              </p>
-              <p class="text-xs text-[#a89a8e] mt-2 leading-relaxed">
-                Voeg producten toe aan uw bestellijst en gebruik "Lijst
-                opslaan" in het winkelmandje om uw selectie te bewaren voor
-                later.
-              </p>
-            </div>
-          </div>
-
-          <div
-            v-else
             :class="
               orderLists.panelMaximized.value
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
-                : 'space-y-3'
+                ? 'px-8 sm:px-12 py-8'
+                : 'px-4 py-4'
             "
           >
-            <article
-              v-for="list in sortedLists"
-              :key="list.id"
-              class="border border-white/10 bg-[#1a1414] flex flex-col"
-              :class="orderLists.panelMaximized.value ? 'p-6 gap-4' : 'p-4 gap-3'"
+            <div
+              v-if="orderLists.lists.value.length === 0"
+              class="flex flex-col items-center justify-center h-full gap-4 text-center px-6 py-12"
             >
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="text-white font-semibold truncate" :class="orderLists.panelMaximized.value ? 'text-base' : 'text-sm'">
-                    {{ list.name }}
-                  </h3>
-                  <p class="text-[#a89a8e] mt-0.5" :class="orderLists.panelMaximized.value ? 'text-xs' : 'text-[0.7rem]'">
-                    {{ list.items.length }} artikel{{
-                      list.items.length !== 1 ? "en" : ""
-                    }}
-                    · {{ totalQty(list) }} stuks ·
-                    {{ formatDate(list.updatedAt) }}
-                  </p>
-                </div>
-                <button
-                  @click="confirmDelete(list.id)"
-                  class="text-[#a89a8e] hover:text-[#b8252a] hover:bg-white/5 transition-colors"
-                  :class="orderLists.panelMaximized.value ? 'p-2' : 'p-1.5'"
-                  :aria-label="`Verwijder ${list.name}`"
-                  title="Verwijderen"
-                >
-                  <svg
-                    :class="orderLists.panelMaximized.value ? 'w-5 h-5' : 'w-4 h-4'"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div :class="orderLists.panelMaximized.value ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-2 gap-2'">
-                <button
-                  @click="replaceCart(list.id)"
-                  class="bg-[#b8252a] text-white font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors"
-                  :class="orderLists.panelMaximized.value ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
-                >
-                  Vervang mandje
-                </button>
-                <button
-                  @click="appendCart(list.id)"
-                  class="border border-[#c89868] text-[#c89868] font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
-                  :class="orderLists.panelMaximized.value ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
-                >
-                  Toevoegen
-                </button>
-                <button
-                  @click="orderLists.openEditor(list.id)"
-                  class="col-span-2 border border-white/15 text-[#e8e2dc] font-semibold uppercase tracking-[0.08em] hover:bg-white/5 transition-colors"
-                  :class="orderLists.panelMaximized.value ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
-                >
-                  Bewerken
-                </button>
-              </div>
-
-              <p
-                v-if="confirmId === list.id"
-                class="text-[0.7rem] text-[#b8252a] flex items-center justify-between gap-2"
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center border border-[#c89868]/30"
               >
-                <span>Verwijderen?</span>
-                <span class="flex gap-2">
+                <svg
+                  class="w-7 h-7 text-[#c89868]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">
+                  Nog geen lijsten opgeslagen
+                </p>
+                <p class="text-xs text-[#a89a8e] mt-2 leading-relaxed">
+                  Voeg producten toe aan uw bestellijst en gebruik "Lijst
+                  opslaan" in het winkelmandje om uw selectie te bewaren voor
+                  later.
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-else
+              :class="
+                orderLists.panelMaximized.value
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
+                  : 'space-y-3'
+              "
+            >
+              <article
+                v-for="list in sortedLists"
+                :key="list.id"
+                class="border border-white/10 bg-[#1a1414] flex flex-col"
+                :class="
+                  orderLists.panelMaximized.value ? 'p-6 gap-4' : 'p-4 gap-3'
+                "
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3
+                      class="text-white font-semibold truncate"
+                      :class="
+                        orderLists.panelMaximized.value
+                          ? 'text-base'
+                          : 'text-sm'
+                      "
+                    >
+                      {{ list.name }}
+                    </h3>
+                    <p
+                      class="text-[#a89a8e] mt-0.5"
+                      :class="
+                        orderLists.panelMaximized.value
+                          ? 'text-xs'
+                          : 'text-[0.7rem]'
+                      "
+                    >
+                      {{ list.items.length }} artikel{{
+                        list.items.length !== 1 ? "en" : ""
+                      }}
+                      · {{ totalQty(list) }} stuks ·
+                      {{ formatDate(list.updatedAt) }}
+                    </p>
+                  </div>
                   <button
-                    @click="orderLists.deleteList(list.id); confirmId = null"
-                    class="px-2 py-0.5 bg-[#b8252a] text-white"
+                    @click="confirmDelete(list.id)"
+                    class="text-[#a89a8e] hover:text-[#b8252a] hover:bg-white/5 transition-colors"
+                    :class="orderLists.panelMaximized.value ? 'p-2' : 'p-1.5'"
+                    :aria-label="`Verwijder ${list.name}`"
+                    title="Verwijderen"
                   >
-                    Ja
+                    <svg
+                      :class="
+                        orderLists.panelMaximized.value ? 'w-5 h-5' : 'w-4 h-4'
+                      "
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div
+                  :class="
+                    orderLists.panelMaximized.value
+                      ? 'grid grid-cols-2 gap-3'
+                      : 'grid grid-cols-2 gap-2'
+                  "
+                >
+                  <button
+                    @click="replaceCart(list.id)"
+                    class="bg-[#b8252a] text-white font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors"
+                    :class="
+                      orderLists.panelMaximized.value
+                        ? 'px-4 py-3 text-xs'
+                        : 'px-3 py-2 text-[0.7rem]'
+                    "
+                  >
+                    Vervang mandje
                   </button>
                   <button
-                    @click="confirmId = null"
-                    class="px-2 py-0.5 border border-white/20 text-[#e8e2dc]"
+                    @click="appendCart(list.id)"
+                    class="border border-[#c89868] text-[#c89868] font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                    :class="
+                      orderLists.panelMaximized.value
+                        ? 'px-4 py-3 text-xs'
+                        : 'px-3 py-2 text-[0.7rem]'
+                    "
                   >
-                    Nee
+                    Toevoegen
                   </button>
-                </span>
-              </p>
-            </article>
-          </div>
+                  <button
+                    @click="orderLists.openEditor(list.id)"
+                    class="col-span-2 border border-white/15 text-[#e8e2dc] font-semibold uppercase tracking-[0.08em] hover:bg-white/5 transition-colors"
+                    :class="
+                      orderLists.panelMaximized.value
+                        ? 'px-4 py-3 text-xs'
+                        : 'px-3 py-2 text-[0.7rem]'
+                    "
+                  >
+                    Bewerken
+                  </button>
+                </div>
+
+                <p
+                  v-if="confirmId === list.id"
+                  class="text-[0.7rem] text-[#b8252a] flex items-center justify-between gap-2"
+                >
+                  <span>Verwijderen?</span>
+                  <span class="flex gap-2">
+                    <button
+                      @click="
+                        orderLists.deleteList(list.id);
+                        confirmId = null;
+                      "
+                      class="px-2 py-0.5 bg-[#b8252a] text-white"
+                    >
+                      Ja
+                    </button>
+                    <button
+                      @click="confirmId = null"
+                      class="px-2 py-0.5 border border-white/20 text-[#e8e2dc]"
+                    >
+                      Nee
+                    </button>
+                  </span>
+                </p>
+              </article>
+            </div>
           </div>
         </div>
       </div>
@@ -308,7 +395,9 @@ const orderLists = useOrderLists();
 const isEditing = computed(() => orderLists.editingListId.value !== null);
 const editorDraftName = computed({
   get: () => orderLists.editorDraftName.value,
-  set: (v: string) => { orderLists.editorDraftName.value = v; },
+  set: (v: string) => {
+    orderLists.editorDraftName.value = v;
+  },
 });
 
 const confirmId = ref<string | null>(null);

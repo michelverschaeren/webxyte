@@ -2,7 +2,10 @@
   <!-- Inline editor — rendered inside SavedListsPanel, no modal/teleport -->
   <div class="flex flex-col h-full">
     <!-- Items -->
-    <div class="flex-1 overflow-y-auto" :class="maximized ? 'px-8 sm:px-12 py-6' : 'px-4 py-4'">
+    <div
+      class="flex-1 overflow-y-auto"
+      :class="maximized ? 'px-8 sm:px-12 py-6' : 'px-4 py-4'"
+    >
       <div :class="maximized ? 'max-w-4xl mx-auto space-y-3' : 'space-y-2'">
         <div
           v-if="draftItems.length === 0"
@@ -18,10 +21,16 @@
           :class="maximized ? 'p-4' : 'p-3'"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-white font-semibold truncate" :class="maximized ? 'text-base' : 'text-sm'">
+            <p
+              class="text-white font-semibold truncate"
+              :class="maximized ? 'text-base' : 'text-sm'"
+            >
               {{ item.name }}
             </p>
-            <p :class="maximized ? 'text-xs' : 'text-[0.7rem]'" class="text-[#a89a8e]">
+            <p
+              :class="maximized ? 'text-xs' : 'text-[0.7rem]'"
+              class="text-[#a89a8e]"
+            >
               <span class="font-mono text-[#c89868]">{{ item.articleNr }}</span>
               · {{ item.supplier }}
               <span v-if="item.unit"> · {{ item.unit }}</span>
@@ -34,12 +43,19 @@
               @click="updateQty(idx, item.quantity - 1)"
               class="text-[#c89868] hover:bg-white/5 transition-colors border border-white/10"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
-            >−</button>
+            >
+              −
+            </button>
             <input
               type="number"
               min="1"
               :value="item.quantity"
-              @input="updateQty(idx, Number(($event.target as HTMLInputElement).value))"
+              @input="
+                updateQty(
+                  idx,
+                  Number(($event.target as HTMLInputElement).value),
+                )
+              "
               class="bg-transparent text-center text-[#e8e2dc] focus:outline-none border-y border-white/10 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               :class="maximized ? 'w-16 h-10 text-base' : 'w-12 h-8 text-sm'"
             />
@@ -48,7 +64,9 @@
               @click="updateQty(idx, item.quantity + 1)"
               class="text-[#c89868] hover:bg-white/5 transition-colors border border-white/10"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
-            >+</button>
+            >
+              +
+            </button>
           </div>
 
           <button
@@ -89,7 +107,9 @@
             :disabled="draftItems.length === 0"
             @click="replaceCart()"
             class="bg-[#b8252a] text-white font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'"
+            :class="
+              maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
+            "
           >
             Vervang mandje
           </button>
@@ -98,7 +118,9 @@
             :disabled="draftItems.length === 0"
             @click="appendCart()"
             class="border border-[#c89868] text-[#c89868] font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'"
+            :class="
+              maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
+            "
           >
             Voeg toe aan mandje
           </button>
@@ -138,7 +160,8 @@ const draftItems = ref<SavedListItem[]>([]);
 
 const isDirty = computed(() => {
   if (!sourceList.value) return false;
-  if (sourceList.value.name !== orderLists.editorDraftName.value.trim()) return true;
+  if (sourceList.value.name !== orderLists.editorDraftName.value.trim())
+    return true;
   if (sourceList.value.items.length !== draftItems.value.length) return true;
   return sourceList.value.items.some((orig, i) => {
     const cur = draftItems.value[i];
