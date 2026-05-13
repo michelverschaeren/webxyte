@@ -1,91 +1,110 @@
 <template>
-  <section
-    class="relative -mt-26.5 flex min-h-screen flex-col overflow-hidden pt-26.5"
-  >
-    <div class="hero-bg absolute inset-0 z-0"></div>
+  <div>
+    <section
+      ref="heroRef"
+      class="relative -mt-26.5 flex min-h-screen flex-col overflow-hidden pt-26.5"
+    >
+      <div
+        class="hero-bg absolute inset-0 z-0"
+        :style="{ opacity: bgOpacity }"
+      ></div>
 
-    <!-- Decorative leaves -->
-    <span class="hero-leaf hl-1">
-      <svg
-        viewBox="0 0 60 80"
-        fill="none"
-        stroke="#fff"
-        stroke-width="1.2"
-        opacity="0.55"
-      >
-        <path
-          d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
-        />
-        <path d="M30 75V20M20 35c5 2 8 6 10 10M40 35c-5 2-8 6-10 10" />
-      </svg>
-    </span>
-    <span class="hero-leaf hl-2">
-      <svg
-        viewBox="0 0 60 80"
-        fill="none"
-        stroke="#fff"
-        stroke-width="1.2"
-        opacity="0.4"
-      >
-        <path
-          d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
-        />
-        <path d="M30 75V20M20 35c5 2 8 6 10 10M40 35c-5 2-8 6-10 10" />
-      </svg>
-    </span>
-    <span class="hero-leaf hl-3">
-      <svg
-        viewBox="0 0 60 80"
-        fill="none"
-        stroke="#fff"
-        stroke-width="1.2"
-        opacity="0.35"
-      >
-        <path
-          d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
-        />
-        <path d="M30 75V20" />
-      </svg>
-    </span>
-    <span class="hero-leaf hl-4">
-      <svg
-        viewBox="0 0 60 80"
-        fill="none"
-        stroke="#fff"
-        stroke-width="1.2"
-        opacity="0.3"
-      >
-        <path
-          d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
-        />
-      </svg>
-    </span>
+      <!-- Decorative leaves -->
+      <span class="hero-leaf hl-1">
+        <svg
+          viewBox="0 0 60 80"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.2"
+          opacity="0.55"
+        >
+          <path
+            d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
+          />
+          <path d="M30 75V20M20 35c5 2 8 6 10 10M40 35c-5 2-8 6-10 10" />
+        </svg>
+      </span>
+      <span class="hero-leaf hl-2">
+        <svg
+          viewBox="0 0 60 80"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.2"
+          opacity="0.4"
+        >
+          <path
+            d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
+          />
+          <path d="M30 75V20M20 35c5 2 8 6 10 10M40 35c-5 2-8 6-10 10" />
+        </svg>
+      </span>
+      <span class="hero-leaf hl-3">
+        <svg
+          viewBox="0 0 60 80"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.2"
+          opacity="0.35"
+        >
+          <path
+            d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
+          />
+          <path d="M30 75V20" />
+        </svg>
+      </span>
+      <span class="hero-leaf hl-4">
+        <svg
+          viewBox="0 0 60 80"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.2"
+          opacity="0.3"
+        >
+          <path
+            d="M30 75C15 55 5 35 15 15c5-10 15-12 15-12s10 2 15 12c10 20 0 40-15 60z"
+          />
+        </svg>
+      </span>
 
-    <!-- Hero text + image -->
-    <div class="relative z-2 flex flex-1 flex-col items-center px-4 pt-62">
+      <!-- Hero text + image -->
+      <div class="relative z-2 flex flex-1 flex-col items-center px-4 pt-62">
+        <div
+          class="relative z-2 mx-auto flex w-full max-w-205 justify-center"
+          :style="{ opacity: bgOpacity }"
+        >
+          <img
+            class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
+            src="/images/hero6.png"
+            alt="Verse vleeswaren Vermeir"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Fixed title overlay — stays centered on viewport while background scrolls/fades -->
+    <div
+      class="pointer-events-none fixed inset-0 z-5 flex flex-col items-center justify-center px-4"
+      :style="{
+        opacity: textOpacity,
+        visibility: textOpacity <= 0.01 ? 'hidden' : 'visible',
+      }"
+    >
       <div class="w-full text-center leading-none">
         <span
-          class="inline-block font-['Playfair_Display',Georgia,serif] text-[clamp(3.5rem,11vw,9rem)] leading-none font-black tracking-[0.04em] text-white uppercase [text-shadow:0_4px_40px_rgba(0,0,0,0.5)]"
+          class="inline-block font-['Playfair_Display',Georgia,serif] text-[clamp(3.5rem,11vw,9rem)] leading-none font-black tracking-[0.04em] text-white uppercase [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
           >VLEESWAREN</span
         >
       </div>
       <div class="mt-[0.1em] w-full text-center leading-none">
         <span
-          class="inline-block font-['Dancing_Script',cursive] text-[clamp(3rem,9vw,7rem)] leading-[1.1] font-bold text-[#c89868]"
+          class="inline-block font-['Dancing_Script',cursive] text-[clamp(3rem,9vw,7rem)] leading-[1.1] font-bold text-[#c89868] [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
           >Vermeir</span
         >
-      </div>
-      <div class="relative z-2 mx-auto flex w-full max-w-205 justify-center">
-        <img
-          class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
-          src="https://bubulla.like-themes.com/wp-content/uploads/2019/12/meat-slider-image-center-shadow.png"
-          alt="Verse vleeswaren Vermeir"
-        />
       </div>
     </div>
 
     <!-- Feature strip -->
-    <div class="relative z-3 -mt-4">
+    <div class="relative z-10 -mt-16">
       <div
         class="feature-strip-gradient mx-auto grid max-w-275 grid-cols-2 gap-px md:grid-cols-4"
       >
@@ -112,10 +131,45 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+
+const heroRef = ref<HTMLElement | null>(null);
+const scrollY = ref(0);
+const heroHeight = ref(0);
+
+const updateHeroHeight = () => {
+  heroHeight.value = heroRef.value?.offsetHeight ?? window.innerHeight;
+};
+const onScroll = () => {
+  scrollY.value = window.scrollY || window.pageYOffset || 0;
+};
+
+onMounted(() => {
+  updateHeroHeight();
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", updateHeroHeight);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", onScroll);
+  window.removeEventListener("resize", updateHeroHeight);
+});
+
+// Background (gradient + product image) fades out faster
+const bgOpacity = computed(() => {
+  const h = heroHeight.value || 1;
+  return Math.max(0, Math.min(1, 1 - scrollY.value / (h * 0.55)));
+});
+// Title text holds longer, then fades out before next section fully covers it
+const textOpacity = computed(() => {
+  const h = heroHeight.value || 1;
+  return Math.max(0, Math.min(1, 1 - scrollY.value / (h * 0.85)));
+});
+
 const features = [
   {
     label: "familiebedrijf",

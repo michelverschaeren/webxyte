@@ -55,6 +55,10 @@ export function useOrderLists() {
     "order-lists-editing",
     () => null,
   );
+  const editorDraftName = useState<string>(
+    "order-lists-editing-name",
+    () => "",
+  );
 
   function ensureLoaded() {
     if (loaded.value || !import.meta.client) return;
@@ -122,10 +126,13 @@ export function useOrderLists() {
   function openEditor(id: string) {
     ensureLoaded();
     editingListId.value = id;
+    const list = lists.value.find((l) => l.id === id);
+    editorDraftName.value = list?.name ?? "";
   }
 
   function closeEditor() {
     editingListId.value = null;
+    editorDraftName.value = "";
   }
 
   return {
@@ -133,6 +140,7 @@ export function useOrderLists() {
     panelOpen,
     panelMaximized,
     editingListId,
+    editorDraftName,
     ensureLoaded,
     saveCart,
     updateList,

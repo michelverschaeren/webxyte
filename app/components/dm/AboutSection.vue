@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-[#0f0d0d] py-24">
+  <section class="py-24">
     <div class="mx-auto max-w-300 px-6 text-center">
       <p
         class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-[#c89868] uppercase"
