@@ -25,45 +25,27 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-3 sm:grid-cols-5 gap-4 sm:gap-6">
         <div
-          v-for="product in featuredProducts"
-          :key="product.name"
-          class="group bg-[#1a1414] border border-white/8 rounded-lg overflow-hidden hover:-translate-y-1.5 hover:border-[#c89868] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-300"
+          v-for="category in categories"
+          :key="category.name"
+          class="group cursor-pointer text-center text-[#a89a8e] transition-transform duration-300 hover:-translate-y-2"
         >
-          <div class="relative aspect-square overflow-hidden">
-            <span
-              v-if="product.sale"
-              class="absolute top-4 left-4 bg-[#b8252a] text-white px-3 py-1 text-[0.7rem] font-bold tracking-widest z-2"
-              >SALE</span
-            >
+          <div
+            class="mx-auto mb-4 flex h-32 w-full items-center justify-center sm:h-40"
+          >
             <img
-              :src="product.image"
-              :alt="product.name"
-              class="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-400"
+              :src="category.img"
+              :alt="category.name"
+              loading="lazy"
+              class="sketch-img h-full w-full object-contain transition-all duration-300 group-hover:-translate-y-1.5 group-hover:scale-105"
             />
-            <button
-              class="absolute bottom-4 right-4 w-11 h-11 rounded-full bg-[#b8252a] text-white text-[1.5rem] font-light border-none cursor-pointer flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-[#8b1f1f] hover:scale-110 transition-all duration-300"
-              @click="addToCart(product.name)"
-            >
-              +
-            </button>
           </div>
-          <div class="p-5 text-center">
-            <h3 class="text-white text-[1rem] m-0 mb-2 font-semibold">
-              {{ product.name }}
-            </h3>
-            <div class="flex gap-2 justify-center items-baseline">
-              <span
-                v-if="product.oldPrice"
-                class="text-[#a89a8e] line-through text-[0.9rem]"
-                >€{{ product.oldPrice }}</span
-              >
-              <span class="text-[#b8252a] font-bold text-[1.1rem]"
-                >€{{ product.price }}</span
-              >
-            </div>
-          </div>
+          <p
+            class="m-0 text-[0.75rem] font-semibold tracking-[0.15em] uppercase transition-colors duration-300 group-hover:text-[#c89868]"
+          >
+            {{ category.name }}
+          </p>
         </div>
       </div>
 
@@ -79,49 +61,36 @@
 </template>
 
 <script setup lang="ts">
-const cart = useCart();
-
-function addToCart(name: string) {
-  cart.addItem({
-    id: `demo-${name}`,
-    articleNr: "00000",
-    name,
-    supplier: "Demo leverancier",
-  });
-}
-
-const featuredProducts = [
+const categories = [
   {
-    name: "Aged Pork Steak",
-    price: "7.99",
-    oldPrice: null,
-    sale: false,
-    image:
-      "https://images.unsplash.com/photo-1432139509613-5c4255815697?auto=format&fit=crop&w=500&q=80",
+    name: "Kippenbout",
+    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_01-250x250.png",
   },
   {
-    name: "Beef Ribs",
-    price: "8.99",
-    oldPrice: null,
-    sale: false,
-    image:
-      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80",
+    name: "Biefstuk",
+    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_02-250x250.png",
   },
   {
-    name: "Pork Ham",
-    price: "2.99",
-    oldPrice: "3.99",
-    sale: true,
-    image:
-      "https://images.unsplash.com/photo-1606851094291-6efae152bb87?auto=format&fit=crop&w=500&q=80",
+    name: "Worst",
+    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_03-250x250.png",
   },
   {
-    name: "Chicken Body",
-    price: "2.50",
-    oldPrice: null,
-    sale: false,
-    image:
-      "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=500&q=80",
+    name: "Rib",
+    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_04-250x250.png",
+  },
+  {
+    name: "Ham",
+    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_08-250x250.png",
   },
 ];
 </script>
+
+<style scoped>
+.sketch-img {
+  filter: brightness(0) invert(1) opacity(0.8);
+}
+.group:hover .sketch-img {
+  filter: brightness(0) saturate(100%) invert(72%) sepia(40%) saturate(400%)
+    hue-rotate(10deg) opacity(1);
+}
+</style>

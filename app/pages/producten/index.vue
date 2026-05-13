@@ -12,12 +12,7 @@
         );
       "
     >
-      <div class="relative z-1 max-w-300 mx-auto text-center">
-        <p
-          class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-4"
-        >
-          — Uitgebreid gamma —
-        </p>
+      <div class="relative z-1 max-w-300 mx-auto text-center pt-12">
         <h1
           class="font-['Playfair_Display',Georgia,serif] text-[clamp(2.5rem,6vw,5rem)] font-black text-white leading-[1.05] mb-4"
         >
@@ -80,6 +75,54 @@
             >({{ orderLists.lists.value.length }})</span
           >
         </button>
+        <!-- Layout toggle -->
+        <div class="shrink-0 flex border border-white/15">
+          <button
+            type="button"
+            @click="viewLayout = 'grid'"
+            :class="
+              viewLayout === 'grid'
+                ? 'bg-white/10 text-[#c89868]'
+                : 'text-[#a89a8e] hover:text-[#e8e2dc]'
+            "
+            class="w-10 h-13 inline-flex items-center justify-center transition-colors"
+            title="Rasterweergave"
+            aria-label="Rasterweergave"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <rect x="2" y="2" width="7" height="7" rx="1" />
+              <rect x="11" y="2" width="7" height="7" rx="1" />
+              <rect x="2" y="11" width="7" height="7" rx="1" />
+              <rect x="11" y="11" width="7" height="7" rx="1" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            @click="viewLayout = 'table'"
+            :class="
+              viewLayout === 'table'
+                ? 'bg-white/10 text-[#c89868]'
+                : 'text-[#a89a8e] hover:text-[#e8e2dc]'
+            "
+            class="w-10 h-13 inline-flex items-center justify-center transition-colors border-l border-white/15"
+            title="Lijstweergave"
+            aria-label="Lijstweergave"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 6h16M4 10h16M4 14h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="flex gap-8">
@@ -198,7 +241,7 @@
 
           <!-- Product grid -->
           <div
-            v-else
+            v-else-if="viewLayout === 'grid'"
             class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
           >
             <div
@@ -289,6 +332,243 @@
             </div>
           </div>
 
+          <!-- Table layout -->
+          <div v-else-if="viewLayout === 'table'" class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr
+                  class="border-b border-white/10 text-[0.7rem] uppercase tracking-[0.12em]"
+                >
+                  <th class="text-left py-3 px-3 font-semibold">
+                    <button
+                      type="button"
+                      @click="toggleSort('name')"
+                      class="inline-flex items-center gap-1.5 group"
+                      :class="
+                        sortKey === 'name'
+                          ? 'text-[#c89868]'
+                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                      "
+                    >
+                      Product
+                      <span
+                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                      >
+                        <template v-if="sortKey === 'name'">{{
+                          sortDir === "asc" ? "▲" : "▼"
+                        }}</template>
+                        <template v-else>⇅</template>
+                      </span>
+                    </button>
+                  </th>
+                  <th
+                    class="text-left py-3 px-3 font-semibold hidden sm:table-cell"
+                  >
+                    <button
+                      type="button"
+                      @click="toggleSort('articleNr')"
+                      class="inline-flex items-center gap-1.5 group"
+                      :class="
+                        sortKey === 'articleNr'
+                          ? 'text-[#c89868]'
+                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                      "
+                    >
+                      Art. nr
+                      <span
+                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                      >
+                        <template v-if="sortKey === 'articleNr'">{{
+                          sortDir === "asc" ? "▲" : "▼"
+                        }}</template>
+                        <template v-else>⇅</template>
+                      </span>
+                    </button>
+                  </th>
+                  <th
+                    class="text-left py-3 px-3 font-semibold hidden md:table-cell"
+                  >
+                    <button
+                      type="button"
+                      @click="toggleSort('supplier')"
+                      class="inline-flex items-center gap-1.5 group"
+                      :class="
+                        sortKey === 'supplier'
+                          ? 'text-[#c89868]'
+                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                      "
+                    >
+                      Leverancier
+                      <span
+                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                      >
+                        <template v-if="sortKey === 'supplier'">{{
+                          sortDir === "asc" ? "▲" : "▼"
+                        }}</template>
+                        <template v-else>⇅</template>
+                      </span>
+                    </button>
+                  </th>
+                  <th
+                    class="text-left py-3 px-3 font-semibold hidden lg:table-cell"
+                  >
+                    <button
+                      type="button"
+                      @click="toggleSort('unit')"
+                      class="inline-flex items-center gap-1.5 group"
+                      :class="
+                        sortKey === 'unit'
+                          ? 'text-[#c89868]'
+                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                      "
+                    >
+                      Eenheid
+                      <span
+                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                      >
+                        <template v-if="sortKey === 'unit'">{{
+                          sortDir === "asc" ? "▲" : "▼"
+                        }}</template>
+                        <template v-else>⇅</template>
+                      </span>
+                    </button>
+                  </th>
+                  <th
+                    class="text-left py-3 px-3 font-semibold hidden xl:table-cell"
+                  >
+                    <button
+                      type="button"
+                      @click="toggleSort('category')"
+                      class="inline-flex items-center gap-1.5 group"
+                      :class="
+                        sortKey === 'category'
+                          ? 'text-[#c89868]'
+                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                      "
+                    >
+                      Categorie
+                      <span
+                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                      >
+                        <template v-if="sortKey === 'category'">{{
+                          sortDir === "asc" ? "▲" : "▼"
+                        }}</template>
+                        <template v-else>⇅</template>
+                      </span>
+                    </button>
+                  </th>
+                  <th
+                    class="py-3 px-3 font-semibold w-52 text-center text-[#c89868]/60"
+                  >
+                    Aantal &amp; Toevoegen
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="product in paginatedProducts"
+                  :key="product.id"
+                  class="border-b border-white/5 hover:bg-white/3 transition-colors group"
+                >
+                  <td class="py-2.5 px-3">
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="text-[#e8e2dc] font-medium group-hover:text-white transition-colors"
+                        >{{ product.name }}</span
+                      >
+                      <button
+                        v-if="product.infoPdf"
+                        type="button"
+                        @click="openInfo(product)"
+                        :title="`Productfiche ${product.name}`"
+                        class="shrink-0 w-5 h-5 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-[#c89868] text-[0.65rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                      >
+                        i
+                      </button>
+                    </div>
+                    <!-- Mobile fallback: art. nr + supplier -->
+                    <div class="flex gap-2 mt-0.5 sm:hidden">
+                      <span
+                        class="text-[0.7rem] text-[#c89868] border border-[#c89868]/25 px-1.5 py-0.5"
+                        >{{ product.articleNr }}</span
+                      >
+                      <span class="text-[0.7rem] text-[#a89a8e]">{{
+                        product.supplier
+                      }}</span>
+                    </div>
+                  </td>
+                  <td class="py-2.5 px-3 hidden sm:table-cell">
+                    <span
+                      class="text-[0.75rem] text-[#c89868] border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
+                      >{{ product.articleNr }}</span
+                    >
+                  </td>
+                  <td
+                    class="py-2.5 px-3 text-[#a89a8e] text-[0.8rem] hidden md:table-cell"
+                  >
+                    {{ product.supplier }}
+                  </td>
+                  <td
+                    class="py-2.5 px-3 text-[#c89868]/80 text-[0.8rem] hidden lg:table-cell"
+                  >
+                    {{ product.unit ?? "—" }}
+                  </td>
+                  <td class="py-2.5 px-3 hidden xl:table-cell">
+                    <span
+                      class="text-[0.7rem] text-[#c89868]/70 uppercase tracking-widest"
+                    >
+                      {{
+                        categories.find((c) => c.id === product.categoryId)
+                          ?.name
+                      }}
+                    </span>
+                  </td>
+                  <td class="py-2 px-3">
+                    <div class="flex items-center justify-center gap-1.5">
+                      <div class="flex items-center border border-white/10">
+                        <button
+                          type="button"
+                          @click="setQty(product.id, getQty(product.id) - 1)"
+                          class="w-7 h-8 text-[#c89868] hover:bg-white/4 transition-colors"
+                          aria-label="Verlaag aantal"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          :value="getQty(product.id)"
+                          @input="
+                            setQty(
+                              product.id,
+                              Number(($event.target as HTMLInputElement).value),
+                            )
+                          "
+                          class="w-9 h-8 bg-transparent text-center text-sm text-[#e8e2dc] focus:outline-none focus:bg-white/4 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+                        <button
+                          type="button"
+                          @click="setQty(product.id, getQty(product.id) + 1)"
+                          class="w-7 h-8 text-[#c89868] hover:bg-white/4 transition-colors"
+                          aria-label="Verhoog aantal"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        @click="addToCart(product)"
+                        class="h-8 px-3 bg-[#b8252a] text-white text-[0.7rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors whitespace-nowrap"
+                      >
+                        + Toevoegen
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <!-- Load more -->
           <div
             v-if="filteredProducts.length > pageSize"
@@ -350,6 +630,22 @@ const selectedCategory = ref<string | null>(
 );
 const page = ref(1);
 const pageSize = 24;
+const viewLayout = ref<"grid" | "table">("grid");
+
+// Table sort
+type SortKey = "name" | "articleNr" | "supplier" | "unit" | "category";
+const sortKey = ref<SortKey | null>(null);
+const sortDir = ref<"asc" | "desc">("asc");
+
+function toggleSort(key: SortKey) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
+  } else {
+    sortKey.value = key;
+    sortDir.value = "asc";
+  }
+  page.value = 1;
+}
 
 // Per-card quantity state
 const qtyMap = reactive<Record<string, number>>({});
@@ -387,8 +683,42 @@ const filteredProducts = computed(() => {
   });
 });
 
+const categoryNameMap = computed(() => {
+  const m: Record<string, string> = {};
+  for (const c of categories) m[c.id] = c.name;
+  return m;
+});
+
+const sortedProducts = computed(() => {
+  const list = [...filteredProducts.value];
+  if (!sortKey.value) return list;
+  const key = sortKey.value;
+  const dir = sortDir.value === "asc" ? 1 : -1;
+  return list.sort((a, b) => {
+    let av = "",
+      bv = "";
+    if (key === "name") {
+      av = a.name;
+      bv = b.name;
+    } else if (key === "articleNr") {
+      av = a.articleNr;
+      bv = b.articleNr;
+    } else if (key === "supplier") {
+      av = a.supplier;
+      bv = b.supplier;
+    } else if (key === "unit") {
+      av = a.unit ?? "";
+      bv = b.unit ?? "";
+    } else if (key === "category") {
+      av = categoryNameMap.value[a.categoryId] ?? "";
+      bv = categoryNameMap.value[b.categoryId] ?? "";
+    }
+    return av.localeCompare(bv, "nl") * dir;
+  });
+});
+
 const paginatedProducts = computed(() =>
-  filteredProducts.value.slice(0, page.value * pageSize),
+  sortedProducts.value.slice(0, page.value * pageSize),
 );
 
 const activeCategoryName = computed(

@@ -12,12 +12,7 @@
         );
       "
     >
-      <div class="relative z-1 max-w-300 mx-auto text-center">
-        <p
-          class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-4"
-        >
-          — Neem contact op —
-        </p>
+      <div class="relative z-1 max-w-300 mx-auto text-center pt-12">
         <h1
           class="font-['Playfair_Display',Georgia,serif] text-[clamp(2.5rem,6vw,5rem)] font-black text-white leading-[1.05] mb-4"
         >

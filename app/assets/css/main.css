@@ -15,36 +15,6 @@
   --color-border: #e0d8cf;
 }
 
-/* ── Ambachtelijk ────────────────────────────────────────────────── */
-[data-theme="ambachtelijk"] {
-  --color-primary: #c17f24;
-  --color-primary-dark: #8a5a10;
-  --color-primary-light: #d9962e;
-  --color-accent: #3d1f0a;
-  --color-accent-light: #6b3a1a;
-  --color-bg: #faf5e4;
-  --color-surface: #fff9ee;
-  --color-surface-2: #f0e8d4;
-  --color-text: #2a1600;
-  --color-text-muted: #7a5c38;
-  --color-border: #dfd0b0;
-}
-
-/* ── Charcoal Modern ─────────────────────────────────────────────── */
-[data-theme="charcoal"] {
-  --color-primary: #c0392b;
-  --color-primary-dark: #96281b;
-  --color-primary-light: #e74c3c;
-  --color-accent: #e8c97a;
-  --color-accent-light: #f5dfa0;
-  --color-bg: #121212;
-  --color-surface: #1c1c1e;
-  --color-surface-2: #2c2c2e;
-  --color-text: #f5f5f5;
-  --color-text-muted: #a0a0a0;
-  --color-border: #3a3a3c;
-}
-
 /* ── Utility classes driven by tokens ───────────────────────────── */
 @layer utilities {
   .bg-primary {
@@ -126,13 +96,4 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
-}
-
-/* Smooth theme transitions on all elements */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, color;
-  transition-duration: 0.25s;
-  transition-timing-function: ease;
 }

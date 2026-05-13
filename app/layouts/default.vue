@@ -6,15 +6,7 @@
     <TheFooter />
     <CartDrawer />
     <SavedListsPanel />
-    <ListEditorModal />
   </div>
 </template>
 
-<script setup lang="ts">
-const { currentTheme } = useTheme();
-
-onMounted(() => {
-  const attr = currentTheme.value === "premium-red" ? "" : currentTheme.value;
-  document.documentElement.setAttribute("data-theme", attr);
-});
-</script>
+<script setup lang="ts"></script>

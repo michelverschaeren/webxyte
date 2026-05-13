@@ -183,7 +183,6 @@
 
     <TheFooter />
     <CartDrawer />
-    <ThemePicker />
   </div>
 </template>
 
