@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     public: {
       // Wachtwoord voor de "website in aanbouw"-toegangspoort.
       // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
-      sitePassword: process.env.NUXT_PUBLIC_SITE_PASSWORD || "vermeir2026",
+      sitePassword: "vermeir2026",
     },
   },
 
