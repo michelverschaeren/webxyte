@@ -6,6 +6,14 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
+  runtimeConfig: {
+    public: {
+      // Wachtwoord voor de "website in aanbouw"-toegangspoort.
+      // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
+      sitePassword: process.env.NUXT_PUBLIC_SITE_PASSWORD || "vermeir2026",
+    },
+  },
+
   app: {
     head: {
       link: [
@@ -38,13 +46,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: [
-        "naive-ui",
-        "vueuc",
-        "date-fns-tz/formatInTimeZone",
-        "@vue/devtools-core",
-        "@vue/devtools-kit",
-      ],
+      include: ["naive-ui", "vueuc"],
     },
   },
 });
