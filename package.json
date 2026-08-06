@@ -8,22 +8,45 @@
     "start": "node .output/server/index.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:check": "drizzle-kit check",
+    "db:studio": "drizzle-kit studio",
+    "db:ping": "node --env-file=.env scripts/db-check.mjs",
+    "db:bridge": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-bridge-setup.ps1",
+    "db:tunnel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-tunnel.ps1",
+    "db:seed": "tsx server/database/seed.ts",
+    "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
   },
   "dependencies": {
+    "better-auth": "^1.6.26",
+    "drizzle-orm": "^0.45.2",
     "naive-ui": "^2.44.1",
-    "nuxt": "4.4.4",
-    "vue": "^3.5.40",
-    "vue-router": "^4.6.4"
+    "nuxt": "4.5.2",
+    "postgres": "^3.4.9",
+    "vue": "^3.5.41",
+    "vue-router": "^4.6.4",
+    "zod": "^4.4.3"
   },
   "engines": {
     "node": ">=20.9.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "eslint": "^10.7.0",
+    "@types/node": "^26.1.2",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.8.0",
     "eslint-plugin-tailwindcss": "^3.18.3",
     "tailwindcss": "^4.3.3",
-    "vue-eslint-parser": "^10.4.1"
-  }
+    "tsx": "^4.23.8",
+    "typescript": "^5.9.3",
+    "vue-eslint-parser": "^10.4.1",
+    "vue-tsc": "^3.3.9"
+  },
+  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
 }

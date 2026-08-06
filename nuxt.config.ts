@@ -7,6 +7,12 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   runtimeConfig: {
+    // Server-only. Leeg laten: wordt gevuld vanuit .env / Dokploy env-vars.
+    // NUXT_DATABASE_URL en NUXT_BETTER_AUTH_SECRET overschrijven deze.
+    databaseUrl: "",
+    betterAuthSecret: "",
+    betterAuthUrl: "",
+
     public: {
       // Wachtwoord voor de "website in aanbouw"-toegangspoort.
       // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
