@@ -19,22 +19,16 @@
             ? 'w-full max-w-none'
             : 'w-full sm:w-96 max-w-full'
         "
-        style="background-color: var(--color-surface)"
+        style="background: #1a0a0a"
       >
         <!-- Header -->
         <div
-          class="border-site flex items-center justify-between border-b px-5 py-4"
-          style="
-            background: linear-gradient(
-              135deg,
-              var(--color-primary-dark),
-              var(--color-primary)
-            );
-          "
+          class="flex items-center justify-between border-b border-white/10 px-5 py-4"
+          style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
         >
           <div class="flex items-center gap-3 min-w-0">
             <svg
-              class="h-5 w-5 text-white shrink-0"
+              class="h-5 w-5 text-[#c89868] shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -47,7 +41,7 @@
               />
             </svg>
             <h2 class="font-bold text-white">Bestellijst</h2>
-            <span class="text-xs text-white/70"
+            <span class="text-xs text-[#a89a8e]"
               >({{ cart.totalItems.value }} artikel{{
                 cart.totalItems.value !== 1 ? "en" : ""
               }})</span
@@ -147,12 +141,10 @@
             class="flex h-48 flex-col items-center justify-center gap-4 text-center"
           >
             <div
-              class="flex h-16 w-16 items-center justify-center rounded-full"
-              style="background: var(--color-surface-2)"
+              class="flex h-16 w-16 items-center justify-center rounded-full border border-[#c89868]/30"
             >
               <svg
-                class="h-7 w-7"
-                style="color: var(--color-text-muted)"
+                class="h-7 w-7 text-[#c89868]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -166,10 +158,10 @@
               </svg>
             </div>
             <div>
-              <p class="text-site text-sm font-semibold">
+              <p class="text-sm font-semibold text-white">
                 Uw bestellijst is leeg
               </p>
-              <p class="text-muted mt-1 text-xs">
+              <p class="mt-1 text-xs text-[#a89a8e]">
                 Voeg producten toe via het productenoverzicht
               </p>
             </div>
@@ -179,38 +171,25 @@
           <div
             v-for="item in cart.items.value"
             :key="item.id"
-            class="border-site bg-surface-2 flex items-start gap-3 rounded-xl border p-3"
+            class="flex items-start gap-3 border border-white/10 bg-[#1a1414] p-3"
           >
             <!-- Icon -->
             <div
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-              style="
-                background: linear-gradient(
-                  135deg,
-                  var(--color-primary-dark),
-                  var(--color-primary)
-                );
-              "
+              class="flex h-9 w-9 shrink-0 items-center justify-center text-xs font-bold text-white"
+              style="background: linear-gradient(135deg, #8b1f1f, #b8252a)"
             >
               {{ item.articleNr.slice(-2) }}
             </div>
 
             <div class="min-w-0 flex-1">
-              <p class="text-site truncate text-sm leading-snug font-semibold">
+              <p class="truncate text-sm leading-snug font-semibold text-white">
                 {{ item.name }}
               </p>
-              <p class="text-muted text-xs">{{ item.supplier }}</p>
-              <p
-                v-if="item.unit"
-                class="mt-0.5 text-xs"
-                style="color: var(--color-primary-light)"
-              >
+              <p class="text-xs text-[#a89a8e]">{{ item.supplier }}</p>
+              <p v-if="item.unit" class="mt-0.5 text-xs text-[#c89868]">
                 {{ item.unit }}
               </p>
-              <p
-                class="mt-0.5 font-mono text-xs"
-                style="color: var(--color-primary)"
-              >
+              <p class="mt-0.5 font-mono text-xs text-[#c89868]">
                 {{ item.articleNr }}
               </p>
             </div>
@@ -219,8 +198,7 @@
             <div class="flex shrink-0 flex-col items-end gap-2">
               <button
                 @click="cart.removeItem(item.id)"
-                class="hover:bg-surface rounded-lg p-1 transition-colors"
-                style="color: var(--color-text-muted)"
+                class="p-1 text-[#a89a8e] transition-colors hover:bg-white/5 hover:text-[#b8252a]"
               >
                 <svg
                   class="h-3.5 w-3.5"
@@ -240,24 +218,16 @@
               <div class="flex items-center gap-1">
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity - 1)"
-                  class="hover:bg-surface flex h-6 w-6 items-center justify-center rounded-lg text-sm font-bold transition-colors"
-                  style="
-                    border: 1px solid var(--color-border);
-                    color: var(--color-text);
-                  "
+                  class="flex h-7 w-7 items-center justify-center border border-white/10 text-sm font-bold text-[#c89868] transition-colors hover:bg-white/5"
                 >
                   −
                 </button>
-                <span class="text-site w-8 text-center text-sm font-semibold">{{
+                <span class="w-8 text-center text-sm font-semibold text-white">{{
                   item.quantity
                 }}</span>
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity + 1)"
-                  class="hover:bg-surface flex h-6 w-6 items-center justify-center rounded-lg text-sm font-bold transition-colors"
-                  style="
-                    border: 1px solid var(--color-border);
-                    color: var(--color-text);
-                  "
+                  class="flex h-7 w-7 items-center justify-center border border-white/10 text-sm font-bold text-[#c89868] transition-colors hover:bg-white/5"
                 >
                   +
                 </button>
@@ -269,8 +239,8 @@
 
         <!-- Footer -->
         <div
-          class="border-site border-t px-5 py-4"
-          style="background: var(--color-surface-2)"
+          class="border-t border-white/10 px-5 py-4"
+          style="background: #0a0808"
         >
           <div
             class="space-y-3 mx-auto"
@@ -280,31 +250,21 @@
             v-if="cart.items.value.length > 0"
             class="flex justify-between text-sm"
           >
-            <span class="text-muted">Totaal artikelen</span>
-            <span class="text-site font-bold">{{ cart.totalItems.value }}</span>
+            <span class="text-[#a89a8e]">Totaal artikelen</span>
+            <span class="font-bold text-white">{{ cart.totalItems.value }}</span>
           </div>
 
           <button
             v-if="cart.items.value.length > 0"
-            class="w-full rounded-xl py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-            style="
-              background: linear-gradient(
-                135deg,
-                var(--color-primary-dark),
-                var(--color-primary)
-              );
-            "
-            @click="showLoginMessage = true"
+            :disabled="placing"
+            class="w-full bg-[#b8252a] py-3.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
+            @click="placeOrder()"
           >
-            Bestelling bevestigen
+            {{ placing ? "Bezig met versturen…" : "Bestelling bevestigen" }}
           </button>
 
-          <p
-            v-if="showLoginMessage"
-            class="text-center text-xs"
-            style="color: var(--color-primary)"
-          >
-            ⚠️ Login vereist — beschikbaar in de volgende versie
+          <p v-if="orderError" class="text-center text-xs text-[#e06a6a]">
+            {{ orderError }}
           </p>
 
           <!-- Lists actions -->
@@ -313,22 +273,14 @@
               type="button"
               :disabled="cart.items.value.length === 0"
               @click="openSaveModal()"
-              class="rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-              style="
-                border-color: var(--color-primary);
-                color: var(--color-primary);
-              "
+              class="border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Lijst opslaan
             </button>
             <button
               type="button"
               @click="openLists()"
-              class="rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
-              style="
-                border-color: var(--color-border);
-                color: var(--color-text);
-              "
+              class="border border-white/15 px-3 py-2 text-xs font-semibold tracking-[0.08em] text-[#e8e2dc] uppercase transition-colors hover:bg-white/5"
             >
               Mijn lijsten
             </button>
@@ -337,7 +289,7 @@
           <button
             v-if="cart.items.value.length > 0"
             @click="cart.clearCart()"
-            class="text-muted hover:text-site hover:bg-surface w-full rounded-xl py-2 text-xs font-medium transition-colors"
+            class="w-full py-2 text-xs font-medium text-[#a89a8e] transition-colors hover:bg-white/5 hover:text-white"
           >
             Bestellijst wissen
           </button>
@@ -424,14 +376,71 @@
 <script setup lang="ts">
 const cart = useCart();
 const orderLists = useOrderLists();
-const showLoginMessage = ref(false);
+const auth = useAuth();
+const authModal = useAuthModal();
+
+const placing = ref(false);
+const orderError = ref("");
 
 const saveModalOpen = ref(false);
 const saveName = ref("");
 const saveInputRef = ref<HTMLInputElement | null>(null);
 
+/** Lijsten en bestellen horen bij een account: eerst inloggen. */
+function requireLogin(): boolean {
+  if (auth.isLoggedIn.value) return true;
+  authModal.open("login");
+  return false;
+}
+
+async function placeOrder() {
+  if (placing.value || cart.items.value.length === 0) return;
+  orderError.value = "";
+  if (!requireLogin()) return;
+
+  placing.value = true;
+  try {
+    const order = await $fetch<{ id: string }>("/api/account/orders", {
+      method: "POST",
+      body: {
+        items: cart.items.value.map((i) => ({
+          articleNr: i.articleNr,
+          quantity: i.quantity,
+        })),
+      },
+    });
+
+    cart.clearCart();
+    cart.isOpen.value = false;
+    await navigateTo(`/account/bestellingen/${order.id}`);
+  } catch (err) {
+    const error = err as {
+      statusMessage?: string;
+      data?: { statusMessage?: string; data?: { names?: string[] } };
+    };
+    const code = error.data?.statusMessage ?? error.statusMessage;
+
+    if (code === "FACTURATIEGEGEVENS_ONTBREKEN") {
+      cart.isOpen.value = false;
+      await navigateTo("/account/gegevens?next=cart");
+      return;
+    }
+
+    if (code === "PRODUCTEN_NIET_BESCHIKBAAR") {
+      const names = error.data?.data?.names ?? [];
+      orderError.value = `Niet meer beschikbaar: ${names.join(", ")}. Verwijder deze artikelen en probeer opnieuw.`;
+      return;
+    }
+
+    orderError.value = "Bestellen mislukt. Probeer het straks opnieuw.";
+  } finally {
+    placing.value = false;
+  }
+}
+
 function openSaveModal() {
   if (cart.items.value.length === 0) return;
+  if (!requireLogin()) return;
   saveName.value = defaultListName();
   saveModalOpen.value = true;
   nextTick(() => saveInputRef.value?.focus());
@@ -446,10 +455,11 @@ function defaultListName(): string {
   return `Lijst ${d.toLocaleDateString("nl-BE", { day: "2-digit", month: "short" })}`;
 }
 
-function confirmSave() {
+async function confirmSave() {
   const name = saveName.value.trim();
-  if (!name) return;
-  orderLists.saveCart(
+  if (!name || !requireLogin()) return;
+
+  await orderLists.saveCart(
     name,
     cart.items.value.map((i) => ({
       id: i.id,
@@ -464,6 +474,7 @@ function confirmSave() {
 }
 
 function openLists() {
+  if (!requireLogin()) return;
   cart.isOpen.value = false;
   orderLists.openPanel();
 }

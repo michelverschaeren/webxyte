@@ -1,0 +1,163 @@
+<template>
+  <AccountShell title="Bestelling" :subtitle="formatDate(order.createdAt)">
+    <div class="mb-6 flex flex-wrap items-center gap-4">
+      <NuxtLink
+        to="/account/bestellingen"
+        class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-white"
+      >
+        ← Alle bestellingen
+      </NuxtLink>
+      <AccountOrderStatus :status="order.status" class="ml-auto" />
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
+      <!-- Items -->
+      <section>
+        <h2
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+        >
+          — Bestelde artikelen —
+        </h2>
+
+        <ul class="space-y-2">
+          <li
+            v-for="item in order.items"
+            :key="item.id"
+            class="flex items-center gap-4 border border-white/10 bg-[#150f0f] px-4 py-3"
+            :class="{ 'opacity-50': !item.available }"
+          >
+            <div class="min-w-0 flex-1">
+              <p class="truncate font-semibold text-white">{{ item.name }}</p>
+              <p class="mt-0.5 text-[0.7rem] text-[#a89a8e]">
+                <span class="font-mono text-[#c89868]">{{
+                  item.articleNr
+                }}</span>
+                · {{ item.supplier }}
+                <span v-if="item.unit"> · {{ item.unit }}</span>
+              </p>
+              <p v-if="!item.available" class="mt-1 text-[0.7rem] text-[#d9a05b]">
+                Niet meer beschikbaar
+              </p>
+            </div>
+            <span class="shrink-0 font-semibold text-[#e8e2dc]"
+              >{{ item.quantity }}×</span
+            >
+          </li>
+        </ul>
+
+        <!-- Reorder -->
+        <div class="mt-6 border border-[#c89868]/30 bg-[#150f0f] p-5">
+          <h3 class="font-semibold text-white">Opnieuw bestellen</h3>
+          <p class="mt-1 text-sm text-[#a89a8e]">
+            {{ reorderSummary }}
+          </p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              :disabled="reorderItems.length === 0"
+              class="bg-[#b8252a] px-4 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              @click="reorder('replace')"
+            >
+              Vervang mandje
+            </button>
+            <button
+              type="button"
+              :disabled="reorderItems.length === 0"
+              class="border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              @click="reorder('append')"
+            >
+              Toevoegen aan mandje
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Billing snapshot -->
+      <section>
+        <h2
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+        >
+          — Gefactureerd aan —
+        </h2>
+        <div
+          class="space-y-1 border border-white/10 bg-[#150f0f] px-5 py-5 text-sm text-[#e8e2dc]"
+        >
+          <p class="font-semibold text-white">{{ order.billing.companyName }}</p>
+          <p v-if="order.billing.vatNumber" class="text-[#a89a8e]">
+            BTW {{ order.billing.vatNumber }}
+          </p>
+          <p class="pt-2">{{ order.billing.street }}</p>
+          <p>{{ order.billing.postalCode }} {{ order.billing.city }}</p>
+          <p>{{ order.billing.country }}</p>
+          <p class="pt-2 text-[#a89a8e]">{{ order.billing.phone }}</p>
+          <p class="text-[#a89a8e]">{{ order.billing.invoiceEmail }}</p>
+        </div>
+        <p class="mt-3 text-[0.7rem] leading-relaxed text-[#a89a8e]">
+          Dit zijn de gegevens zoals ze golden op het moment van bestellen.
+          Wijzigingen aanpassen doet u bij
+          <NuxtLink to="/account/gegevens" class="text-[#c89868] hover:underline"
+            >uw facturatiegegevens</NuxtLink
+          >.
+        </p>
+      </section>
+    </div>
+  </AccountShell>
+</template>
+
+<script setup lang="ts">
+definePageMeta({ layout: "main", middleware: "account" });
+
+const route = useRoute();
+const cart = useCart();
+
+const { data } = await useFetch(`/api/account/orders/${route.params.id}`);
+
+if (!data.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Bestelling niet gevonden.",
+    fatal: true,
+  });
+}
+
+const order = data.value;
+
+useHead({ title: "Bestelling — Vleeswaren Vermeir" });
+
+const reorderItems = computed(() =>
+  order.items
+    .filter((i) => i.available)
+    .map((i) => ({
+      id: i.articleNr,
+      articleNr: i.articleNr,
+      name: i.name,
+      supplier: i.supplier,
+      unit: i.unit ?? undefined,
+      quantity: i.quantity,
+    })),
+);
+
+const reorderSummary = computed(() => {
+  const total = order.items.length;
+  const usable = reorderItems.value.length;
+  if (usable === total) {
+    return `Alle ${total} artikel${total !== 1 ? "en" : ""} kunnen opnieuw besteld worden.`;
+  }
+  return `${usable} van de ${total} artikelen kunnen opnieuw besteld worden — ${total - usable} zijn niet meer beschikbaar.`;
+});
+
+function formatDate(value: string | Date): string {
+  return new Date(value).toLocaleDateString("nl-BE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function reorder(mode: "replace" | "append") {
+  if (reorderItems.value.length === 0) return;
+  if (mode === "replace") cart.replaceItems(reorderItems.value);
+  else cart.addItems(reorderItems.value);
+}
+</script>

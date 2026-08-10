@@ -11,6 +11,17 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
 
+  /**
+   * Better Auth weigert requests van een onbekende origin (CSRF-bescherming).
+   * In productie is dat strikt BETTER_AUTH_URL; lokaal wisselt de dev-server
+   * van poort zodra 3000 bezet is, wat anders "Invalid origin" oplevert bij
+   * elke login. Daarom is localhost tijdens ontwikkeling poort-onafhankelijk.
+   */
+  trustedOrigins:
+    process.env.NODE_ENV === "production"
+      ? undefined
+      : [/^https?:\/\/localhost(:\d+)?$/, /^https?:\/\/127\.0\.0\.1(:\d+)?$/],
+
   database: drizzleAdapter(db, {
     provider: "pg",
     // De sleutels hier moeten matchen met de modelnamen van Better Auth.

@@ -82,8 +82,13 @@
               </svg>
             </button>
 
-            <!-- Login -->
-            <button class="dm-icon-btn" aria-label="Inloggen">
+            <!-- Login / account -->
+            <button
+              class="dm-icon-btn"
+              :aria-label="auth.isLoggedIn.value ? 'Mijn account' : 'Inloggen'"
+              :title="auth.isLoggedIn.value ? 'Mijn account' : 'Inloggen'"
+              @click="onAccountClick()"
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -96,6 +101,7 @@
                   d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                 />
               </svg>
+              <span v-if="auth.isLoggedIn.value" class="dm-account-dot" />
             </button>
 
             <!-- Cart -->
@@ -184,12 +190,15 @@
     <TheFooter />
     <CartDrawer />
     <SavedListsPanel />
+    <AuthModal />
   </div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute();
 const cart = useCart();
+const auth = useAuth();
+const authModal = useAuthModal();
 const mobileOpen = ref(false);
 const scrolled = ref(false);
 
@@ -198,6 +207,15 @@ const links = [
   { to: "/producten", label: "Producten & Bestellen" },
   { to: "/contact", label: "Contact" },
 ];
+
+// Haalt het mandje van een reeds ingelogde klant op (bv. na een refresh),
+// zonder dat elke pagina dit zelf moet aanroepen.
+if (import.meta.client) cart.ensureLoaded();
+
+function onAccountClick() {
+  if (auth.isLoggedIn.value) navigateTo("/account");
+  else authModal.open("login");
+}
 
 function isActive(path: string) {
   if (path === "/") return route.path === "/";
@@ -435,6 +453,15 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 0 4px;
+}
+.dm-account-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  background: #c89868;
+  border-radius: 50%;
 }
 .dm-hamburger {
   display: none;

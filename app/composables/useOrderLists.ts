@@ -5,6 +5,8 @@ export interface SavedListItem {
   supplier: string;
   unit?: string;
   quantity: number;
+  /** Zit het product nog in het assortiment? Komt live uit de catalogus. */
+  available?: boolean;
 }
 
 export interface SavedList {
@@ -15,37 +17,33 @@ export interface SavedList {
   items: SavedListItem[];
 }
 
-const STORAGE_KEY = "vermeir.orderLists.v1";
-
-function genId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+/** Zet lijst-items om naar mandje-regels (zonder het `available`-vlag). */
+export function toCartItems(items: SavedListItem[]) {
+  return items.map((i) => ({
+    id: i.id,
+    articleNr: i.articleNr,
+    name: i.name,
+    supplier: i.supplier,
+    unit: i.unit,
+    quantity: i.quantity,
+  }));
 }
 
-function readStorage(): SavedList[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed as SavedList[];
-  } catch {
-    return [];
-  }
-}
-
-function writeStorage(lists: SavedList[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
-  } catch {
-    // ignore quota / privacy mode
-  }
-}
-
+/**
+ * Bestellijstjes van de ingelogde klant. Sinds de klantenzone staan die in
+ * de database (niet meer in localStorage), zodat ze op elk toestel
+ * beschikbaar zijn. Alle schrijfacties gaan via /api/account/lists.
+ */
 export function useOrderLists() {
+  // SSR-fetches erven de browsercookies niet vanzelf; zonder deze header
+  // krijgt de server een 401 en blijft de lijst leeg (zie ook useAuth).
+  const headers = import.meta.server
+    ? useRequestHeaders(["cookie"])
+    : undefined;
+
   const lists = useState<SavedList[]>("order-lists", () => []);
   const loaded = useState<boolean>("order-lists-loaded", () => false);
+  const loading = useState<boolean>("order-lists-loading", () => false);
   const panelOpen = useState<boolean>("order-lists-panel", () => false);
   const panelMaximized = useState<boolean>(
     "order-lists-panel-max",
@@ -60,63 +58,68 @@ export function useOrderLists() {
     () => "",
   );
 
-  function ensureLoaded() {
-    if (loaded.value || !import.meta.client) return;
-    lists.value = readStorage();
-    loaded.value = true;
+  async function fetchLists() {
+    loading.value = true;
+    try {
+      lists.value = await $fetch<SavedList[]>("/api/account/lists", { headers });
+      loaded.value = true;
+    } finally {
+      loading.value = false;
+    }
   }
 
-  function persist() {
-    writeStorage(lists.value);
+  async function ensureLoaded() {
+    if (loaded.value || loading.value || !import.meta.client) return;
+    await fetchLists();
   }
 
-  function saveCart(name: string, items: SavedListItem[]): SavedList {
-    ensureLoaded();
-    const now = Date.now();
-    const list: SavedList = {
-      id: genId(),
-      name: name.trim() || "Naamloze lijst",
-      createdAt: now,
-      updatedAt: now,
-      items: items.map((i) => ({ ...i })),
-    };
-    lists.value = [list, ...lists.value];
-    persist();
-    return list;
+  /** Leegt de lokale kopie, bv. na uitloggen. */
+  function reset() {
+    lists.value = [];
+    loaded.value = false;
+    editingListId.value = null;
   }
 
-  function updateList(
+  async function saveCart(name: string, items: SavedListItem[]) {
+    await $fetch("/api/account/lists", {
+      method: "POST",
+      body: {
+        name: name.trim() || "Naamloze lijst",
+        items: items.map((i) => ({ articleNr: i.articleNr, quantity: i.quantity })),
+      },
+    });
+    await fetchLists();
+  }
+
+  async function updateList(
     id: string,
     patch: { name?: string; items?: SavedListItem[] },
   ) {
-    ensureLoaded();
-    const idx = lists.value.findIndex((l) => l.id === id);
-    if (idx === -1) return;
-    const current = lists.value[idx]!;
-    const updated: SavedList = {
-      ...current,
-      name: patch.name?.trim() || current.name,
-      items: patch.items ? patch.items.map((i) => ({ ...i })) : current.items,
-      updatedAt: Date.now(),
-    };
-    lists.value.splice(idx, 1, updated);
-    persist();
+    await $fetch(`/api/account/lists/${id}`, {
+      method: "PUT",
+      body: {
+        name: patch.name?.trim() || undefined,
+        items: patch.items?.map((i) => ({
+          articleNr: i.articleNr,
+          quantity: i.quantity,
+        })),
+      },
+    });
+    await fetchLists();
   }
 
-  function deleteList(id: string) {
-    ensureLoaded();
+  async function deleteList(id: string) {
+    await $fetch(`/api/account/lists/${id}`, { method: "DELETE" });
     lists.value = lists.value.filter((l) => l.id !== id);
-    persist();
   }
 
   function getList(id: string): SavedList | undefined {
-    ensureLoaded();
     return lists.value.find((l) => l.id === id);
   }
 
   function openPanel() {
-    ensureLoaded();
     panelOpen.value = true;
+    ensureLoaded();
   }
 
   function closePanel() {
@@ -124,10 +127,8 @@ export function useOrderLists() {
   }
 
   function openEditor(id: string) {
-    ensureLoaded();
     editingListId.value = id;
-    const list = lists.value.find((l) => l.id === id);
-    editorDraftName.value = list?.name ?? "";
+    editorDraftName.value = getList(id)?.name ?? "";
   }
 
   function closeEditor() {
@@ -135,17 +136,41 @@ export function useOrderLists() {
     editorDraftName.value = "";
   }
 
+  /**
+   * Voegt meerdere lijstjes samen tot één set mandje-regels: hetzelfde
+   * product in twee lijstjes wordt één regel met opgetelde aantallen.
+   * Niet-beschikbare artikelen vallen weg.
+   */
+  function mergeLists(ids: string[]): SavedListItem[] {
+    const merged = new Map<string, SavedListItem>();
+
+    for (const id of ids) {
+      for (const item of getList(id)?.items ?? []) {
+        if (item.available === false) continue;
+        const existing = merged.get(item.id);
+        if (existing) existing.quantity += item.quantity;
+        else merged.set(item.id, { ...item });
+      }
+    }
+
+    return [...merged.values()];
+  }
+
   return {
     lists,
+    loading,
     panelOpen,
     panelMaximized,
     editingListId,
     editorDraftName,
     ensureLoaded,
+    fetchLists,
+    reset,
     saveCart,
     updateList,
     deleteList,
     getList,
+    mergeLists,
     openPanel,
     closePanel,
     openEditor,

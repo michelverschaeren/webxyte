@@ -129,11 +129,11 @@
           <button
             type="button"
             @click="saveChanges()"
-            :disabled="!isDirty"
+            :disabled="!isDirty || saving"
             class="flex-1 border border-white/15 text-[#e8e2dc] font-semibold uppercase tracking-[0.08em] hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
           >
-            Wijzigingen opslaan
+            {{ saving ? "Opslaan…" : "Wijzigingen opslaan" }}
           </button>
         </div>
       </div>
@@ -198,27 +198,30 @@ function removeItem(idx: number) {
   draftItems.value.splice(idx, 1);
 }
 
-function saveChanges() {
+const saving = ref(false);
+
+async function saveChanges() {
   const id = orderLists.editingListId.value;
-  if (!id) return;
-  orderLists.updateList(id, {
-    name: orderLists.editorDraftName.value,
-    items: draftItems.value.map((i) => ({ ...i })),
-  });
+  if (!id || saving.value) return;
+  saving.value = true;
+  try {
+    await orderLists.updateList(id, {
+      name: orderLists.editorDraftName.value,
+      items: draftItems.value.map((i) => ({ ...i })),
+    });
+  } finally {
+    saving.value = false;
+  }
 }
 
 function replaceCart() {
-  const id = orderLists.editingListId.value;
-  if (!id) return;
-  cart.replaceItems(draftItems.value.map((i) => ({ ...i })));
+  cart.replaceItems(toCartItems(draftItems.value));
   orderLists.closeEditor();
   orderLists.closePanel();
 }
 
 function appendCart() {
-  const id = orderLists.editingListId.value;
-  if (!id) return;
-  cart.addItems(draftItems.value.map((i) => ({ ...i })));
+  cart.addItems(toCartItems(draftItems.value));
   orderLists.closeEditor();
   orderLists.closePanel();
 }

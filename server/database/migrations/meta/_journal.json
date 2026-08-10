@@ -8,6 +8,34 @@
       "when": 1785955369400,
       "tag": "0000_gray_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786353777569,
+      "tag": "0001_mixed_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786356723058,
+      "tag": "0002_narrow_nick_fury",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786357173606,
+      "tag": "0003_chief_makkari",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786357420147,
+      "tag": "0004_skinny_excalibur",
+      "breakpoints": true
     }
   ]
 }

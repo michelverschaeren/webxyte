@@ -53,7 +53,7 @@
         <NuxtLink
           to="/producten"
           class="inline-block border-2 border-[#c89868] text-[#c89868] px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
-          >Alle producten →</NuxtLink
+          >Alle categorieën →</NuxtLink
         >
       </div>
     </div>
@@ -63,24 +63,24 @@
 <script setup lang="ts">
 const categories = [
   {
-    name: "Kippenbout",
-    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_01-250x250.png",
-  },
-  {
-    name: "Biefstuk",
-    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_02-250x250.png",
-  },
-  {
-    name: "Worst",
-    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_03-250x250.png",
-  },
-  {
-    name: "Rib",
-    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_04-250x250.png",
+    name: "Salami",
+    img: "images/categorie/salami.png",
   },
   {
     name: "Ham",
-    img: "https://bubulla.like-themes.com/wp-content/uploads/2018/02/type_08-250x250.png",
+    img: "images/categorie/ham.png",
+  },
+  {
+    name: "Kaas",
+    img: "images/categorie/kaas.png",
+  },
+  {
+    name: "Salades",
+    img: "images/categorie/salades.png",
+  },
+  {
+    name: "Bereide gerechten",
+    img: "images/categorie/lasagne.png",
   },
 ];
 </script>

@@ -8,6 +8,11 @@
  * van uitgelogde UI. Op de server sturen we de cookie handmatig mee, want
  * SSR-fetches erven de browsercookies niet vanzelf.
  */
+/** Vorm van /api/auth/get-session; `null` voor een gast. */
+type AuthSession = Awaited<
+  ReturnType<typeof authClient.getSession>
+>["data"];
+
 export function useAuth() {
   const headers = import.meta.server
     ? useRequestHeaders(["cookie"])
@@ -18,7 +23,13 @@ export function useAuth() {
     status,
     refresh,
   } = useAsyncData("auth:session", async () => {
-    const { data } = await authClient.getSession({ fetchOptions: { headers } });
+    // Tijdens SSR kent de Better Auth browser-client geen absolute basis-URL,
+    // dus halen we de sessie daar via Nitro's interne route op (met cookie).
+    if (import.meta.server) {
+      return await $fetch<AuthSession>("/api/auth/get-session", { headers });
+    }
+
+    const { data } = await authClient.getSession();
     return data;
   });
 
@@ -42,6 +53,8 @@ export function useAuth() {
   async function logout() {
     await authClient.signOut();
     session.value = null;
+    useOrderLists().reset();
+    useCart().reset();
     await navigateTo("/");
   }
 

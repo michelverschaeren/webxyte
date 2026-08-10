@@ -211,174 +211,10 @@
                 : 'px-4 py-4'
             "
           >
-            <div
-              v-if="orderLists.lists.value.length === 0"
-              class="flex flex-col items-center justify-center h-full gap-4 text-center px-6 py-12"
-            >
-              <div
-                class="w-16 h-16 rounded-full flex items-center justify-center border border-[#c89868]/30"
-              >
-                <svg
-                  class="w-7 h-7 text-[#c89868]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-white">
-                  Nog geen lijsten opgeslagen
-                </p>
-                <p class="text-xs text-[#a89a8e] mt-2 leading-relaxed">
-                  Voeg producten toe aan uw bestellijst en gebruik "Lijst
-                  opslaan" in het winkelmandje om uw selectie te bewaren voor
-                  later.
-                </p>
-              </div>
-            </div>
-
-            <div
-              v-else
-              :class="
-                orderLists.panelMaximized.value
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
-                  : 'space-y-3'
-              "
-            >
-              <article
-                v-for="list in sortedLists"
-                :key="list.id"
-                class="border border-white/10 bg-[#1a1414] flex flex-col"
-                :class="
-                  orderLists.panelMaximized.value ? 'p-6 gap-4' : 'p-4 gap-3'
-                "
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3
-                      class="text-white font-semibold truncate"
-                      :class="
-                        orderLists.panelMaximized.value
-                          ? 'text-base'
-                          : 'text-sm'
-                      "
-                    >
-                      {{ list.name }}
-                    </h3>
-                    <p
-                      class="text-[#a89a8e] mt-0.5"
-                      :class="
-                        orderLists.panelMaximized.value
-                          ? 'text-xs'
-                          : 'text-[0.7rem]'
-                      "
-                    >
-                      {{ list.items.length }} artikel{{
-                        list.items.length !== 1 ? "en" : ""
-                      }}
-                      · {{ totalQty(list) }} stuks ·
-                      {{ formatDate(list.updatedAt) }}
-                    </p>
-                  </div>
-                  <button
-                    @click="confirmDelete(list.id)"
-                    class="text-[#a89a8e] hover:text-[#b8252a] hover:bg-white/5 transition-colors"
-                    :class="orderLists.panelMaximized.value ? 'p-2' : 'p-1.5'"
-                    :aria-label="`Verwijder ${list.name}`"
-                    title="Verwijderen"
-                  >
-                    <svg
-                      :class="
-                        orderLists.panelMaximized.value ? 'w-5 h-5' : 'w-4 h-4'
-                      "
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <div
-                  :class="
-                    orderLists.panelMaximized.value
-                      ? 'grid grid-cols-2 gap-3'
-                      : 'grid grid-cols-2 gap-2'
-                  "
-                >
-                  <button
-                    @click="replaceCart(list.id)"
-                    class="bg-[#b8252a] text-white font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors"
-                    :class="
-                      orderLists.panelMaximized.value
-                        ? 'px-4 py-3 text-xs'
-                        : 'px-3 py-2 text-[0.7rem]'
-                    "
-                  >
-                    Vervang mandje
-                  </button>
-                  <button
-                    @click="appendCart(list.id)"
-                    class="border border-[#c89868] text-[#c89868] font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
-                    :class="
-                      orderLists.panelMaximized.value
-                        ? 'px-4 py-3 text-xs'
-                        : 'px-3 py-2 text-[0.7rem]'
-                    "
-                  >
-                    Toevoegen
-                  </button>
-                  <button
-                    @click="orderLists.openEditor(list.id)"
-                    class="col-span-2 border border-white/15 text-[#e8e2dc] font-semibold uppercase tracking-[0.08em] hover:bg-white/5 transition-colors"
-                    :class="
-                      orderLists.panelMaximized.value
-                        ? 'px-4 py-3 text-xs'
-                        : 'px-3 py-2 text-[0.7rem]'
-                    "
-                  >
-                    Bewerken
-                  </button>
-                </div>
-
-                <p
-                  v-if="confirmId === list.id"
-                  class="text-[0.7rem] text-[#b8252a] flex items-center justify-between gap-2"
-                >
-                  <span>Verwijderen?</span>
-                  <span class="flex gap-2">
-                    <button
-                      @click="
-                        orderLists.deleteList(list.id);
-                        confirmId = null;
-                      "
-                      class="px-2 py-0.5 bg-[#b8252a] text-white"
-                    >
-                      Ja
-                    </button>
-                    <button
-                      @click="confirmId = null"
-                      class="px-2 py-0.5 border border-white/20 text-[#e8e2dc]"
-                    >
-                      Nee
-                    </button>
-                  </span>
-                </p>
-              </article>
-            </div>
+            <ListsSavedListsGrid
+              :large="orderLists.panelMaximized.value"
+              @done="orderLists.closePanel()"
+            />
           </div>
         </div>
       </div>
@@ -387,8 +223,6 @@
 </template>
 
 <script setup lang="ts">
-import type { SavedList } from "~/composables/useOrderLists";
-
 const cart = useCart();
 const orderLists = useOrderLists();
 
@@ -399,46 +233,6 @@ const editorDraftName = computed({
     orderLists.editorDraftName.value = v;
   },
 });
-
-const confirmId = ref<string | null>(null);
-
-const sortedLists = computed(() =>
-  [...orderLists.lists.value].sort((a, b) => b.updatedAt - a.updatedAt),
-);
-
-function totalQty(list: SavedList): number {
-  return list.items.reduce((s, i) => s + i.quantity, 0);
-}
-
-function formatDate(ts: number): string {
-  try {
-    return new Date(ts).toLocaleDateString("nl-BE", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "";
-  }
-}
-
-function confirmDelete(id: string) {
-  confirmId.value = id;
-}
-
-function replaceCart(id: string) {
-  const list = orderLists.getList(id);
-  if (!list) return;
-  cart.replaceItems(list.items.map((i) => ({ ...i })));
-  orderLists.closePanel();
-}
-
-function appendCart(id: string) {
-  const list = orderLists.getList(id);
-  if (!list) return;
-  cart.addItems(list.items.map((i) => ({ ...i })));
-  orderLists.closePanel();
-}
 
 function switchToCart() {
   orderLists.closePanel();
@@ -464,3 +258,4 @@ function switchToCart() {
   transform: translateX(100%);
 }
 </style>
+

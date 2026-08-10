@@ -16,9 +16,6 @@
     "db:pull": "drizzle-kit pull",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
-    "db:ping": "node --env-file=.env scripts/db-check.mjs",
-    "db:bridge": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-bridge-setup.ps1",
-    "db:tunnel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-tunnel.ps1",
     "db:seed": "tsx server/database/seed.ts",
     "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
   },

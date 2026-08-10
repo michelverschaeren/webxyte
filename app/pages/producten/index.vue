@@ -46,7 +46,7 @@
           <input
             v-model="search"
             type="text"
-            placeholder="Zoek op naam, artikelnr of leverancier…"
+            placeholder="Zoek op naam, artikelnr of fabrikant…"
             class="w-full pl-12 pr-5 py-4 bg-[#1a1414] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e] text-sm focus:outline-none focus:border-[#c89868] transition-colors"
           />
         </div>
@@ -187,7 +187,7 @@
 
           <!-- Active filter chips -->
           <div
-            v-if="search || selectedCategory"
+            v-if="search || selectedCategory || selectedSupplier"
             class="flex flex-wrap gap-2 mb-5"
           >
             <span
@@ -197,6 +197,18 @@
               {{ activeCategoryName }}
               <button
                 @click="selectedCategory = null"
+                class="hover:text-[#c89868] transition-colors"
+              >
+                ✕
+              </button>
+            </span>
+            <span
+              v-if="selectedSupplier"
+              class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#c89868]/15 text-[#e8e2dc] border border-[#c89868]/40"
+            >
+              {{ selectedSupplier }}
+              <button
+                @click="selectedSupplier = null"
                 class="hover:text-[#c89868] transition-colors"
               >
                 ✕
@@ -226,12 +238,13 @@
               Geen producten gevonden
             </p>
             <p class="text-[#a89a8e] text-sm">
-              Probeer een andere zoekterm of categorie.
+              Probeer een andere zoekterm, categorie of fabrikant.
             </p>
             <button
               @click="
                 search = '';
                 selectedCategory = null;
+                selectedSupplier = null;
               "
               class="mt-2 px-6 py-3 bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
             >
@@ -279,16 +292,22 @@
                 >
                   {{ product.unit }}
                 </p>
-                <p class="text-[#a89a8e] text-[0.8rem]">
-                  {{ product.supplier }}
-                </p>
-                <span
-                  class="text-[0.7rem] text-[#c89868]/70 uppercase tracking-widest mt-auto"
+                <button
+                  type="button"
+                  @click="selectedSupplier = product.supplier"
+                  :title="`Filter op fabrikant: ${product.supplier}`"
+                  class="text-[#a89a8e] hover:text-[#c89868] text-[0.8rem] transition-colors text-left"
                 >
-                  {{
-                    categories.find((c) => c.id === product.categoryId)?.name
-                  }}
-                </span>
+                  {{ product.supplier }}
+                </button>
+                <button
+                  type="button"
+                  @click="selectedCategory = product.categoryId"
+                  :title="`Filter op categorie: ${categoryNameMap[product.categoryId]}`"
+                  class="text-[0.7rem] text-[#c89868]/70 hover:text-[#c89868] uppercase tracking-widest mt-auto transition-colors text-left"
+                >
+                  {{ categoryNameMap[product.categoryId] }}
+                </button>
               </div>
               <div class="flex items-stretch border-t border-white/6">
                 <div class="flex items-center select-none">
@@ -398,7 +417,7 @@
                           : 'text-[#c89868]/60 hover:text-[#c89868]'
                       "
                     >
-                      Leverancier
+                      Fabrikant
                       <span
                         class="text-[0.65rem] opacity-70 group-hover:opacity-100"
                       >
@@ -492,9 +511,13 @@
                         class="text-[0.7rem] text-[#c89868] border border-[#c89868]/25 px-1.5 py-0.5"
                         >{{ product.articleNr }}</span
                       >
-                      <span class="text-[0.7rem] text-[#a89a8e]">{{
-                        product.supplier
-                      }}</span>
+                      <button
+                        type="button"
+                        @click="selectedSupplier = product.supplier"
+                        class="text-[0.7rem] text-[#a89a8e] hover:text-[#c89868] transition-colors"
+                      >
+                        {{ product.supplier }}
+                      </button>
                     </div>
                   </td>
                   <td class="py-2.5 px-3 hidden sm:table-cell">
@@ -504,9 +527,16 @@
                     >
                   </td>
                   <td
-                    class="py-2.5 px-3 text-[#a89a8e] text-[0.8rem] hidden md:table-cell"
+                    class="py-2.5 px-3 text-[0.8rem] hidden md:table-cell"
                   >
-                    {{ product.supplier }}
+                    <button
+                      type="button"
+                      @click="selectedSupplier = product.supplier"
+                      :title="`Filter op fabrikant: ${product.supplier}`"
+                      class="text-[#a89a8e] hover:text-[#c89868] transition-colors text-left"
+                    >
+                      {{ product.supplier }}
+                    </button>
                   </td>
                   <td
                     class="py-2.5 px-3 text-[#c89868]/80 text-[0.8rem] hidden lg:table-cell"
@@ -514,14 +544,14 @@
                     {{ product.unit ?? "—" }}
                   </td>
                   <td class="py-2.5 px-3 hidden xl:table-cell">
-                    <span
-                      class="text-[0.7rem] text-[#c89868]/70 uppercase tracking-widest"
+                    <button
+                      type="button"
+                      @click="selectedCategory = product.categoryId"
+                      :title="`Filter op categorie: ${categoryNameMap[product.categoryId]}`"
+                      class="text-[0.7rem] text-[#c89868]/70 hover:text-[#c89868] uppercase tracking-widest transition-colors text-left"
                     >
-                      {{
-                        categories.find((c) => c.id === product.categoryId)
-                          ?.name
-                      }}
-                    </span>
+                      {{ categoryNameMap[product.categoryId] }}
+                    </button>
                   </td>
                   <td class="py-2 px-3">
                     <div class="flex items-center justify-center gap-1.5">
@@ -628,9 +658,10 @@ const search = ref("");
 const selectedCategory = ref<string | null>(
   (route.query.category as string) ?? null,
 );
+const selectedSupplier = ref<string | null>(null);
 const page = ref(1);
 const pageSize = 24;
-const viewLayout = ref<"grid" | "table">("grid");
+const viewLayout = ref<"grid" | "table">("table");
 
 // Table sort
 type SortKey = "name" | "articleNr" | "supplier" | "unit" | "category";
@@ -665,7 +696,7 @@ function openInfo(p: Product) {
   infoOpen.value = true;
 }
 
-watch([search, selectedCategory], () => {
+watch([search, selectedCategory, selectedSupplier], () => {
   page.value = 1;
 });
 
@@ -674,12 +705,14 @@ const filteredProducts = computed(() => {
   return products.filter((p) => {
     const matchesCategory =
       !selectedCategory.value || p.categoryId === selectedCategory.value;
+    const matchesSupplier =
+      !selectedSupplier.value || p.supplier === selectedSupplier.value;
     const matchesSearch =
       !q ||
       p.name.toLowerCase().includes(q) ||
       p.articleNr.toLowerCase().includes(q) ||
       p.supplier.toLowerCase().includes(q);
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSupplier && matchesSearch;
   });
 });
 
@@ -729,7 +762,9 @@ function addToCart(product: Product) {
   const qty = getQty(product.id);
   cart.addItem(
     {
-      id: product.id,
+      // Artikelnummer als sleutel: zo valt een product uit een opgeslagen
+      // lijst of vorige bestelling samen met dezelfde regel in het mandje.
+      id: product.articleNr,
       articleNr: product.articleNr,
       name: product.name,
       supplier: product.supplier,
