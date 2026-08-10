@@ -14,6 +14,9 @@ const bodySchema = z.object({
   categoryId: z.uuid(),
   unit: z.string().trim().max(64).optional(),
   infoPdf: z.url().optional(),
+  /** Adviesprijs; wordt als tekst opgeslagen (numeric-kolom, geen float). */
+  price: z.number().nonnegative().optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -21,8 +24,15 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, (data) => bodySchema.parse(data));
 
-  const [product] = await db.insert(products).values(body).returning();
+  const [product] = await db
+    .insert(products)
+    .values({ ...body, price: body.price?.toFixed(2) })
+    .returning();
+
+  if (!product) {
+    throw createError({ statusCode: 500, statusMessage: "Aanmaken mislukt." });
+  }
 
   setResponseStatus(event, 201);
-  return product;
+  return { ...product, price: product.price ? Number(product.price) : null };
 });
