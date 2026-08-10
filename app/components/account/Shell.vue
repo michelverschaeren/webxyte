@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-[#0f0d0d] text-[#e8e2dc]">
+  <div class="min-h-screen bg-(--color-bg) text-(--color-text)">
     <!-- Page header -->
     <div
       class="relative overflow-hidden px-4 py-14 sm:py-20"
       style="
         background: radial-gradient(
           ellipse at 50% 40%,
-          #7a1a1a 0%,
-          #4a0e0e 45%,
-          #1a0808 100%
+          var(--gradient-banner-1) 0%,
+          var(--gradient-banner-2) 45%,
+          var(--gradient-banner-3) 100%
         );
       "
     >
@@ -31,7 +31,7 @@
 
     <!-- Sticky section nav -->
     <nav
-      class="sticky top-0 z-50 border-b border-white/10 bg-[#0f0d0d]/95 backdrop-blur-md"
+      class="sticky top-0 z-50 border-b border-(--color-border) bg-(--color-bg)/95 backdrop-blur-md"
       aria-label="Klantenzone"
     >
       <div
@@ -89,7 +89,7 @@ async function onLogout() {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(232, 226, 220, 0.6);
+  color: var(--color-text-muted);
   text-decoration: none;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
@@ -98,15 +98,15 @@ async function onLogout() {
   background: none;
 }
 .acc-tab:hover {
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .acc-tab--active {
-  color: #fff;
+  color: var(--color-text-strong);
   border-bottom-color: #c89868;
 }
 .acc-tab--logout {
   margin-left: auto;
-  color: rgba(232, 226, 220, 0.45);
+  color: var(--color-text-muted);
 }
 .acc-tab--logout:hover {
   color: #b8252a;

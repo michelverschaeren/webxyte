@@ -1,14 +1,14 @@
 <template>
-  <div class="bg-[#0f0d0d] text-[#e8e2dc] min-h-screen">
+  <div class="bg-(--color-bg) text-(--color-text) min-h-screen">
     <!-- Page header -->
     <div
       class="relative py-20 px-4 overflow-hidden"
       style="
         background: radial-gradient(
           ellipse at 50% 40%,
-          #7a1a1a 0%,
-          #4a0e0e 45%,
-          #1a0808 100%
+          var(--gradient-banner-1) 0%,
+          var(--gradient-banner-2) 45%,
+          var(--gradient-banner-3) 100%
         );
       "
     >
@@ -38,7 +38,7 @@
               <div
                 v-for="info in contactInfo"
                 :key="info.label"
-                class="flex items-start gap-5 py-4 border-b border-white/8 last:border-b-0"
+                class="flex items-start gap-5 py-4 border-b border-(--color-border) last:border-b-0"
               >
                 <div
                   class="w-11 h-11 border border-[#c89868] text-[#c89868] flex items-center justify-center shrink-0"
@@ -51,8 +51,8 @@
                   >
                     {{ info.label }}
                   </p>
-                  <p class="text-[#e8e2dc] font-medium">{{ info.value }}</p>
-                  <p v-if="info.sub" class="text-[#a89a8e] text-sm mt-0.5">
+                  <p class="text-(--color-text) font-medium">{{ info.value }}</p>
+                  <p v-if="info.sub" class="text-(--color-text-muted) text-sm mt-0.5">
                     {{ info.sub }}
                   </p>
                 </div>
@@ -62,7 +62,7 @@
 
           <!-- Google Maps -->
           <div
-            class="overflow-hidden border border-white/8"
+            class="overflow-hidden border border-(--color-border)"
             style="height: 300px"
           >
             <iframe
@@ -82,14 +82,14 @@
         </div>
 
         <!-- Right: contact form -->
-        <div class="bg-[#1a1414] border border-white/8 p-8">
+        <div class="bg-(--color-surface) border border-(--color-border) p-8">
           <p
             class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-2"
           >
             — Stuur ons een bericht —
           </p>
           <h2
-            class="font-['Playfair_Display',Georgia,serif] text-[2rem] font-bold text-white mb-8 leading-[1.1]"
+            class="font-['Playfair_Display',Georgia,serif] text-[2rem] font-bold text-(--color-text-strong) mb-8 leading-[1.1]"
           >
             Wij antwoorden<br />
             <span
@@ -110,7 +110,7 @@
                   type="text"
                   placeholder="Uw naam"
                   required
-                  class="w-full px-4 py-3 bg-[#0f0d0d] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e]/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
                 />
               </div>
               <div>
@@ -122,7 +122,7 @@
                   v-model="form.company"
                   type="text"
                   placeholder="Bedrijfsnaam (optioneel)"
-                  class="w-full px-4 py-3 bg-[#0f0d0d] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e]/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
                 />
               </div>
             </div>
@@ -137,7 +137,7 @@
                 type="email"
                 placeholder="uw@email.be"
                 required
-                class="w-full px-4 py-3 bg-[#0f0d0d] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e]/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
               />
             </div>
 
@@ -150,7 +150,7 @@
                 v-model="form.phone"
                 type="tel"
                 placeholder="0495 123 456"
-                class="w-full px-4 py-3 bg-[#0f0d0d] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e]/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
               />
             </div>
 
@@ -164,7 +164,7 @@
                 rows="5"
                 placeholder="Uw vraag of opmerking…"
                 required
-                class="w-full px-4 py-3 bg-[#0f0d0d] border border-white/10 text-[#e8e2dc] placeholder-[#a89a8e]/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors resize-none"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors resize-none"
               />
             </div>
 

@@ -1,9 +1,9 @@
 <template>
   <article
-    class="flex flex-col border bg-[#1a1414] transition-colors"
+    class="flex flex-col border bg-(--color-surface) transition-colors"
     :class="[
       large ? 'gap-4 p-6' : 'gap-3 p-4',
-      selected ? 'border-[#c89868]' : 'border-white/10',
+      selected ? 'border-[#c89868]' : 'border-(--color-border)',
     ]"
   >
     <div class="flex items-start justify-between gap-3">
@@ -19,12 +19,12 @@
         />
         <span class="min-w-0">
           <span
-            class="block truncate font-semibold text-white"
+            class="block truncate font-semibold text-(--color-text-strong)"
             :class="large ? 'text-base' : 'text-sm'"
             >{{ list.name }}</span
           >
           <span
-            class="mt-0.5 block text-[#a89a8e]"
+            class="mt-0.5 block text-(--color-text-muted)"
             :class="large ? 'text-xs' : 'text-[0.7rem]'"
             >{{ summary }}</span
           >
@@ -33,13 +33,13 @@
 
       <div v-else class="min-w-0">
         <h3
-          class="truncate font-semibold text-white"
+          class="truncate font-semibold text-(--color-text-strong)"
           :class="large ? 'text-base' : 'text-sm'"
         >
           {{ list.name }}
         </h3>
         <p
-          class="mt-0.5 text-[#a89a8e]"
+          class="mt-0.5 text-(--color-text-muted)"
           :class="large ? 'text-xs' : 'text-[0.7rem]'"
         >
           {{ summary }}
@@ -47,7 +47,7 @@
       </div>
 
       <button
-        class="text-[#a89a8e] transition-colors hover:bg-white/5 hover:text-[#b8252a]"
+        class="text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-[#b8252a]"
         :class="large ? 'p-2' : 'p-1.5'"
         :aria-label="`Verwijder ${list.name}`"
         title="Verwijderen"
@@ -93,7 +93,7 @@
         Toevoegen
       </button>
       <button
-        class="col-span-2 border border-white/15 font-semibold tracking-[0.08em] text-[#e8e2dc] uppercase transition-colors hover:bg-white/5"
+        class="col-span-2 border border-(--color-border-strong) font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
         :class="large ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
         @click="emit('edit')"
       >
@@ -117,7 +117,7 @@
           Ja
         </button>
         <button
-          class="border border-white/20 px-2 py-0.5 text-[#e8e2dc]"
+          class="border border-(--color-border-strong) px-2 py-0.5 text-(--color-text)"
           @click="confirming = false"
         >
           Nee

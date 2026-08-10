@@ -1,86 +1,52 @@
 @import "tailwindcss";
 
-/* ── Design tokens: Premium Red (default) ───────────────────────── */
+/* ── Design tokens ───────────────────────────────────────────────
+ * Neutrals (bg/surface/text/border) flip between the two themes.
+ * Brand (rood/goud) en statuskleuren blijven in beide thema's gelijk.
+ */
 :root {
-  --color-primary: #8b1a1a;
-  --color-primary-dark: #5e0f0f;
-  --color-primary-light: #b22222;
-  --color-accent: #c9a84c;
-  --color-accent-light: #e8c97a;
-  --color-bg: #f9f6f1;
-  --color-surface: #ffffff;
-  --color-surface-2: #f2ede6;
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b6b6b;
-  --color-border: #e0d8cf;
+  --color-bg: #0f0d0d;
+  --color-surface: #1a1414;
+  --color-surface-2: #150f0f;
+  --color-surface-strong: #0a0808;
+  --color-text-strong: #ffffff;
+  --color-text: #e8e2dc;
+  --color-text-muted: #a89a8e;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-hover: rgba(255, 255, 255, 0.05);
+
+  --color-primary: #b8252a;
+  --color-primary-hover: #8b1f1f;
+  --color-accent: #c89868;
+
+  --color-success: #8fc98f;
+  --color-error: #e06a6a;
+  --color-info: #6ba3d9;
+  --color-warning: #d9a05b;
+
+  /* Rode "spotlight"-banners (hero, paginakoppen, nieuwsbrief) — altijd
+     donker genoeg voor witte tekst erop, in beide thema's. */
+  --gradient-banner-1: #7a1a1a;
+  --gradient-banner-2: #4a0e0e;
+  --gradient-banner-3: #1a0808;
 }
 
-/* ── Utility classes driven by tokens ───────────────────────────── */
-@layer utilities {
-  .bg-primary {
-    background-color: var(--color-primary);
-  }
-  .bg-primary-dark {
-    background-color: var(--color-primary-dark);
-  }
-  .bg-primary-light {
-    background-color: var(--color-primary-light);
-  }
-  .bg-accent {
-    background-color: var(--color-accent);
-  }
-  .bg-site {
-    background-color: var(--color-bg);
-  }
-  .bg-surface {
-    background-color: var(--color-surface);
-  }
-  .bg-surface-2 {
-    background-color: var(--color-surface-2);
-  }
+:root[data-theme="light"] {
+  --color-bg: #f7f3ee;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2ede6;
+  --color-surface-strong: #ece5da;
+  --color-text-strong: #0f0d0d;
+  --color-text: #1a1614;
+  --color-text-muted: #6b6058;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+  --color-hover: rgba(0, 0, 0, 0.04);
 
-  .text-primary {
-    color: var(--color-primary);
-  }
-  .text-accent {
-    color: var(--color-accent);
-  }
-  .text-site {
-    color: var(--color-text);
-  }
-  .text-muted {
-    color: var(--color-text-muted);
-  }
-
-  .border-site {
-    border-color: var(--color-border);
-  }
-
-  .btn-primary {
-    background-color: var(--color-primary);
-    color: #fff;
-    transition: background-color 0.2s ease;
-  }
-  .btn-primary:hover {
-    background-color: var(--color-primary-dark);
-  }
-
-  .btn-outline {
-    border: 2px solid var(--color-primary);
-    color: var(--color-primary);
-    background: transparent;
-    transition: all 0.2s ease;
-  }
-  .btn-outline:hover {
-    background-color: var(--color-primary);
-    color: #fff;
-  }
-
-  .card-site {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-  }
+  --gradient-banner-1: #9c2f27;
+  --gradient-banner-2: #7a231d;
+  --gradient-banner-3: #5c1912;
 }
 
 /* ── Global base ─────────────────────────────────────────────────── */

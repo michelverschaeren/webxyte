@@ -15,6 +15,7 @@ export default defineEventHandler(async () => {
       slug: categories.slug,
       name: categories.name,
       emoji: categories.emoji,
+      image: categories.image,
       productCount: count(products.id),
     })
     .from(categories)

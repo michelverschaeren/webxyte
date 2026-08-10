@@ -19,12 +19,18 @@
             ? 'w-full max-w-none'
             : 'w-full sm:w-96 max-w-full'
         "
-        style="background: #1a0a0a"
+        style="background: var(--color-surface)"
       >
         <!-- Header -->
         <div
-          class="flex items-center justify-between border-b border-white/10 px-5 py-4"
-          style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+          class="flex items-center justify-between border-b border-(--color-border) px-5 py-4"
+          style="
+            background: linear-gradient(
+              135deg,
+              var(--color-surface-strong) 0%,
+              var(--color-surface) 100%
+            );
+          "
         >
           <div class="flex items-center gap-3 min-w-0">
             <svg
@@ -40,8 +46,8 @@
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <h2 class="font-bold text-white">Bestellijst</h2>
-            <span class="text-xs text-[#a89a8e]"
+            <h2 class="font-bold text-(--color-text-strong)">Bestellijst</h2>
+            <span class="text-xs text-(--color-text-muted)"
               >({{ cart.totalItems.value }} artikel{{
                 cart.totalItems.value !== 1 ? "en" : ""
               }})</span
@@ -51,7 +57,7 @@
             <button
               type="button"
               @click="openLists()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Wissel naar mijn bestellijsten"
             >
               <svg
@@ -72,7 +78,7 @@
             <button
               type="button"
               @click="cart.isMaximized.value = !cart.isMaximized.value"
-              class="rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               :title="cart.isMaximized.value ? 'Verkleinen' : 'Maximaliseren'"
               :aria-label="
                 cart.isMaximized.value ? 'Verkleinen' : 'Maximaliseren'
@@ -109,7 +115,7 @@
             </button>
             <button
               @click="cart.isOpen.value = false"
-              class="rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               aria-label="Sluit"
             >
               <svg
@@ -158,10 +164,10 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm font-semibold text-white">
+              <p class="text-sm font-semibold text-(--color-text-strong)">
                 Uw bestellijst is leeg
               </p>
-              <p class="mt-1 text-xs text-[#a89a8e]">
+              <p class="mt-1 text-xs text-(--color-text-muted)">
                 Voeg producten toe via het productenoverzicht
               </p>
             </div>
@@ -171,7 +177,7 @@
           <div
             v-for="item in cart.items.value"
             :key="item.id"
-            class="flex items-start gap-3 border border-white/10 bg-[#1a1414] p-3"
+            class="flex items-start gap-3 border border-(--color-border) bg-(--color-surface) p-3"
           >
             <!-- Icon -->
             <div
@@ -182,10 +188,12 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm leading-snug font-semibold text-white">
+              <p
+                class="truncate text-sm leading-snug font-semibold text-(--color-text-strong)"
+              >
                 {{ item.name }}
               </p>
-              <p class="text-xs text-[#a89a8e]">{{ item.supplier }}</p>
+              <p class="text-xs text-(--color-text-muted)">{{ item.supplier }}</p>
               <p v-if="item.unit" class="mt-0.5 text-xs text-[#c89868]">
                 {{ item.unit }}
               </p>
@@ -198,7 +206,7 @@
             <div class="flex shrink-0 flex-col items-end gap-2">
               <button
                 @click="cart.removeItem(item.id)"
-                class="p-1 text-[#a89a8e] transition-colors hover:bg-white/5 hover:text-[#b8252a]"
+                class="p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-[#b8252a]"
               >
                 <svg
                   class="h-3.5 w-3.5"
@@ -218,16 +226,18 @@
               <div class="flex items-center gap-1">
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity - 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-white/10 text-sm font-bold text-[#c89868] transition-colors hover:bg-white/5"
+                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-[#c89868] transition-colors hover:bg-(--color-hover)"
                 >
                   −
                 </button>
-                <span class="w-8 text-center text-sm font-semibold text-white">{{
+                <span
+                  class="w-8 text-center text-sm font-semibold text-(--color-text-strong)"
+                  >{{
                   item.quantity
                 }}</span>
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity + 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-white/10 text-sm font-bold text-[#c89868] transition-colors hover:bg-white/5"
+                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-[#c89868] transition-colors hover:bg-(--color-hover)"
                 >
                   +
                 </button>
@@ -239,8 +249,8 @@
 
         <!-- Footer -->
         <div
-          class="border-t border-white/10 px-5 py-4"
-          style="background: #0a0808"
+          class="border-t border-(--color-border) px-5 py-4"
+          style="background: var(--color-surface-strong)"
         >
           <div
             class="space-y-3 mx-auto"
@@ -250,8 +260,8 @@
             v-if="cart.items.value.length > 0"
             class="flex justify-between text-sm"
           >
-            <span class="text-[#a89a8e]">Totaal artikelen</span>
-            <span class="font-bold text-white">{{ cart.totalItems.value }}</span>
+            <span class="text-(--color-text-muted)">Totaal artikelen</span>
+            <span class="font-bold text-(--color-text-strong)">{{ cart.totalItems.value }}</span>
           </div>
 
           <button
@@ -280,7 +290,7 @@
             <button
               type="button"
               @click="openLists()"
-              class="border border-white/15 px-3 py-2 text-xs font-semibold tracking-[0.08em] text-[#e8e2dc] uppercase transition-colors hover:bg-white/5"
+              class="border border-(--color-border-strong) px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
             >
               Mijn lijsten
             </button>
@@ -289,7 +299,7 @@
           <button
             v-if="cart.items.value.length > 0"
             @click="cart.clearCart()"
-            class="w-full py-2 text-xs font-medium text-[#a89a8e] transition-colors hover:bg-white/5 hover:text-white"
+            class="w-full py-2 text-xs font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
           >
             Bestellijst wissen
           </button>
@@ -313,24 +323,30 @@
       >
         <div
           class="pointer-events-auto w-full max-w-md border border-[#c89868]/30 shadow-2xl"
-          style="background: #1a0a0a"
+          style="background: var(--color-surface)"
         >
           <div
-            class="border-b border-white/10 px-5 py-4"
-            style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+            class="border-b border-(--color-border) px-5 py-4"
+            style="
+            background: linear-gradient(
+              135deg,
+              var(--color-surface-strong) 0%,
+              var(--color-surface) 100%
+            );
+          "
           >
             <p
               class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#c89868]"
             >
               — Bestellijst —
             </p>
-            <h3 class="text-base font-bold text-white">
+            <h3 class="text-base font-bold text-(--color-text-strong)">
               Lijst opslaan voor later
             </h3>
           </div>
           <form @submit.prevent="confirmSave()" class="space-y-4 px-5 py-5">
             <label class="block">
-              <span class="mb-2 block text-xs font-medium text-[#a89a8e]"
+              <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
                 >Naam van de lijst</span
               >
               <input
@@ -340,10 +356,10 @@
                 maxlength="60"
                 required
                 placeholder="bv. Wekelijkse bestelling"
-                class="w-full border border-white/15 bg-[#0f0808] px-3 py-2.5 text-sm text-white placeholder-[#a89a8e]/60 focus:border-[#c89868] focus:outline-none"
+                class="w-full border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
-            <p class="text-[0.7rem] text-[#a89a8e]">
+            <p class="text-[0.7rem] text-(--color-text-muted)">
               {{ cart.totalItems.value }} stuks in
               {{ cart.items.value.length }} artikel{{
                 cart.items.value.length !== 1 ? "en" : ""
@@ -354,7 +370,7 @@
               <button
                 type="button"
                 @click="closeSaveModal()"
-                class="px-4 py-2 text-xs font-medium text-[#a89a8e] hover:text-white"
+                class="px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
               >
                 Annuleren
               </button>

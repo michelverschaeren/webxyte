@@ -1,5 +1,15 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  numeric,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 /**
  * Productcatalogus — de database-versie van app/data/categories.ts
@@ -16,6 +26,8 @@ export const categories = pgTable(
     slug: text().notNull(),
     name: text().notNull(),
     emoji: text(),
+    /** Lokaal pad naar een categoriefoto, bv. "/images/categorie/salamis.png". */
+    image: text(),
     /** Volgorde in de sidebar; lager = hoger in de lijst. */
     sortOrder: integer().default(0).notNull(),
   },
@@ -40,6 +52,10 @@ export const products = pgTable(
     unit: text(),
     /** Optionele URL naar een productfiche (PDF) van de producent. */
     infoPdf: text(),
+    /** Adviesprijs — enkel zichtbaar/bewerkbaar in het admin-dashboard. */
+    price: numeric({ precision: 10, scale: 2 }),
+    /** Interne notitie voor de beheerder; nooit klantzijdig getoond. */
+    notes: text(),
     /** Uit het assortiment gehaald? Dan false i.p.v. verwijderen. */
     isActive: boolean().default(true).notNull(),
     createdAt: timestamp().defaultNow().notNull(),

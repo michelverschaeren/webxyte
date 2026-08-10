@@ -9,7 +9,7 @@
       <div :class="maximized ? 'max-w-4xl mx-auto space-y-3' : 'space-y-2'">
         <div
           v-if="draftItems.length === 0"
-          class="py-10 text-center text-sm text-[#a89a8e]"
+          class="py-10 text-center text-sm text-(--color-text-muted)"
         >
           Deze lijst is leeg.
         </div>
@@ -17,19 +17,19 @@
         <div
           v-for="(item, idx) in draftItems"
           :key="item.id"
-          class="flex items-center gap-3 border border-white/10 bg-[#1a1414]"
+          class="flex items-center gap-3 border border-(--color-border) bg-(--color-surface)"
           :class="maximized ? 'p-4' : 'p-3'"
         >
           <div class="flex-1 min-w-0">
             <p
-              class="text-white font-semibold truncate"
+              class="text-(--color-text-strong) font-semibold truncate"
               :class="maximized ? 'text-base' : 'text-sm'"
             >
               {{ item.name }}
             </p>
             <p
               :class="maximized ? 'text-xs' : 'text-[0.7rem]'"
-              class="text-[#a89a8e]"
+              class="text-(--color-text-muted)"
             >
               <span class="font-mono text-[#c89868]">{{ item.articleNr }}</span>
               · {{ item.supplier }}
@@ -41,7 +41,7 @@
             <button
               type="button"
               @click="updateQty(idx, item.quantity - 1)"
-              class="text-[#c89868] hover:bg-white/5 transition-colors border border-white/10"
+              class="text-[#c89868] hover:bg-(--color-hover) transition-colors border border-(--color-border)"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               −
@@ -56,13 +56,13 @@
                   Number(($event.target as HTMLInputElement).value),
                 )
               "
-              class="bg-transparent text-center text-[#e8e2dc] focus:outline-none border-y border-white/10 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              class="bg-transparent text-center text-(--color-text) focus:outline-none border-y border-(--color-border) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               :class="maximized ? 'w-16 h-10 text-base' : 'w-12 h-8 text-sm'"
             />
             <button
               type="button"
               @click="updateQty(idx, item.quantity + 1)"
-              class="text-[#c89868] hover:bg-white/5 transition-colors border border-white/10"
+              class="text-[#c89868] hover:bg-(--color-hover) transition-colors border border-(--color-border)"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               +
@@ -71,7 +71,7 @@
 
           <button
             @click="removeItem(idx)"
-            class="text-[#a89a8e] hover:text-[#b8252a] transition-colors shrink-0"
+            class="text-(--color-text-muted) hover:text-[#b8252a] transition-colors shrink-0"
             :class="maximized ? 'p-2' : 'p-1.5'"
             title="Verwijderen"
             aria-label="Verwijderen"
@@ -96,9 +96,9 @@
 
     <!-- Footer -->
     <div
-      class="border-t border-white/10 flex flex-col gap-2 shrink-0"
+      class="border-t border-(--color-border) flex flex-col gap-2 shrink-0"
       :class="maximized ? 'px-8 sm:px-12 py-5' : 'px-5 py-4'"
-      style="background: #0a0808"
+      style="background: var(--color-surface-strong)"
     >
       <div :class="maximized ? 'max-w-4xl mx-auto w-full space-y-3' : ''">
         <div class="grid grid-cols-2 gap-2">
@@ -130,7 +130,7 @@
             type="button"
             @click="saveChanges()"
             :disabled="!isDirty || saving"
-            class="flex-1 border border-white/15 text-[#e8e2dc] font-semibold uppercase tracking-[0.08em] hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="flex-1 border border-(--color-border-strong) text-(--color-text) font-semibold uppercase tracking-[0.08em] hover:bg-(--color-hover) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
           >
             {{ saving ? "Opslaan…" : "Wijzigingen opslaan" }}

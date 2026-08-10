@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-[#0f0d0d] py-24">
+  <section class="bg-[var(--color-bg)] py-24">
     <div class="mx-auto max-w-300 px-6">
       <div class="mb-12 text-center">
         <p
@@ -8,7 +8,7 @@
           — Onze service —
         </p>
         <h2
-          class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-white"
+          class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-[var(--color-text-strong)]"
         >
           <span class="block">Van bestelling</span>
           <span
@@ -27,7 +27,7 @@
           class="group relative z-1 text-center"
         >
           <div
-            class="relative z-2 mx-auto mb-8 flex h-18 w-18 items-center justify-center rounded-full bg-[#b8252a] font-['Playfair_Display',serif] text-[1.75rem] font-black text-white shadow-[0_0_0_4px_#0f0d0d,0_0_0_6px_rgba(184,37,42,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_0_4px_#0f0d0d,0_0_0_6px_#b8252a,0_10px_30px_rgba(184,37,42,0.4)]"
+            class="relative z-2 mx-auto mb-8 flex h-18 w-18 items-center justify-center rounded-full bg-[#b8252a] font-['Playfair_Display',serif] text-[1.75rem] font-black text-white shadow-[0_0_0_4px_var(--color-bg),0_0_0_6px_rgba(184,37,42,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_0_4px_var(--color-bg),0_0_0_6px_#b8252a,0_10px_30px_rgba(184,37,42,0.4)]"
           >
             {{ post.day }}
           </div>
@@ -56,11 +56,13 @@
               >{{ post.category }}</span
             >
             <h3
-              class="m-0 mb-3 font-['Playfair_Display',serif] text-[1.2rem] leading-[1.25] text-white"
+              class="m-0 mb-3 font-['Playfair_Display',serif] text-[1.2rem] leading-[1.25] text-[var(--color-text-strong)]"
             >
               {{ post.title }}
             </h3>
-            <p class="m-0 mb-4 text-[0.88rem] leading-[1.65] text-[#a89a8e]">
+            <p
+              class="m-0 mb-4 text-[0.88rem] leading-[1.65] text-[var(--color-text-muted)]"
+            >
               {{ post.excerpt }}
             </p>
             <div class="flex flex-wrap gap-3">

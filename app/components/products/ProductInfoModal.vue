@@ -15,12 +15,18 @@
       >
         <div
           class="pointer-events-auto w-full max-w-4xl h-[85vh] flex flex-col border border-[#c89868]/30 shadow-2xl"
-          style="background: #1a0a0a"
+          style="background: var(--color-surface)"
         >
           <!-- Header -->
           <div
-            class="flex items-center justify-between px-5 py-4 border-b border-white/10"
-            style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+            class="flex items-center justify-between px-5 py-4 border-b border-(--color-border)"
+            style="
+              background: linear-gradient(
+                135deg,
+                var(--color-surface-strong) 0%,
+                var(--color-surface) 100%
+              );
+            "
           >
             <div class="min-w-0">
               <p
@@ -29,7 +35,7 @@
                 Productfiche
               </p>
               <h3
-                class="text-white font-semibold text-base leading-tight truncate"
+                class="text-(--color-text-strong) font-semibold text-base leading-tight truncate"
               >
                 {{ title }}
               </h3>
@@ -44,7 +50,7 @@
               >
               <button
                 @click="$emit('close')"
-                class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                class="p-1.5 text-(--color-text-muted) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
                 aria-label="Sluit"
               >
                 <svg

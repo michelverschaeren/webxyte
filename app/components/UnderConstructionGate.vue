@@ -144,7 +144,7 @@ function triggerShake() {
 .uc-card {
   width: 100%;
   max-width: 440px;
-  background: #17130f;
+  background: var(--color-surface);
   border: 1px solid rgba(200, 152, 104, 0.25);
   border-radius: 1rem;
   padding: 2.5rem 2rem;
@@ -191,14 +191,14 @@ function triggerShake() {
   font-family: "Playfair Display", serif;
   font-size: 1.6rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-strong);
   margin-bottom: 0.75rem;
 }
 
 .uc-text {
   font-size: 0.92rem;
   line-height: 1.6;
-  color: rgba(232, 226, 220, 0.7);
+  color: var(--color-text-muted);
   margin-bottom: 1.75rem;
 }
 
@@ -209,8 +209,8 @@ function triggerShake() {
   gap: 0.55rem;
   padding: 1.1rem 0 1.5rem;
   margin-bottom: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .uc-contact-lead {
@@ -218,7 +218,7 @@ function triggerShake() {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(232, 226, 220, 0.5);
+  color: var(--color-text-muted);
   margin: 0 0 0.3rem;
 }
 
@@ -227,7 +227,7 @@ function triggerShake() {
   align-items: center;
   gap: 0.45rem;
   font-size: 0.85rem;
-  color: rgba(232, 226, 220, 0.85);
+  color: var(--color-text);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -235,7 +235,7 @@ a.uc-contact-item:hover {
   color: #c89868;
 }
 .uc-contact-item--static {
-  color: rgba(232, 226, 220, 0.65);
+  color: var(--color-text-muted);
 }
 .uc-contact-item svg {
   width: 14px;
@@ -283,15 +283,15 @@ a.uc-contact-item:hover {
   width: 100%;
   padding: 0.65rem 0.9rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-hover);
+  color: var(--color-text-strong);
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
 }
 .uc-input::placeholder {
-  color: rgba(232, 226, 220, 0.4);
+  color: var(--color-text-muted);
 }
 .uc-input:focus {
   border-color: #c89868;

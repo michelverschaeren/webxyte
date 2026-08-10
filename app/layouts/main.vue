@@ -66,6 +66,43 @@
 
           <!-- Right actions -->
           <div class="dm-nav-actions">
+            <!-- Thema -->
+            <button
+              class="dm-icon-btn"
+              :aria-label="
+                theme.value === 'dark' ? 'Licht thema' : 'Donker thema'
+              "
+              :title="theme.value === 'dark' ? 'Licht thema' : 'Donker thema'"
+              @click="toggleTheme()"
+            >
+              <svg
+                v-if="theme.value === 'dark'"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                />
+              </svg>
+              <svg
+                v-else
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                />
+              </svg>
+            </button>
+
             <!-- Wishlist -->
             <button class="dm-icon-btn" aria-label="Verlanglijst">
               <svg
@@ -199,6 +236,7 @@ const route = useRoute();
 const cart = useCart();
 const auth = useAuth();
 const authModal = useAuthModal();
+const { theme, toggle: toggleTheme } = useTheme();
 const mobileOpen = ref(false);
 const scrolled = ref(false);
 
@@ -234,8 +272,8 @@ onMounted(() => {
 <style scoped>
 .dm-shell {
   min-height: 100vh;
-  background: #0f0d0d;
-  color: #e8e2dc;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* ── Fixed header wrapper ───────────────────────────────────────── */
@@ -245,21 +283,20 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 100;
-  transition:
-    background 0.4s ease,
-    box-shadow 0.4s ease,
-    backdrop-filter 0.4s ease;
-}
-.dm-fixed-wrap--scrolled {
-  background: rgba(10, 8, 8, 0.8);
+  background: color-mix(in srgb, var(--color-surface-strong) 92%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition:
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.dm-fixed-wrap--scrolled {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* ── Top bar ─────────────────────────────────────────────────────── */
 .dm-topbar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--color-border);
   max-height: 38px;
   opacity: 1;
   overflow: hidden;
@@ -295,7 +332,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   text-decoration: none;
   letter-spacing: 0.03em;
   transition: color 0.2s;
@@ -352,7 +389,7 @@ onMounted(() => {
 .dm-logo-name {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-strong);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -379,7 +416,7 @@ onMounted(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -396,13 +433,13 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 .dm-nav-link:hover {
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .dm-nav-link:hover::after {
   transform: scaleX(1);
 }
 .dm-nav-link--active {
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .dm-nav-link--active::after {
   transform: scaleX(1);
@@ -424,7 +461,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -436,7 +473,7 @@ onMounted(() => {
 .dm-icon-btn:hover {
   background: rgba(184, 37, 42, 0.15);
   border-color: #b8252a;
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .dm-cart-badge {
   position: absolute;
@@ -469,9 +506,9 @@ onMounted(() => {
 
 /* Mobile menu */
 .dm-mobile-menu {
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--color-border);
   padding: 0.75rem 1.5rem 1rem;
-  background: rgba(10, 8, 8, 0.98);
+  background: color-mix(in srgb, var(--color-surface-strong) 98%, transparent);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -482,14 +519,14 @@ onMounted(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--color-text-muted);
   text-decoration: none;
   border-left: 2px solid transparent;
   transition: all 0.2s;
 }
 .dm-mobile-link:hover,
 .dm-mobile-link--active {
-  color: #fff;
+  color: var(--color-text-strong);
   border-left-color: #b8252a;
   padding-left: 1.5rem;
 }

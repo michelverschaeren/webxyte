@@ -19,6 +19,9 @@ const STATUS_STYLES: Record<string, { label: string; color: string }> = {
 
 const style = computed(
   () =>
-    STATUS_STYLES[props.status] ?? { label: props.status, color: "#a89a8e" },
+    STATUS_STYLES[props.status] ?? {
+      label: props.status,
+      color: "var(--color-text-muted)",
+    },
 );
 </script>

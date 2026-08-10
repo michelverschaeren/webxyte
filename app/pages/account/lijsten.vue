@@ -4,22 +4,22 @@
     subtitle="Bewaar vaste selecties — bijvoorbeeld 'Kazen' of 'Kerstmis' — en zet ze in één klik in uw winkelmandje."
   >
     <!-- Editor -->
-    <section v-if="isEditing" class="border border-white/10 bg-[#150f0f]">
+    <section v-if="isEditing" class="border border-(--color-border) bg-(--color-surface-2)">
       <div
-        class="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-3 sm:px-6"
+        class="flex flex-wrap items-center gap-3 border-b border-(--color-border) px-4 py-3 sm:px-6"
       >
         <button
           type="button"
-          class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-white"
+          class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-(--color-text-strong)"
           @click="orderLists.closeEditor()"
         >
           ← Overzicht
         </button>
-        <span class="text-white/20">/</span>
+        <span class="text-(--color-text-muted)">/</span>
         <input
           v-model="editorDraftName"
           type="text"
-          class="min-w-0 flex-1 border-b border-transparent bg-transparent py-1 font-semibold text-white focus:border-[#c89868]/50 focus:outline-none"
+          class="min-w-0 flex-1 border-b border-transparent bg-transparent py-1 font-semibold text-(--color-text-strong) focus:border-[#c89868]/50 focus:outline-none"
           placeholder="Naam van de lijst"
         />
       </div>
@@ -29,7 +29,7 @@
     <!-- Overview -->
     <template v-else>
       <div class="mb-6 flex flex-wrap items-center gap-3">
-        <p class="text-sm text-[#a89a8e]">
+        <p class="text-sm text-(--color-text-muted)">
           Vink meerdere lijsten aan om ze samen aan uw mandje toe te voegen.
         </p>
         <button

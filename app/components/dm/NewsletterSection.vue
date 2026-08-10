@@ -4,9 +4,9 @@
     style="
       background: linear-gradient(
         135deg,
-        #3d0e0e 0%,
-        #6b1818 40%,
-        #8b1f1f 100%
+        var(--gradient-banner-3) 0%,
+        var(--gradient-banner-2) 40%,
+        var(--gradient-banner-1) 100%
       );
     "
   >

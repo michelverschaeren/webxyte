@@ -15,15 +15,21 @@
       >
         <div
           class="pointer-events-auto my-auto w-full max-w-md border border-[#c89868]/30 shadow-2xl"
-          style="background: #1a0a0a"
+          style="background: var(--color-surface)"
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-modal-title"
         >
           <!-- Header -->
           <div
-            class="relative border-b border-white/10 px-5 py-4 sm:px-6"
-            style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+            class="relative border-b border-(--color-border) px-5 py-4 sm:px-6"
+            style="
+              background: linear-gradient(
+                135deg,
+                var(--color-surface-strong) 0%,
+                var(--color-surface) 100%
+              );
+            "
           >
             <p
               class="text-[0.65rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
@@ -32,13 +38,13 @@
             </p>
             <h3
               id="auth-modal-title"
-              class="font-['Playfair_Display',Georgia,serif] text-xl text-white"
+              class="font-['Playfair_Display',Georgia,serif] text-xl text-(--color-text-strong)"
             >
               {{ isLogin ? "Welkom terug" : "Account aanmaken" }}
             </h3>
             <button
               type="button"
-              class="absolute top-3 right-3 p-1.5 text-white/60 transition-colors hover:text-white"
+              class="absolute top-3 right-3 p-1.5 text-(--color-text-muted) transition-colors hover:text-(--color-text-strong)"
               aria-label="Sluiten"
               @click="authModal.close()"
             >
@@ -59,7 +65,7 @@
           </div>
 
           <!-- Tabs -->
-          <div class="grid grid-cols-2 border-b border-white/10">
+          <div class="grid grid-cols-2 border-b border-(--color-border)">
             <button
               v-for="option in tabs"
               :key="option.value"
@@ -68,7 +74,7 @@
               :class="
                 authModal.tab.value === option.value
                   ? 'border-b-2 border-[#c89868] text-[#c89868]'
-                  : 'text-[#a89a8e] hover:text-white'
+                  : 'text-(--color-text-muted) hover:text-(--color-text-strong)'
               "
               @click="switchTab(option.value)"
             >
@@ -79,7 +85,7 @@
           <!-- Form -->
           <form class="space-y-4 px-5 py-5 sm:px-6" @submit.prevent="submit()">
             <label v-if="!isLogin" class="block">
-              <span class="mb-1.5 block text-xs font-medium text-[#a89a8e]"
+              <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
                 >Naam of bedrijfsnaam</span
               >
               <input
@@ -88,12 +94,12 @@
                 required
                 autocomplete="organization"
                 placeholder="bv. Restaurant De Kroon"
-                class="w-full border border-white/15 bg-[#0f0808] px-3 py-2.5 text-sm text-white placeholder-[#a89a8e]/60 focus:border-[#c89868] focus:outline-none"
+                class="w-full border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
 
             <label class="block">
-              <span class="mb-1.5 block text-xs font-medium text-[#a89a8e]"
+              <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
                 >E-mailadres</span
               >
               <input
@@ -103,12 +109,12 @@
                 required
                 autocomplete="email"
                 placeholder="naam@bedrijf.be"
-                class="w-full border border-white/15 bg-[#0f0808] px-3 py-2.5 text-sm text-white placeholder-[#a89a8e]/60 focus:border-[#c89868] focus:outline-none"
+                class="w-full border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
 
             <label class="block">
-              <span class="mb-1.5 block text-xs font-medium text-[#a89a8e]"
+              <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
                 >Wachtwoord</span
               >
               <input
@@ -118,7 +124,7 @@
                 :minlength="8"
                 :autocomplete="isLogin ? 'current-password' : 'new-password'"
                 placeholder="Minimaal 8 tekens"
-                class="w-full border border-white/15 bg-[#0f0808] px-3 py-2.5 text-sm text-white placeholder-[#a89a8e]/60 focus:border-[#c89868] focus:outline-none"
+                class="w-full border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
 
@@ -138,7 +144,7 @@
               }}
             </button>
 
-            <p class="text-center text-[0.7rem] text-[#a89a8e]">
+            <p class="text-center text-[0.7rem] text-(--color-text-muted)">
               {{ isLogin ? "Nog geen account?" : "Al een account?" }}
               <button
                 type="button"

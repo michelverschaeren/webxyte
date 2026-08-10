@@ -5,9 +5,9 @@
   >
     <div
       v-if="route.query.next"
-      class="mb-8 border-l-2 border-[#c89868] bg-[#1a1414] px-5 py-4"
+      class="mb-8 border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
-      <p class="text-sm text-[#e8e2dc]">
+      <p class="text-sm text-(--color-text)">
         Vul eerst uw facturatiegegevens in om uw bestelling te kunnen plaatsen.
       </p>
     </div>
@@ -159,7 +159,7 @@
         </button>
         <NuxtLink
           to="/account"
-          class="px-4 py-3 text-xs font-semibold tracking-widest text-[#a89a8e] uppercase transition-colors hover:text-white"
+          class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Terug naar overzicht
         </NuxtLink>
@@ -237,18 +237,19 @@ async function save() {
   margin-bottom: 0.4rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #a89a8e;
+  color: var(--color-text-muted);
 }
 .acc-input {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #150f0f;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-2);
   padding: 0.7rem 0.85rem;
   font-size: 0.9rem;
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .acc-input::placeholder {
-  color: rgba(168, 154, 142, 0.6);
+  color: var(--color-text-muted);
+  opacity: 0.6;
 }
 .acc-input:focus {
   outline: none;

@@ -5,9 +5,9 @@
   >
     <div
       v-if="!billing"
-      class="mb-8 flex flex-wrap items-center gap-4 border-l-2 border-[#c89868] bg-[#1a1414] px-5 py-4"
+      class="mb-8 flex flex-wrap items-center gap-4 border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
-      <p class="flex-1 text-sm text-[#e8e2dc]">
+      <p class="flex-1 text-sm text-(--color-text)">
         Vul uw facturatiegegevens in — die hebben wij nodig voor u kunt
         bestellen.
       </p>
@@ -59,7 +59,7 @@
         </h2>
         <NuxtLink
           to="/account/bestellingen"
-          class="text-xs font-semibold tracking-[0.08em] text-[#a89a8e] uppercase transition-colors hover:text-white"
+          class="text-xs font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Alles bekijken →
         </NuxtLink>
@@ -69,17 +69,17 @@
         <li
           v-for="order in recentOrders"
           :key="order.id"
-          class="border border-white/10 bg-[#150f0f] transition-colors hover:border-[#c89868]/40"
+          class="border border-(--color-border) bg-(--color-surface-2) transition-colors hover:border-[#c89868]/40"
         >
           <NuxtLink
             :to="`/account/bestellingen/${order.id}`"
             class="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4 sm:px-6"
           >
             <div class="min-w-0 flex-1">
-              <p class="font-semibold text-white">
+              <p class="font-semibold text-(--color-text-strong)">
                 {{ formatDate(order.createdAt) }}
               </p>
-              <p class="mt-0.5 text-xs text-[#a89a8e]">
+              <p class="mt-0.5 text-xs text-(--color-text-muted)">
                 {{ order.lineCount }} artikel{{
                   order.lineCount !== 1 ? "en" : ""
                 }}
@@ -134,8 +134,8 @@ function formatDate(value: string | Date): string {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #150f0f;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
   padding: 1.5rem;
   text-align: left;
   text-decoration: none;
@@ -153,7 +153,7 @@ function formatDate(value: string | Date): string {
   font-size: 2rem;
   font-weight: 900;
   line-height: 1;
-  color: #fff;
+  color: var(--color-text-strong);
 }
 .acc-card-title {
   font-size: 0.7rem;
@@ -164,6 +164,6 @@ function formatDate(value: string | Date): string {
 }
 .acc-card-hint {
   font-size: 0.75rem;
-  color: #a89a8e;
+  color: var(--color-text-muted);
 }
 </style>

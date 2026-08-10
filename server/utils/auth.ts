@@ -17,11 +17,12 @@ export const auth = betterAuth({
    * van poort zodra 3000 bezet is, wat anders "Invalid origin" oplevert bij
    * elke login. Daarom is localhost tijdens ontwikkeling poort-onafhankelijk.
    */
-  trustedOrigins:
+  trustedOrigins: [
     process.env.NODE_ENV === "production"
       ? undefined
       : [/^https?:\/\/localhost(:\d+)?$/, /^https?:\/\/127\.0\.0\.1(:\d+)?$/],
-
+    "https://vleeswaren.webxyte.be",
+  ],
   database: drizzleAdapter(db, {
     provider: "pg",
     // De sleutels hier moeten matchen met de modelnamen van Better Auth.

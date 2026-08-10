@@ -198,9 +198,9 @@ const features = [
 .hero-bg {
   background: radial-gradient(
     ellipse at 50% 40%,
-    #7a1a1a 0%,
-    #4a0e0e 45%,
-    #1a0808 100%
+    var(--gradient-banner-1) 0%,
+    var(--gradient-banner-2) 45%,
+    var(--gradient-banner-3) 100%
   );
 }
 .hero-bg::after {
@@ -209,7 +209,7 @@ const features = [
   inset: 0;
   background: radial-gradient(
     ellipse at 50% 100%,
-    rgba(15, 13, 13, 0.9) 0%,
+    color-mix(in srgb, var(--color-bg) 90%, transparent) 0%,
     transparent 55%
   );
 }
@@ -243,6 +243,11 @@ const features = [
   transform: rotate(-15deg) scaleX(-1);
 }
 .feature-strip-gradient {
-  background: linear-gradient(90deg, #4a0e0e 0%, #6b1818 40%, #8b1f1f 100%);
+  background: linear-gradient(
+    90deg,
+    var(--gradient-banner-2) 0%,
+    var(--gradient-banner-1) 40%,
+    var(--color-primary-hover) 100%
+  );
 }
 </style>

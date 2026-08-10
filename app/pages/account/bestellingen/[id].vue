@@ -3,7 +3,7 @@
     <div class="mb-6 flex flex-wrap items-center gap-4">
       <NuxtLink
         to="/account/bestellingen"
-        class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-white"
+        class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-(--color-text-strong)"
       >
         ← Alle bestellingen
       </NuxtLink>
@@ -23,12 +23,12 @@
           <li
             v-for="item in order.items"
             :key="item.id"
-            class="flex items-center gap-4 border border-white/10 bg-[#150f0f] px-4 py-3"
+            class="flex items-center gap-4 border border-(--color-border) bg-(--color-surface-2) px-4 py-3"
             :class="{ 'opacity-50': !item.available }"
           >
             <div class="min-w-0 flex-1">
-              <p class="truncate font-semibold text-white">{{ item.name }}</p>
-              <p class="mt-0.5 text-[0.7rem] text-[#a89a8e]">
+              <p class="truncate font-semibold text-(--color-text-strong)">{{ item.name }}</p>
+              <p class="mt-0.5 text-[0.7rem] text-(--color-text-muted)">
                 <span class="font-mono text-[#c89868]">{{
                   item.articleNr
                 }}</span>
@@ -39,16 +39,16 @@
                 Niet meer beschikbaar
               </p>
             </div>
-            <span class="shrink-0 font-semibold text-[#e8e2dc]"
+            <span class="shrink-0 font-semibold text-(--color-text)"
               >{{ item.quantity }}×</span
             >
           </li>
         </ul>
 
         <!-- Reorder -->
-        <div class="mt-6 border border-[#c89868]/30 bg-[#150f0f] p-5">
-          <h3 class="font-semibold text-white">Opnieuw bestellen</h3>
-          <p class="mt-1 text-sm text-[#a89a8e]">
+        <div class="mt-6 border border-[#c89868]/30 bg-(--color-surface-2) p-5">
+          <h3 class="font-semibold text-(--color-text-strong)">Opnieuw bestellen</h3>
+          <p class="mt-1 text-sm text-(--color-text-muted)">
             {{ reorderSummary }}
           </p>
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
@@ -80,19 +80,19 @@
           — Gefactureerd aan —
         </h2>
         <div
-          class="space-y-1 border border-white/10 bg-[#150f0f] px-5 py-5 text-sm text-[#e8e2dc]"
+          class="space-y-1 border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)"
         >
-          <p class="font-semibold text-white">{{ order.billing.companyName }}</p>
-          <p v-if="order.billing.vatNumber" class="text-[#a89a8e]">
+          <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
+          <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
             BTW {{ order.billing.vatNumber }}
           </p>
           <p class="pt-2">{{ order.billing.street }}</p>
           <p>{{ order.billing.postalCode }} {{ order.billing.city }}</p>
           <p>{{ order.billing.country }}</p>
-          <p class="pt-2 text-[#a89a8e]">{{ order.billing.phone }}</p>
-          <p class="text-[#a89a8e]">{{ order.billing.invoiceEmail }}</p>
+          <p class="pt-2 text-(--color-text-muted)">{{ order.billing.phone }}</p>
+          <p class="text-(--color-text-muted)">{{ order.billing.invoiceEmail }}</p>
         </div>
-        <p class="mt-3 text-[0.7rem] leading-relaxed text-[#a89a8e]">
+        <p class="mt-3 text-[0.7rem] leading-relaxed text-(--color-text-muted)">
           Dit zijn de gegevens zoals ze golden op het moment van bestellen.
           Wijzigingen aanpassen doet u bij
           <NuxtLink to="/account/gegevens" class="text-[#c89868] hover:underline"

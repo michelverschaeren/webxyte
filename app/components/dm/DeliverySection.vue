@@ -1,7 +1,13 @@
 <template>
   <section
     class="overflow-hidden py-24"
-    style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+    style="
+      background: linear-gradient(
+        135deg,
+        var(--color-surface-strong) 0%,
+        var(--color-surface) 100%
+      );
+    "
   >
     <div
       class="mx-auto grid max-w-300 grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16"
@@ -14,7 +20,7 @@
           — Levering —
         </p>
         <h2
-          class="mb-6 font-['Playfair_Display',serif] text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-bold text-white"
+          class="mb-6 font-['Playfair_Display',serif] text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-bold text-(--color-text-strong)"
         >
           Onze eigen<br />
           <span
@@ -22,7 +28,7 @@
             >in-huis chauffeurs</span
           >
         </h2>
-        <p class="mb-8 text-[1.05rem] leading-[1.7] text-[#a89a8e]">
+        <p class="mb-8 text-[1.05rem] leading-[1.7] text-(--color-text-muted)">
           Uw bestelling wordt afgeleverd door één van onze eigen chauffeurs.
           Indien u problemen heeft met uw bestelling, staan zij u bij in het
           zoeken naar een oplossing op maat. Ontbreekt er een artikel? Wij

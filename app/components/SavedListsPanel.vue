@@ -17,12 +17,18 @@
             ? 'w-full max-w-none'
             : 'w-full sm:w-md max-w-full'
         "
-        style="background: #1a0a0a"
+        style="background: var(--color-surface)"
       >
         <!-- Header -->
         <div
-          class="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0"
-          style="background: linear-gradient(135deg, #0a0808 0%, #1a0a0a 100%)"
+          class="flex items-center justify-between px-5 py-4 border-b border-(--color-border) shrink-0"
+          style="
+            background: linear-gradient(
+              135deg,
+              var(--color-surface-strong) 0%,
+              var(--color-surface) 100%
+            );
+          "
         >
           <!-- Breadcrumb / title area -->
           <div class="flex items-center gap-3 min-w-0">
@@ -46,7 +52,7 @@
                 — Bestellijsten —
               </p>
               <!-- Normal overview title -->
-              <h2 v-if="!isEditing" class="font-bold text-white">
+              <h2 v-if="!isEditing" class="font-bold text-(--color-text-strong)">
                 Mijn bestellijsten
               </h2>
               <!-- Breadcrumb when editing -->
@@ -58,15 +64,15 @@
                 <button
                   type="button"
                   @click="orderLists.closeEditor()"
-                  class="font-bold text-[#c89868] hover:text-white transition-colors whitespace-nowrap"
+                  class="font-bold text-[#c89868] hover:text-(--color-text-strong) transition-colors whitespace-nowrap"
                 >
                   Mijn bestellijsten
                 </button>
-                <span class="text-white/30 select-none">/</span>
+                <span class="text-(--color-text-muted) select-none">/</span>
                 <input
                   v-model="editorDraftName"
                   type="text"
-                  class="bg-transparent text-white font-bold focus:outline-none border-b border-transparent focus:border-[#c89868]/50 py-0.5 min-w-0 truncate"
+                  class="bg-transparent text-(--color-text-strong) font-bold focus:outline-none border-b border-transparent focus:border-[#c89868]/50 py-0.5 min-w-0 truncate"
                   :class="
                     orderLists.panelMaximized.value
                       ? 'text-base max-w-64'
@@ -84,7 +90,7 @@
               v-if="isEditing"
               type="button"
               @click="orderLists.closeEditor()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-white/10 hover:text-white"
+              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Terug naar overzicht"
             >
               <svg
@@ -107,7 +113,7 @@
               v-if="!isEditing"
               type="button"
               @click="switchToCart()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-white/10 hover:text-white"
+              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Wissel naar het winkelmandje"
             >
               <svg
@@ -136,7 +142,7 @@
                 orderLists.panelMaximized.value =
                   !orderLists.panelMaximized.value
               "
-              class="rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               :title="
                 orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'
               "
@@ -175,7 +181,7 @@
             </button>
             <button
               @click="orderLists.closePanel()"
-              class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              class="p-1.5 text-(--color-text) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
               aria-label="Sluit"
             >
               <svg

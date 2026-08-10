@@ -1,6 +1,6 @@
 <template>
   <section
-    class="py-24 bg-[#0f0d0d] bg-[radial-gradient(circle_at_20%_30%,rgba(184,37,42,0.05),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(184,37,42,0.05),transparent_50%)]"
+    class="py-24 bg-[var(--color-bg)] bg-[radial-gradient(circle_at_20%_30%,rgba(184,37,42,0.05),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(184,37,42,0.05),transparent_50%)]"
   >
     <div class="max-w-300 mx-auto px-6">
       <div
@@ -14,7 +14,7 @@
             — Onze service —
           </p>
           <h2
-            class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-white mb-4 leading-[1.1]"
+            class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-[var(--color-text-strong)] mb-4 leading-[1.1]"
           >
             <span class="block">Persoonlijke</span>
             <span
@@ -26,7 +26,7 @@
             <li
               v-for="point in qualityPoints"
               :key="point.title"
-              class="flex gap-4 items-start py-4 border-b border-white/8 last:border-b-0"
+              class="flex gap-4 items-start py-4 border-b border-[var(--color-border)] last:border-b-0"
             >
               <div
                 class="w-11 h-11 border border-[#c89868] text-[#c89868] rounded-full flex items-center justify-center shrink-0"
@@ -35,17 +35,17 @@
               </div>
               <div>
                 <h4
-                  class="text-white text-[1rem] m-0 mb-1 uppercase tracking-widest"
+                  class="text-[var(--color-text-strong)] text-[1rem] m-0 mb-1 uppercase tracking-widest"
                 >
                   {{ point.title }}
                 </h4>
-                <p class="text-[#a89a8e] m-0 text-[0.9rem] leading-normal">
+                <p class="text-[var(--color-text-muted)] m-0 text-[0.9rem] leading-normal">
                   {{ point.text }}
                 </p>
               </div>
             </li>
           </ul>
-          <p class="text-[#a89a8e] leading-[1.7] my-8">
+          <p class="text-[var(--color-text-muted)] leading-[1.7] my-8">
             Door de diepgewortelde waardes van Vleeswaren Vermeir, als hecht
             familiebedrijf, trachten wij met onze klanten steeds een
             persoonlijke vertrouwensband op te bouwen. U wordt steeds bediend

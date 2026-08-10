@@ -48,7 +48,7 @@
             — Over Vleeswaren Vermeir —
           </p>
           <h2
-            class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-white"
+            class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-[var(--color-text-strong)]"
           >
             <span class="block">Een familiebedrijf</span>
             <span
@@ -57,7 +57,7 @@
             >
           </h2>
           <p
-            class="mt-6 max-w-150 text-[1.05rem] leading-[1.7] text-[#a89a8e] lg:mx-0 mx-auto"
+            class="mt-6 max-w-150 text-[1.05rem] leading-[1.7] text-[var(--color-text-muted)] lg:mx-0 mx-auto"
           >
             Van generatie op generatie is dit familiebedrijf altijd trouw
             gebleven aan zijn waarden welke streven naar 100% klanttevredenheid.

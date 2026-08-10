@@ -3,7 +3,7 @@
     <!-- Loading -->
     <div
       v-if="orderLists.loading.value && orderLists.lists.value.length === 0"
-      class="py-12 text-center text-sm text-[#a89a8e]"
+      class="py-12 text-center text-sm text-(--color-text-muted)"
     >
       Lijsten laden…
     </div>
@@ -31,10 +31,10 @@
         </svg>
       </div>
       <div>
-        <p class="text-sm font-semibold text-white">
+        <p class="text-sm font-semibold text-(--color-text-strong)">
           Nog geen lijsten opgeslagen
         </p>
-        <p class="mt-2 text-xs leading-relaxed text-[#a89a8e]">
+        <p class="mt-2 text-xs leading-relaxed text-(--color-text-muted)">
           Zet producten in uw bestellijst en gebruik "Lijst opslaan" in het
           winkelmandje om een vaste selectie te bewaren — bijvoorbeeld "Kazen"
           of "Kerstmis".
@@ -70,9 +70,9 @@
     <Transition name="bar-slide">
       <div
         v-if="selected.length > 0"
-        class="sticky bottom-0 z-10 -mx-1 mt-4 flex flex-wrap items-center gap-3 border-t border-[#c89868]/30 bg-[#0a0808] px-4 py-3"
+        class="sticky bottom-0 z-10 -mx-1 mt-4 flex flex-wrap items-center gap-3 border-t border-[#c89868]/30 bg-(--color-surface-strong) px-4 py-3"
       >
-        <p class="text-xs text-[#e8e2dc]">
+        <p class="text-xs text-(--color-text)">
           <span class="font-semibold text-[#c89868]">{{ selected.length }}</span>
           lijst{{ selected.length !== 1 ? "en" : "" }} geselecteerd ·
           {{ mergedItems.length }} artikel{{
@@ -82,7 +82,7 @@
         <div class="ml-auto flex flex-wrap gap-2">
           <button
             type="button"
-            class="px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-[#a89a8e] uppercase transition-colors hover:text-white"
+            class="px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
             @click="selected = []"
           >
             Wissen

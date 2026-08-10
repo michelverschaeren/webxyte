@@ -11,6 +11,9 @@
 <script setup lang="ts">
 const { locked } = useSiteLock();
 
+const { theme } = useTheme();
+useHead({ htmlAttrs: { "data-theme": theme } });
+
 watch(
   locked,
   (isLocked) => {
