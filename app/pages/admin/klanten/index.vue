@@ -13,7 +13,40 @@
       {{ pagination?.total ?? 0 }} klanten
     </p>
 
-    <div class="overflow-x-auto border border-(--color-border)">
+    <!-- Kaarten (mobiel) -->
+    <ul v-if="items.length > 0" class="space-y-2 sm:hidden">
+      <li
+        v-for="c in items"
+        :key="c.id"
+        class="border border-(--color-border) bg-(--color-surface-2)"
+      >
+        <NuxtLink
+          :to="`/admin/klanten/${c.id}`"
+          class="flex flex-col gap-2 px-4 py-3"
+        >
+          <div class="min-w-0">
+            <p class="font-semibold text-(--color-text-strong)">{{ c.name }}</p>
+            <p class="truncate text-xs text-(--color-text-muted)">{{ c.email }}</p>
+            <p v-if="c.companyName" class="truncate text-xs text-(--color-text-muted)">
+              {{ c.companyName }}
+            </p>
+          </div>
+          <div class="flex items-center justify-between gap-3 text-xs text-(--color-text-muted)">
+            <span>{{ c.orderCount }} bestelling{{ c.orderCount !== 1 ? "en" : "" }}</span>
+            <span>{{ c.lastOrderAt ? formatDate(c.lastOrderAt) : "Nog geen bestelling" }}</span>
+          </div>
+        </NuxtLink>
+      </li>
+    </ul>
+    <p
+      v-else
+      class="border border-(--color-border) bg-(--color-surface-2) px-4 py-10 text-center text-sm text-(--color-text-muted) sm:hidden"
+    >
+      Geen klanten gevonden.
+    </p>
+
+    <!-- Tabel (desktop) -->
+    <div class="hidden overflow-x-auto border border-(--color-border) sm:block">
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
@@ -61,7 +94,7 @@
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
                 :to="`/admin/klanten/${c.id}`"
-                class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase hover:text-[#e8c97a]"
+                class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Bekijken →
               </NuxtLink>

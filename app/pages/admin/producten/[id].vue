@@ -74,7 +74,7 @@
       <!-- Productfiche (pdf) -->
       <fieldset class="space-y-3 border-t border-(--color-border) pt-6">
         <legend
-          class="mb-2 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-2 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Productfiche (pdf) —
         </legend>
@@ -83,7 +83,7 @@
           <a
             :href="product.infoPdf"
             target="_blank"
-            class="text-sm text-[#c89868] underline hover:text-[#e8c97a]"
+            class="text-sm text-(--color-accent) underline hover:text-[#e8c97a]"
           >
             Huidige pdf openen →
           </a>

@@ -1,20 +1,38 @@
 <template>
   <AccountShell title="Bestelling" :subtitle="formatDate(order.createdAt)">
+    <div
+      v-if="justPlaced"
+      class="mb-8 border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4"
+    >
+      <p class="font-semibold text-(--color-text-strong)">
+        Bedankt voor uw bestelling!
+      </p>
+      <p class="mt-1 text-sm text-(--color-text-muted)">
+        Ze is zonet doorgestuurd naar Vleeswaren Vermeir en wordt zo snel
+        mogelijk verwerkt en geleverd. U vindt de bestelling hier steeds
+        terug.
+      </p>
+    </div>
+
     <div class="mb-6 flex flex-wrap items-center gap-4">
       <NuxtLink
         to="/account/bestellingen"
-        class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-(--color-text-strong)"
+        class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
       >
         ← Alle bestellingen
       </NuxtLink>
       <AccountOrderStatus :status="order.status" class="ml-auto" />
     </div>
 
+    <div class="mb-10 border border-(--color-border) bg-(--color-surface-2) px-4 py-6 sm:px-8">
+      <AccountOrderProgress :status="order.status" />
+    </div>
+
     <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
       <!-- Items -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Bestelde artikelen —
         </h2>
@@ -29,7 +47,7 @@
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold text-(--color-text-strong)">{{ item.name }}</p>
               <p class="mt-0.5 text-[0.7rem] text-(--color-text-muted)">
-                <span class="font-mono text-[#c89868]">{{
+                <span class="font-mono text-(--color-accent)">{{
                   item.articleNr
                 }}</span>
                 · {{ item.supplier }}
@@ -63,7 +81,7 @@
             <button
               type="button"
               :disabled="reorderItems.length === 0"
-              class="border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              class="border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
               @click="reorder('append')"
             >
               Toevoegen aan mandje
@@ -75,7 +93,7 @@
       <!-- Billing snapshot -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Gefactureerd aan —
         </h2>
@@ -95,7 +113,7 @@
         <p class="mt-3 text-[0.7rem] leading-relaxed text-(--color-text-muted)">
           Dit zijn de gegevens zoals ze golden op het moment van bestellen.
           Wijzigingen aanpassen doet u bij
-          <NuxtLink to="/account/gegevens" class="text-[#c89868] hover:underline"
+          <NuxtLink to="/account/gegevens" class="text-(--color-accent) hover:underline"
             >uw facturatiegegevens</NuxtLink
           >.
         </p>
@@ -121,6 +139,7 @@ if (!data.value) {
 }
 
 const order = data.value;
+const justPlaced = route.query.nieuw === "1";
 
 useHead({ title: "Bestelling — Vleeswaren Vermeir" });
 

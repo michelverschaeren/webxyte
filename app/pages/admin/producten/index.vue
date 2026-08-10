@@ -74,8 +74,22 @@
             :key="p.id"
             class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
           >
-            <td class="px-4 py-2.5 text-[#c89868]">{{ p.articleNr }}</td>
-            <td class="px-4 py-2.5 text-(--color-text-strong)">{{ p.name }}</td>
+            <td class="px-4 py-2.5 text-(--color-accent)">{{ p.articleNr }}</td>
+            <td class="px-4 py-2.5 text-(--color-text-strong)">
+              <span class="inline-flex items-center gap-2">
+                {{ p.name }}
+                <a
+                  v-if="p.infoPdf"
+                  :href="p.infoPdf"
+                  target="_blank"
+                  :title="`Productfiche ${p.name} openen`"
+                  :aria-label="`Productfiche ${p.name} openen`"
+                  class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#c89868]/40 text-[0.65rem] font-bold italic text-(--color-accent) transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+                >
+                  i
+                </a>
+              </span>
+            </td>
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) sm:table-cell">
               {{ p.supplier }}
             </td>
@@ -103,7 +117,7 @@
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
                 :to="`/admin/producten/${p.id}`"
-                class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase hover:text-[#e8c97a]"
+                class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Bewerken →
               </NuxtLink>

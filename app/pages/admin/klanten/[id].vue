@@ -7,7 +7,7 @@
       <!-- Facturatiegegevens -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Facturatiegegevens —
         </h2>
@@ -48,7 +48,7 @@
       <!-- Bestelhistoriek -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Bestellingen ({{ data.orders.length }}) —
         </h2>

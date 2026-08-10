@@ -11,7 +11,7 @@
 const props = defineProps<{ status: string }>();
 
 const STATUS_STYLES: Record<string, { label: string; color: string }> = {
-  nieuw: { label: "Nieuw", color: "#c89868" },
+  nieuw: { label: "Nieuw", color: "var(--color-accent)" },
   in_behandeling: { label: "In behandeling", color: "#6ba3d9" },
   voltooid: { label: "Voltooid", color: "#8fc98f" },
   geannuleerd: { label: "Geannuleerd", color: "#b8252a" },

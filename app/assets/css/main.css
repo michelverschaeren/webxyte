@@ -47,6 +47,12 @@
   --gradient-banner-1: #9c2f27;
   --gradient-banner-2: #7a231d;
   --gradient-banner-3: #5c1912;
+
+  /* Het merk-goud (#c89868) heeft te weinig contrast als tekstkleur op een
+     crème/witte achtergrond (~2.6:1) — hier een dieper brons voor tekst en
+     iconen (~5.9:1 op wit). Achtergronden/randen die #c89868 zelf gebruiken
+     (knoppen, badges) blijven bewust ongewijzigd. */
+  --color-accent: #8a5f2e;
 }
 
 /* ── Global base ─────────────────────────────────────────────────── */

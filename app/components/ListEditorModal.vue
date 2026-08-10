@@ -31,7 +31,7 @@
               :class="maximized ? 'text-xs' : 'text-[0.7rem]'"
               class="text-(--color-text-muted)"
             >
-              <span class="font-mono text-[#c89868]">{{ item.articleNr }}</span>
+              <span class="font-mono text-(--color-accent)">{{ item.articleNr }}</span>
               · {{ item.supplier }}
               <span v-if="item.unit"> · {{ item.unit }}</span>
             </p>
@@ -41,7 +41,7 @@
             <button
               type="button"
               @click="updateQty(idx, item.quantity - 1)"
-              class="text-[#c89868] hover:bg-(--color-hover) transition-colors border border-(--color-border)"
+              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border)"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               −
@@ -62,7 +62,7 @@
             <button
               type="button"
               @click="updateQty(idx, item.quantity + 1)"
-              class="text-[#c89868] hover:bg-(--color-hover) transition-colors border border-(--color-border)"
+              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border)"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               +
@@ -117,7 +117,7 @@
             type="button"
             :disabled="draftItems.length === 0"
             @click="appendCart()"
-            class="border border-[#c89868] text-[#c89868] font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="border border-[#c89868] text-(--color-accent) font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="
               maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
             "

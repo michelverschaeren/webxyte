@@ -15,7 +15,7 @@
               VV
             </div>
             <span class="text-lg font-bold text-[var(--color-text-strong)]"
-              >Vleeswaren <span class="text-[#c89868]">Vermeir</span></span
+              >Vleeswaren <span class="text-(--color-accent)">Vermeir</span></span
             >
           </div>
           <p class="text-sm leading-relaxed text-[var(--color-text-muted)]">
@@ -27,14 +27,14 @@
         <!-- Contact -->
         <div>
           <h3
-            class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+            class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
           >
             Contact
           </h3>
           <ul class="space-y-2 text-sm text-[var(--color-text-muted)]">
             <li class="flex items-start gap-2">
               <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-[#c89868]"
+                class="mt-0.5 h-4 w-4 shrink-0 text-(--color-accent)"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -55,7 +55,7 @@
             </li>
             <li class="flex items-center gap-2">
               <svg
-                class="h-4 w-4 shrink-0 text-[#c89868]"
+                class="h-4 w-4 shrink-0 text-(--color-accent)"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -71,7 +71,7 @@
             </li>
             <li class="flex items-center gap-2">
               <svg
-                class="h-4 w-4 shrink-0 text-[#c89868]"
+                class="h-4 w-4 shrink-0 text-(--color-accent)"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -91,7 +91,7 @@
         <!-- Links -->
         <div>
           <h3
-            class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+            class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
           >
             Navigatie
           </h3>

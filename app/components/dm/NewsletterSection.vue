@@ -26,7 +26,7 @@
       >
         Wij staan u
         <span
-          class="font-['Dancing_Script',cursive] text-[1.1em] text-[#c89868]"
+          class="font-['Dancing_Script',cursive] text-[1.1em] text-(--color-accent)"
           >heel de dag graag te woord</span
         >
       </h2>
@@ -40,7 +40,7 @@
         class="mx-auto flex max-w-125 flex-col items-center border border-white/15 bg-black/30 p-1.5 sm:flex-row"
         @submit.prevent
       >
-        <span class="px-4 text-[1.5rem] text-[#c89868]">✉</span>
+        <span class="px-4 text-[1.5rem] text-(--color-accent)">✉</span>
         <input
           type="email"
           placeholder="Uw e-mailadres"

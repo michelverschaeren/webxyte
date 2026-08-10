@@ -126,7 +126,6 @@ kan je `auth` en `db` direct gebruiken zonder importregel.
 | `pnpm db:pull`      | Leest een bestaande database uit en genereert er schema-code van    |
 | `pnpm db:check`     | Controleert migraties op conflicten                                 |
 | `pnpm db:studio`    | Opent Drizzle Studio (grafische database-browser)                   |
-| `pnpm db:seed`      | Vult de database met startdata                                      |
 
 ### Werkwijze bij een schemawijziging
 

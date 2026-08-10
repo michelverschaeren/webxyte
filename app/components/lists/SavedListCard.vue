@@ -86,7 +86,7 @@
         Vervang mandje
       </button>
       <button
-        class="border border-[#c89868] font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+        class="border border-[#c89868] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
         :class="large ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
         @click="emit('append')"
       >

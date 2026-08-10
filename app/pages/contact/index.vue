@@ -30,7 +30,7 @@
         <div class="flex flex-col gap-8">
           <div>
             <p
-              class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-6"
+              class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-6"
             >
               — Contactgegevens —
             </p>
@@ -41,13 +41,13 @@
                 class="flex items-start gap-5 py-4 border-b border-(--color-border) last:border-b-0"
               >
                 <div
-                  class="w-11 h-11 border border-[#c89868] text-[#c89868] flex items-center justify-center shrink-0"
+                  class="w-11 h-11 border border-[#c89868] text-(--color-accent) flex items-center justify-center shrink-0"
                 >
                   <component :is="info.icon" class="w-5 h-5" />
                 </div>
                 <div>
                   <p
-                    class="text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-1"
+                    class="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-1"
                   >
                     {{ info.label }}
                   </p>
@@ -84,7 +84,7 @@
         <!-- Right: contact form -->
         <div class="bg-(--color-surface) border border-(--color-border) p-8">
           <p
-            class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-2"
+            class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-2"
           >
             — Stuur ons een bericht —
           </p>
@@ -102,7 +102,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
-                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-2"
+                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                   >Naam</label
                 >
                 <input
@@ -115,7 +115,7 @@
               </div>
               <div>
                 <label
-                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-2"
+                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                   >Bedrijf</label
                 >
                 <input
@@ -129,7 +129,7 @@
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-2"
+                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >E-mailadres</label
               >
               <input
@@ -143,7 +143,7 @@
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-2"
+                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >Telefoonnummer</label
               >
               <input
@@ -156,7 +156,7 @@
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-[#c89868] mb-2"
+                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >Bericht</label
               >
               <textarea
@@ -177,7 +177,7 @@
 
             <p
               v-if="submitted"
-              class="text-center text-sm font-medium text-[#c89868]"
+              class="text-center text-sm font-medium text-(--color-accent)"
             >
               ✓ Bedankt! We nemen zo snel mogelijk contact op.
             </p>

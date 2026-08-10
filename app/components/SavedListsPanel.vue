@@ -33,7 +33,7 @@
           <!-- Breadcrumb / title area -->
           <div class="flex items-center gap-3 min-w-0">
             <svg
-              class="w-5 h-5 text-[#c89868] shrink-0"
+              class="w-5 h-5 text-(--color-accent) shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -47,7 +47,7 @@
             </svg>
             <div class="min-w-0">
               <p
-                class="uppercase tracking-[0.2em] text-[0.65rem] text-[#c89868] font-semibold"
+                class="uppercase tracking-[0.2em] text-[0.65rem] text-(--color-accent) font-semibold"
               >
                 — Bestellijsten —
               </p>
@@ -64,7 +64,7 @@
                 <button
                   type="button"
                   @click="orderLists.closeEditor()"
-                  class="font-bold text-[#c89868] hover:text-(--color-text-strong) transition-colors whitespace-nowrap"
+                  class="font-bold text-(--color-accent) hover:text-(--color-text-strong) transition-colors whitespace-nowrap"
                 >
                   Mijn bestellijsten
                 </button>
@@ -90,7 +90,7 @@
               v-if="isEditing"
               type="button"
               @click="orderLists.closeEditor()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-accent) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Terug naar overzicht"
             >
               <svg
@@ -113,7 +113,7 @@
               v-if="!isEditing"
               type="button"
               @click="switchToCart()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#c89868] transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-accent) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Wissel naar het winkelmandje"
             >
               <svg

@@ -12,7 +12,7 @@ import { requireAdmin } from "~~/server/utils/session";
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const [[productCounts], [customerCount], [soldTotal], topProducts] =
+  const [[productCounts], [customerCount], [pendingOrders], [soldTotal], topProducts] =
     await Promise.all([
       db
         .select({
@@ -25,6 +25,11 @@ export default defineEventHandler(async (event) => {
         .select({ value: raw<number>`count(*)::int` })
         .from(user)
         .where(eq(user.role, "customer")),
+
+      db
+        .select({ value: raw<number>`count(*)::int` })
+        .from(orders)
+        .where(eq(orders.status, "nieuw")),
 
       db
         .select({
@@ -54,6 +59,7 @@ export default defineEventHandler(async (event) => {
     totalProducts: productCounts?.total ?? 0,
     activeProducts: productCounts?.active ?? 0,
     customerCount: customerCount?.value ?? 0,
+    pendingOrders: pendingOrders?.value ?? 0,
     soldQuantity: soldTotal?.value ?? 0,
     topProducts: topProducts.filter((p) => p.totalQuantity > 0),
   };

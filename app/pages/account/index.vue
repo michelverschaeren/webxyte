@@ -53,7 +53,7 @@
     <section v-if="recentOrders.length > 0" class="mt-12">
       <div class="mb-4 flex items-center justify-between gap-4">
         <h2
-          class="text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Recent besteld —
         </h2>
@@ -160,7 +160,7 @@ function formatDate(value: string | Date): string {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #c89868;
+  color: var(--color-accent);
 }
 .acc-card-hint {
   font-size: 0.75rem;

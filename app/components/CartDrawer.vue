@@ -34,7 +34,7 @@
         >
           <div class="flex items-center gap-3 min-w-0">
             <svg
-              class="h-5 w-5 text-[#c89868] shrink-0"
+              class="h-5 w-5 text-(--color-accent) shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -150,7 +150,7 @@
               class="flex h-16 w-16 items-center justify-center rounded-full border border-[#c89868]/30"
             >
               <svg
-                class="h-7 w-7 text-[#c89868]"
+                class="h-7 w-7 text-(--color-accent)"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -194,10 +194,10 @@
                 {{ item.name }}
               </p>
               <p class="text-xs text-(--color-text-muted)">{{ item.supplier }}</p>
-              <p v-if="item.unit" class="mt-0.5 text-xs text-[#c89868]">
+              <p v-if="item.unit" class="mt-0.5 text-xs text-(--color-accent)">
                 {{ item.unit }}
               </p>
-              <p class="mt-0.5 font-mono text-xs text-[#c89868]">
+              <p class="mt-0.5 font-mono text-xs text-(--color-accent)">
                 {{ item.articleNr }}
               </p>
             </div>
@@ -226,7 +226,7 @@
               <div class="flex items-center gap-1">
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity - 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-[#c89868] transition-colors hover:bg-(--color-hover)"
+                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
                 >
                   −
                 </button>
@@ -237,7 +237,7 @@
                 }}</span>
                 <button
                   @click="cart.updateQuantity(item.id, item.quantity + 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-[#c89868] transition-colors hover:bg-(--color-hover)"
+                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
                 >
                   +
                 </button>
@@ -272,6 +272,13 @@
           >
             {{ placing ? "Bezig met versturen…" : "Bestelling bevestigen" }}
           </button>
+          <p
+            v-if="cart.items.value.length > 0"
+            class="text-center text-[0.7rem] leading-relaxed text-(--color-text-muted)"
+          >
+            Wordt rechtstreeks doorgestuurd naar Vleeswaren Vermeir voor
+            verwerking en levering — geen online betaling nodig.
+          </p>
 
           <p v-if="orderError" class="text-center text-xs text-[#e06a6a]">
             {{ orderError }}
@@ -283,7 +290,7 @@
               type="button"
               :disabled="cart.items.value.length === 0"
               @click="openSaveModal()"
-              class="border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              class="border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Lijst opslaan
             </button>
@@ -336,7 +343,7 @@
           "
           >
             <p
-              class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#c89868]"
+              class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-(--color-accent)"
             >
               — Bestellijst —
             </p>
@@ -428,7 +435,7 @@ async function placeOrder() {
 
     cart.clearCart();
     cart.isOpen.value = false;
-    await navigateTo(`/account/bestellingen/${order.id}`);
+    await navigateTo(`/account/bestellingen/${order.id}?nieuw=1`);
   } catch (err) {
     const error = err as {
       statusMessage?: string;

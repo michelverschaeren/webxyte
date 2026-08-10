@@ -31,7 +31,7 @@
       >
         <div class="relative flex-1">
           <svg
-            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#c89868]"
+            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-accent)"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -53,7 +53,7 @@
         <button
           type="button"
           @click="orderLists.openPanel()"
-          class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] text-[#c89868] text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+          class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] text-(--color-accent) text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
         >
           <svg
             class="w-4 h-4"
@@ -82,7 +82,7 @@
             @click="viewLayout = 'grid'"
             :class="
               viewLayout === 'grid'
-                ? 'bg-(--color-hover) text-[#c89868]'
+                ? 'bg-(--color-hover) text-(--color-accent)'
                 : 'text-(--color-text-muted) hover:text-(--color-text)'
             "
             class="w-10 h-13 inline-flex items-center justify-center transition-colors"
@@ -101,7 +101,7 @@
             @click="viewLayout = 'table'"
             :class="
               viewLayout === 'table'
-                ? 'bg-(--color-hover) text-[#c89868]'
+                ? 'bg-(--color-hover) text-(--color-accent)'
                 : 'text-(--color-text-muted) hover:text-(--color-text)'
             "
             class="w-10 h-13 inline-flex items-center justify-center transition-colors border-l border-(--color-border-strong)"
@@ -131,7 +131,7 @@
           <div class="bg-(--color-surface) border border-(--color-border)">
             <div class="px-5 py-4 border-b border-(--color-border)">
               <p
-                class="uppercase tracking-[0.2em] text-[0.7rem] text-[#c89868] font-semibold"
+                class="uppercase tracking-[0.2em] text-[0.7rem] text-(--color-accent) font-semibold"
               >
                 Categorieën
               </p>
@@ -142,12 +142,12 @@
                 class="w-full text-left px-5 py-2.5 text-sm transition-colors"
                 :class="
                   !selectedCategorySlug
-                    ? 'text-[#c89868] bg-(--color-hover)'
+                    ? 'text-(--color-accent) bg-(--color-hover)'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
               >
                 Alle categorieën
-                <span class="float-right text-[#c89868]/60">{{
+                <span class="float-right text-(--color-accent)/60">{{
                   totalActiveCount
                 }}</span>
               </button>
@@ -158,7 +158,7 @@
                 class="w-full text-left px-5 py-2 text-sm transition-colors"
                 :class="
                   selectedCategorySlug === cat.slug
-                    ? 'text-[#c89868] bg-(--color-hover)'
+                    ? 'text-(--color-accent) bg-(--color-hover)'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
               >
@@ -201,7 +201,7 @@
               {{ activeCategoryName }}
               <button
                 @click="selectedCategorySlug = null"
-                class="hover:text-[#c89868] transition-colors"
+                class="hover:text-(--color-accent) transition-colors"
               >
                 ✕
               </button>
@@ -213,7 +213,7 @@
               {{ selectedSupplier }}
               <button
                 @click="selectedSupplier = null"
-                class="hover:text-[#c89868] transition-colors"
+                class="hover:text-(--color-accent) transition-colors"
               >
                 ✕
               </button>
@@ -225,7 +225,7 @@
               "{{ search }}"
               <button
                 @click="search = ''"
-                class="hover:text-[#c89868] transition-colors"
+                class="hover:text-(--color-accent) transition-colors"
               >
                 ✕
               </button>
@@ -280,19 +280,19 @@
                       @click="openInfo(product)"
                       :title="`Productfiche ${product.name}`"
                       :aria-label="`Toon productfiche ${product.name}`"
-                      class="w-6 h-6 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-[#c89868] text-[0.7rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                      class="w-6 h-6 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.7rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                     >
                       i
                     </button>
                     <span
-                      class="text-[0.7rem] text-[#c89868] border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
+                      class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
                       >{{ product.articleNr }}</span
                     >
                   </div>
                 </div>
                 <p
                   v-if="product.unit"
-                  class="text-[#c89868]/90 text-[0.8rem] font-medium"
+                  class="text-(--color-accent)/90 text-[0.8rem] font-medium"
                 >
                   {{ product.unit }}
                 </p>
@@ -300,7 +300,7 @@
                   type="button"
                   @click="selectedSupplier = product.supplier"
                   :title="`Filter op fabrikant: ${product.supplier}`"
-                  class="text-(--color-text-muted) hover:text-[#c89868] text-[0.8rem] transition-colors text-left"
+                  class="text-(--color-text-muted) hover:text-(--color-accent) text-[0.8rem] transition-colors text-left"
                 >
                   {{ product.supplier }}
                 </button>
@@ -308,7 +308,7 @@
                   type="button"
                   @click="selectedCategorySlug = product.category.slug"
                   :title="`Filter op categorie: ${product.category.name}`"
-                  class="text-[0.7rem] text-[#c89868]/70 hover:text-[#c89868] uppercase tracking-widest mt-auto transition-colors text-left"
+                  class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest mt-auto transition-colors text-left"
                 >
                   {{ product.category.name }}
                 </button>
@@ -318,7 +318,7 @@
                   <button
                     type="button"
                     @click="setQty(product.id, getQty(product.id) - 1)"
-                    class="w-9 h-10 text-[#c89868] hover:bg-(--color-hover) transition-colors text-lg"
+                    class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
                     aria-label="Verlaag aantal"
                   >
                     −
@@ -338,7 +338,7 @@
                   <button
                     type="button"
                     @click="setQty(product.id, getQty(product.id) + 1)"
-                    class="w-9 h-10 text-[#c89868] hover:bg-(--color-hover) transition-colors text-lg"
+                    class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
                     aria-label="Verhoog aantal"
                   >
                     +
@@ -369,8 +369,8 @@
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'name'
-                          ? 'text-[#c89868]'
-                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                          ? 'text-(--color-accent)'
+                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
                     >
                       Product
@@ -393,8 +393,8 @@
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'articleNr'
-                          ? 'text-[#c89868]'
-                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                          ? 'text-(--color-accent)'
+                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
                     >
                       Art. nr
@@ -417,8 +417,8 @@
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'supplier'
-                          ? 'text-[#c89868]'
-                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                          ? 'text-(--color-accent)'
+                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
                     >
                       Fabrikant
@@ -441,8 +441,8 @@
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'unit'
-                          ? 'text-[#c89868]'
-                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                          ? 'text-(--color-accent)'
+                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
                     >
                       Eenheid
@@ -465,8 +465,8 @@
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'category'
-                          ? 'text-[#c89868]'
-                          : 'text-[#c89868]/60 hover:text-[#c89868]'
+                          ? 'text-(--color-accent)'
+                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
                     >
                       Categorie
@@ -481,7 +481,7 @@
                     </button>
                   </th>
                   <th
-                    class="py-3 px-3 font-semibold w-52 text-center text-[#c89868]/60"
+                    class="py-3 px-3 font-semibold w-52 text-center text-(--color-accent)/60"
                   >
                     Aantal &amp; Toevoegen
                   </th>
@@ -504,7 +504,7 @@
                         type="button"
                         @click="openInfo(product)"
                         :title="`Productfiche ${product.name}`"
-                        class="shrink-0 w-5 h-5 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-[#c89868] text-[0.65rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                        class="shrink-0 w-5 h-5 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.65rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                       >
                         i
                       </button>
@@ -512,13 +512,13 @@
                     <!-- Mobile fallback: art. nr + supplier -->
                     <div class="flex gap-2 mt-0.5 sm:hidden">
                       <span
-                        class="text-[0.7rem] text-[#c89868] border border-[#c89868]/25 px-1.5 py-0.5"
+                        class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 px-1.5 py-0.5"
                         >{{ product.articleNr }}</span
                       >
                       <button
                         type="button"
                         @click="selectedSupplier = product.supplier"
-                        class="text-[0.7rem] text-(--color-text-muted) hover:text-[#c89868] transition-colors"
+                        class="text-[0.7rem] text-(--color-text-muted) hover:text-(--color-accent) transition-colors"
                       >
                         {{ product.supplier }}
                       </button>
@@ -526,7 +526,7 @@
                   </td>
                   <td class="py-2.5 px-3 hidden sm:table-cell">
                     <span
-                      class="text-[0.75rem] text-[#c89868] border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
+                      class="text-[0.75rem] text-(--color-accent) border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
                       >{{ product.articleNr }}</span
                     >
                   </td>
@@ -537,13 +537,13 @@
                       type="button"
                       @click="selectedSupplier = product.supplier"
                       :title="`Filter op fabrikant: ${product.supplier}`"
-                      class="text-(--color-text-muted) hover:text-[#c89868] transition-colors text-left"
+                      class="text-(--color-text-muted) hover:text-(--color-accent) transition-colors text-left"
                     >
                       {{ product.supplier }}
                     </button>
                   </td>
                   <td
-                    class="py-2.5 px-3 text-[#c89868]/80 text-[0.8rem] hidden lg:table-cell"
+                    class="py-2.5 px-3 text-(--color-accent)/80 text-[0.8rem] hidden lg:table-cell"
                   >
                     {{ product.unit ?? "—" }}
                   </td>
@@ -552,7 +552,7 @@
                       type="button"
                       @click="selectedCategorySlug = product.category.slug"
                       :title="`Filter op categorie: ${product.category.name}`"
-                      class="text-[0.7rem] text-[#c89868]/70 hover:text-[#c89868] uppercase tracking-widest transition-colors text-left"
+                      class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest transition-colors text-left"
                     >
                       {{ product.category.name }}
                     </button>
@@ -563,7 +563,7 @@
                         <button
                           type="button"
                           @click="setQty(product.id, getQty(product.id) - 1)"
-                          class="w-7 h-8 text-[#c89868] hover:bg-(--color-hover) transition-colors"
+                          class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
                           aria-label="Verlaag aantal"
                         >
                           −
@@ -583,7 +583,7 @@
                         <button
                           type="button"
                           @click="setQty(product.id, getQty(product.id) + 1)"
-                          class="w-7 h-8 text-[#c89868] hover:bg-(--color-hover) transition-colors"
+                          class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
                           aria-label="Verhoog aantal"
                         >
                           +
@@ -620,7 +620,7 @@
             <button
               v-if="hasMore"
               @click="loadMore"
-              class="px-8 py-3 border border-[#c89868] text-[#c89868] text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
+              class="px-8 py-3 border border-[#c89868] text-(--color-accent) text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
             >
               Meer laden
             </button>
@@ -705,7 +705,11 @@ const selectedCategorySlug = ref<string | null>(
   (route.query.category as string) ?? null,
 );
 const selectedSupplier = ref<string | null>(null);
-const viewLayout = ref<"grid" | "table">("table");
+// Een tabel is prima op desktop, maar voelt op een telefoon aan als een
+// spreadsheet — daar start de rasterweergave (productkaarten) standaard.
+const viewLayout = ref<"grid" | "table">(
+  import.meta.client && window.innerWidth < 640 ? "grid" : "table",
+);
 
 // Table sort
 type SortKey = "name" | "articleNr" | "supplier" | "unit" | "category";

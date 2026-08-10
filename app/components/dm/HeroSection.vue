@@ -69,12 +69,12 @@
       <!-- Hero text + image -->
       <div class="relative z-2 flex flex-1 flex-col items-center px-4 pt-62">
         <div
-          class="relative z-2 mx-auto flex w-full max-w-205 justify-center"
+          class="relative z-2 flex w-full flex-1 justify-center"
           :style="{ opacity: bgOpacity }"
         >
           <img
-            class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
-            src="/images/hero6.png"
+            class="block h-full w-full object-cover filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
+            src="/images/hero_bg.png"
             alt="Verse vleeswaren Vermeir"
           />
         </div>
@@ -97,7 +97,7 @@
       </div>
       <div class="mt-[0.1em] w-full text-center leading-none">
         <span
-          class="inline-block font-['Dancing_Script',cursive] text-[clamp(3rem,9vw,7rem)] leading-[1.1] font-bold text-[#c89868] [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
+          class="inline-block font-['Dancing_Script',cursive] text-[clamp(3rem,9vw,7rem)] leading-[1.1] font-bold text-(--color-accent) [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
           >Vermeir</span
         >
       </div>
@@ -115,7 +115,7 @@
         >
           <div
             v-html="feat.icon"
-            class="h-9.5 w-9.5 shrink-0 text-[#c89868] [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current"
+            class="h-9.5 w-9.5 shrink-0 text-(--color-accent) [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current"
           ></div>
           <p
             class="m-0 text-[0.72rem] leading-[1.4] tracking-[0.06em] wrap-break-word uppercase md:text-[0.82rem]"

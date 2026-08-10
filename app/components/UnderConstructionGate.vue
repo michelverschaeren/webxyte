@@ -180,7 +180,7 @@ function triggerShake() {
   justify-content: center;
   border-radius: 50%;
   background: rgba(200, 152, 104, 0.12);
-  color: #c89868;
+  color: var(--color-accent);
 }
 .uc-icon svg {
   width: 28px;
@@ -232,7 +232,7 @@ function triggerShake() {
   transition: color 0.2s;
 }
 a.uc-contact-item:hover {
-  color: #c89868;
+  color: var(--color-accent);
 }
 .uc-contact-item--static {
   color: var(--color-text-muted);
@@ -240,7 +240,7 @@ a.uc-contact-item:hover {
 .uc-contact-item svg {
   width: 14px;
   height: 14px;
-  color: #c89868;
+  color: var(--color-accent);
   flex-shrink: 0;
   opacity: 0.85;
 }
@@ -251,7 +251,7 @@ a.uc-contact-item:hover {
   gap: 0.35rem;
   background: transparent;
   border: none;
-  color: #c89868;
+  color: var(--color-accent);
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.02em;

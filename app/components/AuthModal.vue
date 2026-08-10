@@ -32,7 +32,7 @@
             "
           >
             <p
-              class="text-[0.65rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+              class="text-[0.65rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
             >
               — Klantenzone —
             </p>
@@ -73,7 +73,7 @@
               class="px-4 py-3 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
               :class="
                 authModal.tab.value === option.value
-                  ? 'border-b-2 border-[#c89868] text-[#c89868]'
+                  ? 'border-b-2 border-[#c89868] text-(--color-accent)'
                   : 'text-(--color-text-muted) hover:text-(--color-text-strong)'
               "
               @click="switchTab(option.value)"
@@ -148,7 +148,7 @@
               {{ isLogin ? "Nog geen account?" : "Al een account?" }}
               <button
                 type="button"
-                class="text-[#c89868] underline-offset-2 hover:underline"
+                class="text-(--color-accent) underline-offset-2 hover:underline"
                 @click="switchTab(isLogin ? 'register' : 'login')"
               >
                 {{ isLogin ? "Registreer hier" : "Log hier in" }}

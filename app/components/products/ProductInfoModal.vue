@@ -30,7 +30,7 @@
           >
             <div class="min-w-0">
               <p
-                class="uppercase tracking-[0.2em] text-[0.65rem] text-[#c89868] font-semibold"
+                class="uppercase tracking-[0.2em] text-[0.65rem] text-(--color-accent) font-semibold"
               >
                 Productfiche
               </p>
@@ -45,7 +45,7 @@
                 :href="pdfUrl"
                 target="_blank"
                 rel="noopener"
-                class="px-3 py-1.5 border border-[#c89868] text-[#c89868] text-[0.7rem] font-semibold uppercase tracking-[0.1em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                class="px-3 py-1.5 border border-[#c89868] text-(--color-accent) text-[0.7rem] font-semibold uppercase tracking-[0.1em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                 >Nieuw tabblad</a
               >
               <button

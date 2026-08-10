@@ -10,7 +10,7 @@
       >
         <button
           type="button"
-          class="text-xs font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:text-(--color-text-strong)"
+          class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
           @click="orderLists.closeEditor()"
         >
           ← Overzicht
@@ -34,7 +34,7 @@
         </p>
         <button
           type="button"
-          class="ml-auto border border-[#c89868] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-[#c89868] uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+          class="ml-auto border border-[#c89868] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
           @click="cart.isOpen.value = true"
         >
           Winkelmandje ({{ cart.totalItems.value }})

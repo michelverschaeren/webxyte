@@ -17,7 +17,7 @@
         class="flex h-16 w-16 items-center justify-center rounded-full border border-[#c89868]/30"
       >
         <svg
-          class="h-7 w-7 text-[#c89868]"
+          class="h-7 w-7 text-(--color-accent)"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -73,7 +73,7 @@
         class="sticky bottom-0 z-10 -mx-1 mt-4 flex flex-wrap items-center gap-3 border-t border-[#c89868]/30 bg-(--color-surface-strong) px-4 py-3"
       >
         <p class="text-xs text-(--color-text)">
-          <span class="font-semibold text-[#c89868]">{{ selected.length }}</span>
+          <span class="font-semibold text-(--color-accent)">{{ selected.length }}</span>
           lijst{{ selected.length !== 1 ? "en" : "" }} geselecteerd ·
           {{ mergedItems.length }} artikel{{
             mergedItems.length !== 1 ? "en" : ""

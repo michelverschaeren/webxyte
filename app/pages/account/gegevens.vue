@@ -15,7 +15,7 @@
     <form class="max-w-2xl space-y-6" @submit.prevent="save()">
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Bedrijf —
         </legend>
@@ -47,7 +47,7 @@
 
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Adres —
         </legend>
@@ -109,7 +109,7 @@
 
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Contact —
         </legend>

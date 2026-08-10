@@ -70,13 +70,13 @@
             <button
               class="dm-icon-btn"
               :aria-label="
-                theme.value === 'dark' ? 'Licht thema' : 'Donker thema'
+                theme === 'dark' ? 'Licht thema' : 'Donker thema'
               "
-              :title="theme.value === 'dark' ? 'Licht thema' : 'Donker thema'"
+              :title="theme === 'dark' ? 'Licht thema' : 'Donker thema'"
               @click="toggleTheme()"
             >
               <svg
-                v-if="theme.value === 'dark'"
+                v-if="theme === 'dark'"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -104,7 +104,7 @@
             </button>
 
             <!-- Wishlist -->
-            <button class="dm-icon-btn" aria-label="Verlanglijst">
+            <button class="dm-icon-btn dm-wishlist-btn" aria-label="Verlanglijst">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -338,7 +338,7 @@ onMounted(() => {
   transition: color 0.2s;
 }
 .dm-topbar-link:hover {
-  color: #c89868;
+  color: var(--color-accent);
 }
 .dm-topbar-link svg {
   width: 12px;
@@ -396,7 +396,7 @@ onMounted(() => {
 .dm-logo-accent {
   font-family: "Dancing Script", cursive;
   font-size: 1.15rem;
-  color: #c89868;
+  color: var(--color-accent);
   font-weight: 600;
   margin-top: -2px;
 }
@@ -557,6 +557,42 @@ onMounted(() => {
     gap: 0.75rem;
   }
   .dm-topbar-link span {
+    display: none;
+  }
+
+  /* Iconenrij is te breed op smalle schermen — logo/knoppen verkleinen en
+     de (nog niet-functionele) verlanglijst-knop hier weglaten. */
+  .dm-nav-inner {
+    gap: 0.75rem;
+  }
+  .dm-logo-badge {
+    width: 34px;
+    height: 34px;
+  }
+  .dm-logo-name {
+    font-size: 0.8rem;
+  }
+  .dm-logo-accent {
+    font-size: 1rem;
+  }
+  .dm-wishlist-btn {
+    display: none;
+  }
+  .dm-nav-actions {
+    gap: 0.125rem;
+  }
+  .dm-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .dm-icon-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+@media (max-width: 360px) {
+  .dm-logo-text {
     display: none;
   }
 }

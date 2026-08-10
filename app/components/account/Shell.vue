@@ -14,7 +14,7 @@
     >
       <div class="relative z-1 mx-auto max-w-300 pt-12 text-center">
         <p
-          class="mb-2 text-[0.7rem] font-semibold tracking-[0.3em] text-[#c89868] uppercase"
+          class="mb-2 text-[0.7rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
         >
           — Klantenzone —
         </p>
@@ -34,9 +34,7 @@
       class="sticky top-0 z-50 border-b border-(--color-border) bg-(--color-bg)/95 backdrop-blur-md"
       aria-label="Klantenzone"
     >
-      <div
-        class="mx-auto flex max-w-300 gap-1 overflow-x-auto px-2 sm:px-6 lg:px-8"
-      >
+      <div class="mx-auto flex max-w-300 items-center px-2 sm:px-6 lg:px-8">
         <NuxtLink
           v-for="link in links"
           :key="link.to"
@@ -46,8 +44,17 @@
         >
           {{ link.label }}
         </NuxtLink>
-        <button type="button" class="acc-tab acc-tab--logout" @click="onLogout()">
-          Afmelden
+        <button
+          type="button"
+          class="acc-tab acc-tab--logout"
+          aria-label="Afmelden"
+          title="Afmelden"
+          @click="onLogout()"
+        >
+          <svg class="acc-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3-3H9m12 0l-3-3m3 3l-3 3" />
+          </svg>
+          <span class="acc-tab-label">Afmelden</span>
         </button>
       </div>
     </nav>
@@ -67,7 +74,7 @@ const auth = useAuth();
 const links = [
   { to: "/account", label: "Overzicht" },
   { to: "/account/bestellingen", label: "Bestellingen" },
-  { to: "/account/lijsten", label: "Mijn lijsten" },
+  { to: "/account/lijsten", label: "Lijsten" },
   { to: "/account/gegevens", label: "Gegevens" },
 ];
 
@@ -83,16 +90,20 @@ async function onLogout() {
 
 <style scoped>
 .acc-tab {
-  flex-shrink: 0;
-  padding: 0.9rem 1rem;
-  font-size: 0.75rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem 0.2rem;
+  font-size: 0.6rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   color: var(--color-text-muted);
   text-decoration: none;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
   transition: color 0.2s;
   cursor: pointer;
   background: none;
@@ -105,10 +116,34 @@ async function onLogout() {
   border-bottom-color: #c89868;
 }
 .acc-tab--logout {
+  flex: 0 0 auto;
   margin-left: auto;
+  padding-inline: 0.4rem;
   color: var(--color-text-muted);
 }
 .acc-tab--logout:hover {
   color: #b8252a;
+}
+.acc-tab-icon {
+  width: 18px;
+  height: 18px;
+}
+.acc-tab-label {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .acc-tab {
+    flex: 0 0 auto;
+    padding: 0.9rem 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+  .acc-tab-icon {
+    display: none;
+  }
+  .acc-tab-label {
+    display: inline;
+  }
 }
 </style>

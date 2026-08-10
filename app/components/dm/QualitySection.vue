@@ -9,7 +9,7 @@
         <!-- Left: text + list -->
         <div>
           <p
-            class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-4"
+            class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-4"
           >
             — Onze service —
           </p>
@@ -29,7 +29,7 @@
               class="flex gap-4 items-start py-4 border-b border-[var(--color-border)] last:border-b-0"
             >
               <div
-                class="w-11 h-11 border border-[#c89868] text-[#c89868] rounded-full flex items-center justify-center shrink-0"
+                class="w-11 h-11 border border-[#c89868] text-(--color-accent) rounded-full flex items-center justify-center shrink-0"
               >
                 <component :is="point.icon" class="w-5.5 h-5.5" />
               </div>

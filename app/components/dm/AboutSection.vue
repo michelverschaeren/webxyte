@@ -33,7 +33,7 @@
             class="absolute bottom-4 left-4 rounded bg-[#0f0d0d]/85 px-4 py-2 backdrop-blur-sm"
           >
             <p
-              class="m-0 font-['Dancing_Script',cursive] text-lg text-[#c89868]"
+              class="m-0 font-['Dancing_Script',cursive] text-lg text-(--color-accent)"
             >
               familie Vermeir
             </p>
@@ -43,7 +43,7 @@
         <!-- Text content -->
         <div class="text-center lg:text-left">
           <p
-            class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-[#c89868] uppercase"
+            class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
           >
             — Over Vleeswaren Vermeir —
           </p>
@@ -69,17 +69,17 @@
             class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start"
           >
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-[#c89868] uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               Sinds 1958
             </span>
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-[#c89868] uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               3ᵉ generatie
             </span>
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-[#c89868] uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               Ambachtelijk
             </span>

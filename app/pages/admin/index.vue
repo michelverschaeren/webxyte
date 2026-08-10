@@ -4,6 +4,16 @@
     subtitle="Overzicht van de productcatalogus, verkoop en klanten."
   >
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <NuxtLink
+        to="/admin/bestellingen?status=nieuw"
+        class="adm-card"
+        :class="{ 'adm-card--alert': (stats?.pendingOrders ?? 0) > 0 }"
+      >
+        <span class="adm-card-value">{{ stats?.pendingOrders ?? "—" }}</span>
+        <span class="adm-card-title">Nieuwe bestellingen</span>
+        <span class="adm-card-hint">Wachten op verwerking</span>
+      </NuxtLink>
+
       <NuxtLink to="/admin/producten" class="adm-card">
         <span class="adm-card-value">{{ stats?.totalProducts ?? "—" }}</span>
         <span class="adm-card-title">Producten</span>
@@ -23,17 +33,11 @@
         <span class="adm-card-title">Stuks verkocht</span>
         <span class="adm-card-hint">Totaal, geannuleerd niet meegeteld</span>
       </div>
-
-      <NuxtLink to="/admin/producten/nieuw" class="adm-card adm-card--action">
-        <span class="adm-card-value">+</span>
-        <span class="adm-card-title">Nieuw product</span>
-        <span class="adm-card-hint">Toevoegen aan de catalogus</span>
-      </NuxtLink>
     </div>
 
     <section v-if="stats && stats.topProducts.length > 0" class="mt-12">
       <h2
-        class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-[#c89868] uppercase"
+        class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
       >
         — Meest verkocht —
       </h2>
@@ -55,7 +59,7 @@
               :key="p.articleNr"
               class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
             >
-              <td class="px-4 py-2.5 text-[#c89868]">{{ p.articleNr }}</td>
+              <td class="px-4 py-2.5 text-(--color-accent)">{{ p.articleNr }}</td>
               <td class="px-4 py-2.5 text-(--color-text-strong)">{{ p.name }}</td>
               <td class="px-4 py-2.5 text-right font-semibold text-(--color-text-strong)">
                 {{ p.totalQuantity }}
@@ -76,6 +80,7 @@ interface Stats {
   totalProducts: number;
   activeProducts: number;
   customerCount: number;
+  pendingOrders: number;
   soldQuantity: number;
   topProducts: { articleNr: string; name: string; totalQuantity: number }[];
 }
@@ -103,7 +108,13 @@ a.adm-card:hover {
 }
 .adm-card--action {
   border-style: dashed;
-  color: #c89868;
+  color: var(--color-accent);
+}
+.adm-card--alert {
+  border-color: rgba(184, 37, 42, 0.5);
+}
+.adm-card--alert .adm-card-value {
+  color: #b8252a;
 }
 .adm-card-value {
   font-family: "Playfair Display", Georgia, serif;
@@ -113,14 +124,14 @@ a.adm-card:hover {
   color: var(--color-text-strong);
 }
 .adm-card--action .adm-card-value {
-  color: #c89868;
+  color: var(--color-accent);
 }
 .adm-card-title {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #c89868;
+  color: var(--color-accent);
 }
 .adm-card-hint {
   font-size: 0.75rem;

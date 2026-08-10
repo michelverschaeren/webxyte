@@ -15,7 +15,7 @@
       <!-- Left: text -->
       <div>
         <p
-          class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
         >
           — Levering —
         </p>

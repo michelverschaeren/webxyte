@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-300 px-6">
       <div class="mb-12 text-center">
         <p
-          class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-[#c89868] uppercase"
+          class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
         >
           — Onze service —
         </p>
@@ -52,7 +52,7 @@
           </div>
           <div class="px-2 text-left">
             <span
-              class="mb-3 inline-block text-[0.7rem] font-semibold tracking-[0.22em] text-[#c89868] uppercase"
+              class="mb-3 inline-block text-[0.7rem] font-semibold tracking-[0.22em] text-(--color-accent) uppercase"
               >{{ post.category }}</span
             >
             <h3
@@ -69,7 +69,7 @@
               <span
                 v-for="tag in [post.comments, post.views]"
                 :key="tag"
-                class="rounded-xs border border-[#c89868]/25 px-2.5 py-0.5 text-[0.75rem] tracking-widest text-[#c89868] uppercase"
+                class="rounded-xs border border-[#c89868]/25 px-2.5 py-0.5 text-[0.75rem] tracking-widest text-(--color-accent) uppercase"
                 >✓ {{ tag }}</span
               >
             </div>
