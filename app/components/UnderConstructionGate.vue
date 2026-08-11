@@ -136,6 +136,7 @@ function triggerShake() {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  overflow-y: auto;
   background: rgba(10, 8, 8, 0.72);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -144,12 +145,49 @@ function triggerShake() {
 .uc-card {
   width: 100%;
   max-width: 440px;
+  margin: auto;
   background: var(--color-surface);
   border: 1px solid rgba(200, 152, 104, 0.25);
   border-radius: 1rem;
   padding: 2.5rem 2rem;
   text-align: center;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Kleine telefoons: minder padding en kleinere titel, zodat de kaart
+   ruimte overhoudt en niets afgekapt wordt op korte viewports. */
+@media (max-width: 400px) {
+  .uc-overlay {
+    padding: 1rem;
+  }
+  .uc-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: 0.85rem;
+  }
+  .uc-icon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 1rem;
+  }
+  .uc-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .uc-title {
+    font-size: 1.3rem;
+  }
+  .uc-text {
+    font-size: 0.85rem;
+    margin-bottom: 1.4rem;
+  }
+  .uc-contact {
+    padding: 0.9rem 0 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .uc-contact-item {
+    font-size: 0.8rem;
+    text-align: left;
+  }
 }
 
 .uc-card--shake {
@@ -226,8 +264,10 @@ function triggerShake() {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  max-width: 100%;
   font-size: 0.85rem;
   color: var(--color-text);
+  overflow-wrap: anywhere;
   text-decoration: none;
   transition: color 0.2s;
 }

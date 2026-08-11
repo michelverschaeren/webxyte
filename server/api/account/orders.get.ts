@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
       .select({
         id: orders.id,
         status: orders.status,
+        name: orders.name,
         createdAt: orders.createdAt,
         lineCount: raw<number>`count(${orderItems.id})::int`,
         totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,

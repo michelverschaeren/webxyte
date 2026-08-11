@@ -1,5 +1,5 @@
 <template>
-  <!-- Inline editor — rendered inside SavedListsPanel, no modal/teleport -->
+  <!-- Inline editor — rendered inside SavedListsPanel or SavedListCard, no modal/teleport -->
   <div class="flex flex-col h-full">
     <!-- Items -->
     <div
@@ -8,16 +8,16 @@
     >
       <div :class="maximized ? 'max-w-4xl mx-auto space-y-3' : 'space-y-2'">
         <div
-          v-if="draftItems.length === 0"
+          v-if="orderLists.draftItems.value.length === 0"
           class="py-10 text-center text-sm text-(--color-text-muted)"
         >
           Deze lijst is leeg.
         </div>
 
         <div
-          v-for="(item, idx) in draftItems"
+          v-for="(item, idx) in orderLists.draftItems.value"
           :key="item.id"
-          class="flex items-center gap-3 border border-(--color-border) bg-(--color-surface)"
+          class="flex items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface)"
           :class="maximized ? 'p-4' : 'p-3'"
         >
           <div class="flex-1 min-w-0">
@@ -40,8 +40,8 @@
           <div class="flex items-center select-none shrink-0">
             <button
               type="button"
-              @click="updateQty(idx, item.quantity - 1)"
-              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border)"
+              @click="orderLists.updateDraftQty(idx, item.quantity - 1)"
+              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border) rounded-l-lg"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               −
@@ -51,7 +51,7 @@
               min="1"
               :value="item.quantity"
               @input="
-                updateQty(
+                orderLists.updateDraftQty(
                   idx,
                   Number(($event.target as HTMLInputElement).value),
                 )
@@ -61,8 +61,8 @@
             />
             <button
               type="button"
-              @click="updateQty(idx, item.quantity + 1)"
-              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border)"
+              @click="orderLists.updateDraftQty(idx, item.quantity + 1)"
+              class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border) rounded-r-lg"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
             >
               +
@@ -70,7 +70,7 @@
           </div>
 
           <button
-            @click="removeItem(idx)"
+            @click="orderLists.removeDraftItem(idx)"
             class="text-(--color-text-muted) hover:text-[#b8252a] transition-colors shrink-0"
             :class="maximized ? 'p-2' : 'p-1.5'"
             title="Verwijderen"
@@ -96,41 +96,31 @@
 
     <!-- Footer -->
     <div
+      v-if="!bare"
       class="border-t border-(--color-border) flex flex-col gap-2 shrink-0"
       :class="maximized ? 'px-8 sm:px-12 py-5' : 'px-5 py-4'"
       style="background: var(--color-surface-strong)"
     >
       <div :class="maximized ? 'max-w-4xl mx-auto w-full space-y-3' : ''">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 gap-2">
           <button
             type="button"
-            :disabled="draftItems.length === 0"
-            @click="replaceCart()"
-            class="bg-[#b8252a] text-white font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            :class="
-              maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
-            "
-          >
-            Vervang mandje
-          </button>
-          <button
-            type="button"
-            :disabled="draftItems.length === 0"
+            :disabled="orderLists.draftItems.value.length === 0"
             @click="appendCart()"
-            class="border border-[#c89868] text-(--color-accent) font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="rounded-lg border border-[#c89868] text-(--color-accent) font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="
               maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
             "
           >
-            Voeg toe aan mandje
+            Toevoegen aan winkelmandje
           </button>
         </div>
         <div class="flex gap-2">
           <button
             type="button"
             @click="saveChanges()"
-            :disabled="!isDirty || saving"
-            class="flex-1 border border-(--color-border-strong) text-(--color-text) font-semibold uppercase tracking-[0.08em] hover:bg-(--color-hover) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="!orderLists.isDraftDirty.value || saving"
+            class="flex-1 rounded-lg border border-(--color-border-strong) text-(--color-text) font-semibold uppercase tracking-[0.08em] hover:bg-(--color-hover) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
           >
             {{ saving ? "Opslaan…" : "Wijzigingen opslaan" }}
@@ -142,86 +132,30 @@
 </template>
 
 <script setup lang="ts">
-import type { SavedListItem } from "~/composables/useOrderLists";
-
-const props = defineProps<{
+const { maximized, bare } = defineProps<{
   maximized?: boolean;
+  /** Verbergt de eigen footer-knoppen — gebruikt wanneer de heading van
+   * SavedListCard die acties al aanbiedt. */
+  bare?: boolean;
 }>();
 
 const cart = useCart();
 const orderLists = useOrderLists();
 
-const sourceList = computed(() => {
-  const id = orderLists.editingListId.value;
-  return id ? (orderLists.getList(id) ?? null) : null;
-});
-
-const draftItems = ref<SavedListItem[]>([]);
-
-const isDirty = computed(() => {
-  if (!sourceList.value) return false;
-  if (sourceList.value.name !== orderLists.editorDraftName.value.trim())
-    return true;
-  if (sourceList.value.items.length !== draftItems.value.length) return true;
-  return sourceList.value.items.some((orig, i) => {
-    const cur = draftItems.value[i];
-    return !cur || cur.id !== orig.id || cur.quantity !== orig.quantity;
-  });
-});
-
-watch(
-  () => orderLists.editingListId.value,
-  (id) => {
-    if (!id) {
-      draftItems.value = [];
-      return;
-    }
-    const list = orderLists.getList(id);
-    if (!list) return;
-    draftItems.value = list.items.map((i) => ({ ...i }));
-  },
-  { immediate: true },
-);
-
-function updateQty(idx: number, qty: number) {
-  const item = draftItems.value[idx];
-  if (!item) return;
-  const v = Number.isFinite(qty) ? Math.floor(qty) : 1;
-  if (v <= 0) {
-    draftItems.value.splice(idx, 1);
-  } else {
-    item.quantity = v;
-  }
-}
-
-function removeItem(idx: number) {
-  draftItems.value.splice(idx, 1);
-}
-
 const saving = ref(false);
 
 async function saveChanges() {
-  const id = orderLists.editingListId.value;
-  if (!id || saving.value) return;
+  if (saving.value) return;
   saving.value = true;
   try {
-    await orderLists.updateList(id, {
-      name: orderLists.editorDraftName.value,
-      items: draftItems.value.map((i) => ({ ...i })),
-    });
+    await orderLists.saveDraft();
   } finally {
     saving.value = false;
   }
 }
 
-function replaceCart() {
-  cart.replaceItems(toCartItems(draftItems.value));
-  orderLists.closeEditor();
-  orderLists.closePanel();
-}
-
 function appendCart() {
-  cart.addItems(toCartItems(draftItems.value));
+  cart.addItems(toCartItems(orderLists.draftItems.value));
   orderLists.closeEditor();
   orderLists.closePanel();
 }

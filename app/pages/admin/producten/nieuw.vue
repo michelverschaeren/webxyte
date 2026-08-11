@@ -86,7 +86,7 @@
         <button
           type="submit"
           :disabled="pending"
-          class="bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {{ pending ? "Opslaan…" : "Product aanmaken" }}
         </button>
@@ -166,6 +166,7 @@ async function save() {
 .adm-input {
   width: 100%;
   border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.7rem 0.85rem;
   font-size: 0.9rem;

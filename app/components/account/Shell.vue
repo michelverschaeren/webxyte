@@ -44,18 +44,32 @@
         >
           {{ link.label }}
         </NuxtLink>
-        <button
-          type="button"
-          class="acc-tab acc-tab--logout"
-          aria-label="Afmelden"
-          title="Afmelden"
-          @click="onLogout()"
-        >
-          <svg class="acc-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3-3H9m12 0l-3-3m3 3l-3 3" />
-          </svg>
-          <span class="acc-tab-label">Afmelden</span>
-        </button>
+        <div class="ml-auto flex items-center">
+          <NuxtLink
+            v-if="auth.isAdmin.value"
+            to="/admin"
+            class="acc-tab acc-tab--muted"
+            aria-label="Adminzone"
+            title="Adminzone"
+          >
+            <svg class="acc-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286z" />
+            </svg>
+            <span class="acc-tab-label">Adminzone</span>
+          </NuxtLink>
+          <button
+            type="button"
+            class="acc-tab acc-tab--logout"
+            aria-label="Afmelden"
+            title="Afmelden"
+            @click="onLogout()"
+          >
+            <svg class="acc-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3-3H9m12 0l-3-3m3 3l-3 3" />
+            </svg>
+            <span class="acc-tab-label">Afmelden</span>
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -115,9 +129,13 @@ async function onLogout() {
   color: var(--color-text-strong);
   border-bottom-color: #c89868;
 }
+.acc-tab--muted {
+  flex: 0 0 auto;
+  padding-inline: 0.4rem;
+  opacity: 0.7;
+}
 .acc-tab--logout {
   flex: 0 0 auto;
-  margin-left: auto;
   padding-inline: 0.4rem;
   color: var(--color-text-muted);
 }

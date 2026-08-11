@@ -30,6 +30,10 @@ export const orders = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
     status: text({ enum: ORDER_STATUSES }).default("nieuw").notNull(),
+    /** Naam die de klant zelf aan de bestelling gaf bij het plaatsen. */
+    name: text(),
+    /** Vrije notitie van de klant bij het plaatsen van de bestelling. */
+    note: text(),
     /**
      * Bevroren kopie van billingDetails op het moment van bestellen —
      * facturatiegegevens kunnen later wijzigen, de bestelling moet tonen

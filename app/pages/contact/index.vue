@@ -2,7 +2,7 @@
   <div class="bg-(--color-bg) text-(--color-text) min-h-screen">
     <!-- Page header -->
     <div
-      class="relative py-20 px-4 overflow-hidden"
+      class="relative pt-46.5 pb-20 px-4 overflow-hidden"
       style="
         background: radial-gradient(
           ellipse at 50% 40%,
@@ -12,7 +12,7 @@
         );
       "
     >
-      <div class="relative z-1 max-w-300 mx-auto text-center pt-12">
+      <div class="relative z-1 max-w-300 mx-auto text-center">
         <h1
           class="font-['Playfair_Display',Georgia,serif] text-[clamp(2.5rem,6vw,5rem)] font-black text-white leading-[1.05] mb-4"
         >
@@ -41,7 +41,7 @@
                 class="flex items-start gap-5 py-4 border-b border-(--color-border) last:border-b-0"
               >
                 <div
-                  class="w-11 h-11 border border-[#c89868] text-(--color-accent) flex items-center justify-center shrink-0"
+                  class="w-11 h-11 rounded-lg border border-[#c89868] text-(--color-accent) flex items-center justify-center shrink-0"
                 >
                   <component :is="info.icon" class="w-5 h-5" />
                 </div>
@@ -62,7 +62,7 @@
 
           <!-- Google Maps -->
           <div
-            class="overflow-hidden border border-(--color-border)"
+            class="overflow-hidden rounded-xl border border-(--color-border)"
             style="height: 300px"
           >
             <iframe
@@ -82,7 +82,7 @@
         </div>
 
         <!-- Right: contact form -->
-        <div class="bg-(--color-surface) border border-(--color-border) p-8">
+        <div class="bg-(--color-surface) border border-(--color-border) rounded-xl p-8">
           <p
             class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-2"
           >
@@ -110,7 +110,7 @@
                   type="text"
                   placeholder="Uw naam"
                   required
-                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
                 />
               </div>
               <div>
@@ -122,7 +122,7 @@
                   v-model="form.company"
                   type="text"
                   placeholder="Bedrijfsnaam (optioneel)"
-                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
                 />
               </div>
             </div>
@@ -170,7 +170,7 @@
 
             <button
               type="submit"
-              class="w-full py-4 bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-sm hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200"
+              class="w-full py-4 rounded-lg bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-sm hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200"
             >
               Verstuur bericht
             </button>

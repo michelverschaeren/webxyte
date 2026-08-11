@@ -181,7 +181,7 @@
             </button>
             <button
               @click="orderLists.closePanel()"
-              class="p-1.5 text-(--color-text) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
+              class="rounded-lg p-1.5 text-(--color-text) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
               aria-label="Sluit"
             >
               <svg

@@ -14,11 +14,11 @@
 
         <div
           v-if="!data.billing"
-          class="border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
         >
           Nog niet ingevuld.
         </div>
-        <dl v-else class="grid gap-x-8 gap-y-3 border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
+        <dl v-else class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
           <div>
             <dt class="text-xs text-(--color-text-muted)">Bedrijf</dt>
             <dd class="text-(--color-text-strong)">{{ data.billing.companyName }}</dd>
@@ -55,7 +55,7 @@
 
         <div
           v-if="data.orders.length === 0"
-          class="border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
         >
           Nog geen bestellingen.
         </div>
@@ -63,7 +63,7 @@
           <li
             v-for="order in data.orders"
             :key="order.id"
-            class="flex flex-wrap items-center gap-x-6 gap-y-2 border border-(--color-border) bg-(--color-surface-2) px-4 py-4 sm:px-6"
+            class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-(--color-border) bg-(--color-surface-2) px-4 py-4 sm:px-6"
           >
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-(--color-text-strong)">

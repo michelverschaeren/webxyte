@@ -1,125 +1,64 @@
 <template>
-  <!-- Backdrop -->
+  <!-- Click-outside catcher (invisible: the page behind the panel must
+       never dim or blur), only active once fully expanded -->
   <Teleport to="body">
-    <transition name="backdrop-fade">
-      <div
-        v-if="cart.isOpen.value"
-        class="fixed inset-0 z-190 bg-black/40 backdrop-blur-sm"
-        @click="cart.isOpen.value = false"
-      />
-    </transition>
+    <div
+      v-if="cart.isOpen.value"
+      class="fixed inset-0 z-190"
+      @click="cart.isOpen.value = false"
+    />
 
-    <!-- Drawer -->
-    <transition name="drawer-slide">
+    <!-- Unified floating panel: a small "added to cart" toast that grows
+         in place into the full-height cart, instead of a separate drawer
+         sliding in from off-screen. -->
+    <transition name="panel-pop">
       <div
-        v-if="cart.isOpen.value"
-        class="fixed top-0 right-0 z-200 flex h-full flex-col shadow-2xl transition-[width,max-width] duration-300"
+        v-if="visible"
+        class="fixed right-4 bottom-4 z-200 flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-[width,height,right,bottom,border-radius] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
         :class="
-          cart.isMaximized.value
-            ? 'w-full max-w-none'
-            : 'w-full sm:w-96 max-w-full'
+          expanded
+            ? 'right-0 bottom-0 w-[min(24rem,100vw)] h-dvh rounded-none'
+            : 'right-4 bottom-4 w-[min(24rem,calc(100vw-2rem))] h-30'
         "
         style="background: var(--color-surface)"
       >
-        <!-- Header -->
-        <div
-          class="flex items-center justify-between border-b border-(--color-border) px-5 py-4"
-          style="
-            background: linear-gradient(
-              135deg,
-              var(--color-surface-strong) 0%,
-              var(--color-surface) 100%
-            );
-          "
-        >
-          <div class="flex items-center gap-3 min-w-0">
-            <svg
-              class="h-5 w-5 text-(--color-accent) shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
+        <!-- Collapsed: "added to cart" toast -->
+        <template v-if="!expanded">
+          <div class="flex items-start gap-3 p-4">
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+              style="background: rgba(184, 37, 42, 0.12)"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <h2 class="font-bold text-(--color-text-strong)">Bestellijst</h2>
-            <span class="text-xs text-(--color-text-muted)"
-              >({{ cart.totalItems.value }} artikel{{
-                cart.totalItems.value !== 1 ? "en" : ""
-              }})</span
-            >
-          </div>
-          <div class="flex items-center gap-1 shrink-0">
+              <svg
+                class="h-5 w-5 text-[#b8252a]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-(--color-text-strong)">
+                Toegevoegd aan winkelmandje
+              </p>
+              <p class="mt-0.5 text-xs text-(--color-text-muted)">
+                {{ cart.totalItems.value }} stuk{{ cart.totalItems.value !== 1 ? "s" : "" }}
+                in uw bestellijst
+              </p>
+            </div>
             <button
-              type="button"
-              @click="openLists()"
-              class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
-              title="Wissel naar mijn bestellijsten"
+              @click="cart.toastVisible.value = false"
+              aria-label="Sluiten"
+              class="shrink-0 rounded-md p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
             >
               <svg
                 class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-              Lijsten
-            </button>
-            <button
-              type="button"
-              @click="cart.isMaximized.value = !cart.isMaximized.value"
-              class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
-              :title="cart.isMaximized.value ? 'Verkleinen' : 'Maximaliseren'"
-              :aria-label="
-                cart.isMaximized.value ? 'Verkleinen' : 'Maximaliseren'
-              "
-            >
-              <svg
-                v-if="!cart.isMaximized.value"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"
-                />
-              </svg>
-              <svg
-                v-else
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 9H5m5-4v4m5 0h4m-4 0V5m-5 10H5m5 4v-4m5 0h4m-4 0v4"
-                />
-              </svg>
-            </button>
-            <button
-              @click="cart.isOpen.value = false"
-              class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
-              aria-label="Sluit"
-            >
-              <svg
-                class="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -133,28 +72,35 @@
               </svg>
             </button>
           </div>
-        </div>
+          <button
+            type="button"
+            class="block w-full border-t border-(--color-border) px-4 py-3 text-center text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-(--color-hover)"
+            @click="expand()"
+          >
+            Bekijk winkelmandje
+          </button>
+        </template>
 
-        <!-- Items -->
-        <div class="flex-1 overflow-y-auto">
+        <!-- Expanded: full cart -->
+        <template v-else>
+          <!-- Header -->
           <div
-            class="space-y-3 px-4 py-4 mx-auto"
-            :class="cart.isMaximized.value ? 'max-w-3xl' : ''"
+            class="flex items-center justify-between border-b border-(--color-border) px-5 py-4"
+            style="
+              background: linear-gradient(
+                135deg,
+                var(--color-surface-strong) 0%,
+                var(--color-surface) 100%
+              );
+            "
           >
-          <!-- Empty state -->
-          <div
-            v-if="cart.items.value.length === 0"
-            class="flex h-48 flex-col items-center justify-center gap-4 text-center"
-          >
-            <div
-              class="flex h-16 w-16 items-center justify-center rounded-full border border-[#c89868]/30"
-            >
+            <div class="flex items-center gap-3 min-w-0">
               <svg
-                class="h-7 w-7 text-(--color-accent)"
+                class="h-5 w-5 text-(--color-accent) shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                stroke-width="1.5"
+                stroke-width="2"
               >
                 <path
                   stroke-linecap="round"
@@ -162,54 +108,22 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-(--color-text-strong)">
-                Uw bestellijst is leeg
-              </p>
-              <p class="mt-1 text-xs text-(--color-text-muted)">
-                Voeg producten toe via het productenoverzicht
-              </p>
-            </div>
-          </div>
-
-          <!-- Cart items -->
-          <div
-            v-for="item in cart.items.value"
-            :key="item.id"
-            class="flex items-start gap-3 border border-(--color-border) bg-(--color-surface) p-3"
-          >
-            <!-- Icon -->
-            <div
-              class="flex h-9 w-9 shrink-0 items-center justify-center text-xs font-bold text-white"
-              style="background: linear-gradient(135deg, #8b1f1f, #b8252a)"
-            >
-              {{ item.articleNr.slice(-2) }}
-            </div>
-
-            <div class="min-w-0 flex-1">
-              <p
-                class="truncate text-sm leading-snug font-semibold text-(--color-text-strong)"
+              <h2 class="font-bold text-(--color-text-strong)">Bestellijst</h2>
+              <span class="text-xs text-(--color-text-muted)"
+                >({{ cart.totalItems.value }} artikel{{
+                  cart.totalItems.value !== 1 ? "en" : ""
+                }})</span
               >
-                {{ item.name }}
-              </p>
-              <p class="text-xs text-(--color-text-muted)">{{ item.supplier }}</p>
-              <p v-if="item.unit" class="mt-0.5 text-xs text-(--color-accent)">
-                {{ item.unit }}
-              </p>
-              <p class="mt-0.5 font-mono text-xs text-(--color-accent)">
-                {{ item.articleNr }}
-              </p>
             </div>
-
-            <!-- Quantity + remove -->
-            <div class="flex shrink-0 flex-col items-end gap-2">
+            <div class="flex items-center gap-1 shrink-0">
               <button
-                @click="cart.removeItem(item.id)"
-                class="p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-[#b8252a]"
+                type="button"
+                @click="checkout.openLists()"
+                class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+                title="Wissel naar mijn bestellijsten"
               >
                 <svg
-                  class="h-3.5 w-3.5"
+                  class="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -218,118 +132,246 @@
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                Lijsten
+              </button>
+              <button
+                @click="cart.isOpen.value = false"
+                class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+                aria-label="Sluit"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
               </button>
-              <!-- Qty stepper -->
-              <div class="flex items-center gap-1">
-                <button
-                  @click="cart.updateQuantity(item.id, item.quantity - 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
-                >
-                  −
-                </button>
-                <span
-                  class="w-8 text-center text-sm font-semibold text-(--color-text-strong)"
-                  >{{
-                  item.quantity
-                }}</span>
-                <button
-                  @click="cart.updateQuantity(item.id, item.quantity + 1)"
-                  class="flex h-7 w-7 items-center justify-center border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
-                >
-                  +
-                </button>
-              </div>
             </div>
           </div>
-          </div>
-        </div>
 
-        <!-- Footer -->
-        <div
-          class="border-t border-(--color-border) px-5 py-4"
-          style="background: var(--color-surface-strong)"
-        >
-          <div
-            class="space-y-3 mx-auto"
-            :class="cart.isMaximized.value ? 'max-w-3xl' : ''"
-          >
-          <div
-            v-if="cart.items.value.length > 0"
-            class="flex justify-between text-sm"
-          >
-            <span class="text-(--color-text-muted)">Totaal artikelen</span>
-            <span class="font-bold text-(--color-text-strong)">{{ cart.totalItems.value }}</span>
-          </div>
-
-          <button
-            v-if="cart.items.value.length > 0"
-            :disabled="placing"
-            class="w-full bg-[#b8252a] py-3.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
-            @click="placeOrder()"
-          >
-            {{ placing ? "Bezig met versturen…" : "Bestelling bevestigen" }}
-          </button>
-          <p
-            v-if="cart.items.value.length > 0"
-            class="text-center text-[0.7rem] leading-relaxed text-(--color-text-muted)"
-          >
-            Wordt rechtstreeks doorgestuurd naar Vleeswaren Vermeir voor
-            verwerking en levering — geen online betaling nodig.
-          </p>
-
-          <p v-if="orderError" class="text-center text-xs text-[#e06a6a]">
-            {{ orderError }}
-          </p>
-
-          <!-- Lists actions -->
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button
-              type="button"
-              :disabled="cart.items.value.length === 0"
-              @click="openSaveModal()"
-              class="border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+          <!-- Items -->
+          <div class="flex-1 overflow-y-auto">
+            <div class="space-y-3 px-4 py-4">
+            <!-- Empty state -->
+            <div
+              v-if="cart.items.value.length === 0"
+              class="flex h-48 flex-col items-center justify-center gap-4 text-center"
             >
-              Lijst opslaan
-            </button>
-            <button
-              type="button"
-              @click="openLists()"
-              class="border border-(--color-border-strong) px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full border border-[#c89868]/30"
+              >
+                <svg
+                  class="h-7 w-7 text-(--color-accent)"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-(--color-text-strong)">
+                  Uw bestellijst is leeg
+                </p>
+                <p class="mt-1 text-xs text-(--color-text-muted)">
+                  Voeg producten toe via het productenoverzicht
+                </p>
+              </div>
+            </div>
+
+            <!-- Cart items -->
+            <div
+              v-for="item in cart.items.value"
+              :key="item.id"
+              class="rounded-xl border border-(--color-border) bg-(--color-surface) p-3"
             >
-              Mijn lijsten
-            </button>
+              <div class="flex items-start gap-3">
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="truncate text-sm leading-snug font-semibold text-(--color-text-strong)"
+                  >
+                    {{ item.name }}
+                  </p>
+                  <!-- Tijdelijk verborgen: fabrikant -->
+                  <!-- <p class="text-xs text-(--color-text-muted)">{{ item.supplier }}</p> -->
+                  <p class="mt-0.5 font-mono text-xs text-(--color-accent)">
+                    Artikelnr. {{ item.articleNr }}
+                  </p>
+                </div>
+
+                <!-- Quantity + remove -->
+                <div class="flex shrink-0 flex-col items-end gap-2">
+                  <button
+                    @click="confirmingRemoveId = item.id"
+                    class="rounded-md p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-[#b8252a]"
+                  >
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                  <!-- Qty stepper -->
+                  <div class="flex items-center gap-1">
+                    <button
+                      @click="cart.updateQuantity(item.id, item.quantity - 1)"
+                      class="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
+                    >
+                      −
+                    </button>
+                    <span
+                      class="text-center text-sm font-semibold text-(--color-text-strong)"
+                      >{{ item.quantity }}<span
+                        v-if="item.unit"
+                        class="text-(--color-text-muted)"
+                        > {{ item.unit }}</span
+                      ></span
+                    >
+                    <button
+                      @click="cart.updateQuantity(item.id, item.quantity + 1)"
+                      class="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Verwijder-bevestiging -->
+              <p
+                v-if="confirmingRemoveId === item.id"
+                class="mt-2 flex items-center justify-between gap-2 border-t border-(--color-border) pt-2 text-[0.7rem] text-[#b8252a]"
+              >
+                <span>Artikel verwijderen?</span>
+                <span class="flex gap-2">
+                  <button
+                    class="rounded-md bg-[#b8252a] px-2 py-0.5 text-white"
+                    @click="
+                      confirmingRemoveId = null;
+                      cart.removeItem(item.id);
+                    "
+                  >
+                    Ja
+                  </button>
+                  <button
+                    class="rounded-md border border-(--color-border-strong) px-2 py-0.5 text-(--color-text)"
+                    @click="confirmingRemoveId = null"
+                  >
+                    Nee
+                  </button>
+                </span>
+              </p>
+            </div>
+            </div>
           </div>
 
-          <button
-            v-if="cart.items.value.length > 0"
-            @click="cart.clearCart()"
-            class="w-full py-2 text-xs font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+          <!-- Footer -->
+          <div
+            class="border-t border-(--color-border) px-5 py-4"
+            style="background: var(--color-surface-strong)"
           >
-            Bestellijst wissen
-          </button>
+            <div class="space-y-3">
+            <div
+              v-if="cart.items.value.length > 0"
+              class="flex justify-between text-sm"
+            >
+              <span class="text-(--color-text-muted)">Totaal artikelen</span>
+              <span class="font-bold text-(--color-text-strong)">{{ cart.totalItems.value }}</span>
+            </div>
+
+            <button
+              v-if="cart.items.value.length > 0"
+              class="w-full rounded-lg bg-[#b8252a] py-3.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+              @click="checkout.openOrderModal()"
+            >
+              Bestelling plaatsen
+            </button>
+            <NuxtLink
+              v-if="cart.items.value.length > 0"
+              to="/winkelmandje"
+              @click="cart.isOpen.value = false"
+              class="block w-full rounded-lg border border-(--color-border-strong) py-3 text-center text-sm font-semibold tracking-widest text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+            >
+              Winkelmandje bekijken
+            </NuxtLink>
+            <p
+              v-if="cart.items.value.length > 0"
+              class="text-center text-[0.7rem] leading-relaxed text-(--color-text-muted)"
+            >
+              Wordt rechtstreeks doorgestuurd naar Vleeswaren Vermeir voor
+              verwerking en levering — geen online betaling nodig.
+            </p>
+
+            <!-- Lists actions -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                :disabled="cart.items.value.length === 0"
+                @click="checkout.openSaveModal()"
+                class="rounded-lg border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Lijst opslaan
+              </button>
+              <button
+                type="button"
+                @click="checkout.openLists()"
+                class="rounded-lg border border-(--color-border-strong) px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+              >
+                Mijn lijsten
+              </button>
+            </div>
+
+            <button
+              v-if="cart.items.value.length > 0"
+              @click="checkout.openClearConfirm()"
+              class="w-full rounded-lg py-2 text-xs font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+            >
+              Bestellijst wissen
+            </button>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </transition>
 
     <!-- Save-as-list modal -->
     <transition name="backdrop-fade">
       <div
-        v-if="saveModalOpen"
-        class="fixed inset-0 z-210 bg-black/70 backdrop-blur-sm"
-        @click="closeSaveModal()"
+        v-if="checkout.saveModalOpen.value"
+        class="fixed inset-0 z-210 bg-black/70"
+        @click="checkout.closeSaveModal()"
       />
     </transition>
     <transition name="modal-pop">
       <div
-        v-if="saveModalOpen"
+        v-if="checkout.saveModalOpen.value"
         class="pointer-events-none fixed inset-0 z-211 flex items-center justify-center p-4"
       >
         <div
-          class="pointer-events-auto w-full max-w-md border border-[#c89868]/30 shadow-2xl"
+          class="pointer-events-auto w-full max-w-md rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
           style="background: var(--color-surface)"
         >
           <div
@@ -351,19 +393,19 @@
               Lijst opslaan voor later
             </h3>
           </div>
-          <form @submit.prevent="confirmSave()" class="space-y-4 px-5 py-5">
+          <form @submit.prevent="checkout.confirmSave()" class="space-y-4 px-5 py-5">
             <label class="block">
               <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
                 >Naam van de lijst</span
               >
               <input
                 ref="saveInputRef"
-                v-model="saveName"
+                v-model="checkout.saveName.value"
                 type="text"
                 maxlength="60"
                 required
                 placeholder="bv. Wekelijkse bestelling"
-                class="w-full border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
+                class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
             <p class="text-[0.7rem] text-(--color-text-muted)">
@@ -376,15 +418,15 @@
             <div class="flex justify-end gap-2 pt-1">
               <button
                 type="button"
-                @click="closeSaveModal()"
-                class="px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+                @click="checkout.closeSaveModal()"
+                class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
               >
                 Annuleren
               </button>
               <button
                 type="submit"
-                :disabled="!saveName.trim()"
-                class="bg-[#b8252a] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+                :disabled="!checkout.saveName.value.trim()"
+                class="rounded-lg bg-[#b8252a] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Opslaan
               </button>
@@ -393,117 +435,229 @@
         </div>
       </div>
     </transition>
+
+    <!-- Place-order modal -->
+    <transition name="backdrop-fade">
+      <div
+        v-if="checkout.orderModalOpen.value"
+        class="fixed inset-0 z-210 bg-black/70"
+        @click="checkout.closeOrderModal()"
+      />
+    </transition>
+    <transition name="modal-pop">
+      <div
+        v-if="checkout.orderModalOpen.value"
+        class="pointer-events-none fixed inset-0 z-211 flex items-center justify-center p-4"
+      >
+        <div
+          class="pointer-events-auto w-full max-w-md rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
+          style="background: var(--color-surface)"
+        >
+          <div
+            class="border-b border-(--color-border) px-5 py-4"
+            style="
+            background: linear-gradient(
+              135deg,
+              var(--color-surface-strong) 0%,
+              var(--color-surface) 100%
+            );
+          "
+          >
+            <p
+              class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-(--color-accent)"
+            >
+              — Bestellijst —
+            </p>
+            <h3 class="text-base font-bold text-(--color-text-strong)">
+              Bestelling plaatsen
+            </h3>
+          </div>
+          <form @submit.prevent="checkout.placeOrder()" class="space-y-4 px-5 py-5">
+            <label class="block">
+              <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
+                >Naam van de bestelling</span
+              >
+              <input
+                ref="orderNameInputRef"
+                v-model="checkout.orderName.value"
+                type="text"
+                maxlength="200"
+                required
+                placeholder="bv. Weekbestelling"
+                class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
+              />
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
+                >Notitie (optioneel)</span
+              >
+              <textarea
+                v-model="checkout.orderNote.value"
+                maxlength="2000"
+                rows="3"
+                placeholder="Extra opmerkingen voor uw bestelling…"
+                class="w-full resize-none rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
+              />
+            </label>
+            <p v-if="checkout.orderError.value" class="text-xs text-[#e06a6a]">
+              {{ checkout.orderError.value }}
+            </p>
+            <div class="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                @click="checkout.closeOrderModal()"
+                class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+              >
+                Annuleren
+              </button>
+              <button
+                type="submit"
+                :disabled="checkout.placing.value || !checkout.orderName.value.trim()"
+                class="rounded-lg bg-[#b8252a] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ checkout.placing.value ? "Bezig met versturen…" : "Bestelling plaatsen" }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Clear-cart confirm -->
+    <transition name="backdrop-fade">
+      <div
+        v-if="checkout.clearConfirmOpen.value"
+        class="fixed inset-0 z-210 bg-black/70"
+        @click="checkout.closeClearConfirm()"
+      />
+    </transition>
+    <transition name="modal-pop">
+      <div
+        v-if="checkout.clearConfirmOpen.value"
+        class="pointer-events-none fixed inset-0 z-211 flex items-center justify-center p-4"
+      >
+        <div
+          class="pointer-events-auto w-full max-w-md overflow-hidden rounded-2xl border border-[#b8252a]/40 shadow-2xl"
+          style="background: var(--color-surface)"
+        >
+          <div
+            class="border-b border-(--color-border) px-5 py-4"
+            style="
+            background: linear-gradient(
+              135deg,
+              var(--color-surface-strong) 0%,
+              var(--color-surface) 100%
+            );
+          "
+          >
+            <p
+              class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#b8252a]"
+            >
+              — Bestellijst —
+            </p>
+            <h3 class="text-base font-bold text-(--color-text-strong)">
+              Winkelmandje wissen?
+            </h3>
+          </div>
+          <div class="space-y-4 px-5 py-5">
+            <p class="text-sm text-(--color-text-muted)">
+              Alle {{ cart.items.value.length }} artikel{{
+                cart.items.value.length !== 1 ? "en" : ""
+              }}
+              worden verwijderd uit uw bestellijst. Dit kan niet ongedaan
+              worden gemaakt.
+            </p>
+            <div class="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                @click="checkout.closeClearConfirm()"
+                class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+              >
+                Annuleren
+              </button>
+              <button
+                type="button"
+                @click="checkout.confirmClear()"
+                class="rounded-lg bg-[#b8252a] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#8b1f1f]"
+              >
+                Winkelmandje wissen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </Teleport>
 </template>
 
 <script setup lang="ts">
 const cart = useCart();
-const orderLists = useOrderLists();
-const auth = useAuth();
-const authModal = useAuthModal();
+const checkout = useCartCheckout();
 
-const placing = ref(false);
-const orderError = ref("");
-
-const saveModalOpen = ref(false);
-const saveName = ref("");
 const saveInputRef = ref<HTMLInputElement | null>(null);
+const orderNameInputRef = ref<HTMLInputElement | null>(null);
+const confirmingRemoveId = ref<string | null>(null);
 
-/** Lijsten en bestellen horen bij een account: eerst inloggen. */
-function requireLogin(): boolean {
-  if (auth.isLoggedIn.value) return true;
-  authModal.open("login");
-  return false;
+/** Zichtbaar als klein "toegevoegd"-kaartje óf uitgeklapt als volledig mandje. */
+const visible = computed(() => cart.toastVisible.value || cart.isOpen.value);
+const expanded = computed(() => cart.isOpen.value);
+
+function expand() {
+  cart.toastVisible.value = false;
+  cart.isOpen.value = true;
 }
 
-async function placeOrder() {
-  if (placing.value || cart.items.value.length === 0) return;
-  orderError.value = "";
-  if (!requireLogin()) return;
+let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
-  placing.value = true;
-  try {
-    const order = await $fetch<{ id: string }>("/api/account/orders", {
-      method: "POST",
-      body: {
-        items: cart.items.value.map((i) => ({
-          articleNr: i.articleNr,
-          quantity: i.quantity,
-        })),
-      },
-    });
-
-    cart.clearCart();
-    cart.isOpen.value = false;
-    await navigateTo(`/account/bestellingen/${order.id}?nieuw=1`);
-  } catch (err) {
-    const error = err as {
-      statusMessage?: string;
-      data?: { statusMessage?: string; data?: { names?: string[] } };
-    };
-    const code = error.data?.statusMessage ?? error.statusMessage;
-
-    if (code === "FACTURATIEGEGEVENS_ONTBREKEN") {
-      cart.isOpen.value = false;
-      await navigateTo("/account/gegevens?next=cart");
-      return;
-    }
-
-    if (code === "PRODUCTEN_NIET_BESCHIKBAAR") {
-      const names = error.data?.data?.names ?? [];
-      orderError.value = `Niet meer beschikbaar: ${names.join(", ")}. Verwijder deze artikelen en probeer opnieuw.`;
-      return;
-    }
-
-    orderError.value = "Bestellen mislukt. Probeer het straks opnieuw.";
-  } finally {
-    placing.value = false;
+function clearHideTimer() {
+  if (hideTimer) {
+    clearTimeout(hideTimer);
+    hideTimer = null;
   }
 }
 
-function openSaveModal() {
-  if (cart.items.value.length === 0) return;
-  if (!requireLogin()) return;
-  saveName.value = defaultListName();
-  saveModalOpen.value = true;
-  nextTick(() => saveInputRef.value?.focus());
-}
+/** Het kleine kaartje verdwijnt vanzelf als er niet op geklikt wordt. */
+watch(
+  () => cart.toastVisible.value,
+  (isToast) => {
+    clearHideTimer();
+    if (isToast) {
+      hideTimer = setTimeout(() => {
+        cart.toastVisible.value = false;
+      }, 4000);
+    }
+  },
+);
+onUnmounted(clearHideTimer);
 
-function closeSaveModal() {
-  saveModalOpen.value = false;
-}
+watch(
+  () => checkout.saveModalOpen.value,
+  (open) => {
+    if (open) nextTick(() => saveInputRef.value?.focus());
+  },
+);
 
-function defaultListName(): string {
-  const d = new Date();
-  return `Lijst ${d.toLocaleDateString("nl-BE", { day: "2-digit", month: "short" })}`;
-}
-
-async function confirmSave() {
-  const name = saveName.value.trim();
-  if (!name || !requireLogin()) return;
-
-  await orderLists.saveCart(
-    name,
-    cart.items.value.map((i) => ({
-      id: i.id,
-      articleNr: i.articleNr,
-      name: i.name,
-      supplier: i.supplier,
-      unit: i.unit,
-      quantity: i.quantity,
-    })),
-  );
-  saveModalOpen.value = false;
-}
-
-function openLists() {
-  if (!requireLogin()) return;
-  cart.isOpen.value = false;
-  orderLists.openPanel();
-}
+watch(
+  () => checkout.orderModalOpen.value,
+  (open) => {
+    if (open) nextTick(() => orderNameInputRef.value?.focus());
+  },
+);
 </script>
 
 <style scoped>
+.panel-pop-enter-active,
+.panel-pop-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.panel-pop-enter-from,
+.panel-pop-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
 .backdrop-fade-enter-active,
 .backdrop-fade-leave-active {
   transition: opacity 0.25s ease;
@@ -511,15 +665,6 @@ function openLists() {
 .backdrop-fade-enter-from,
 .backdrop-fade-leave-to {
   opacity: 0;
-}
-
-.drawer-slide-enter-active,
-.drawer-slide-leave-active {
-  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-}
-.drawer-slide-enter-from,
-.drawer-slide-leave-to {
-  transform: translateX(100%);
 }
 
 .modal-pop-enter-active,

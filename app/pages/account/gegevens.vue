@@ -5,14 +5,14 @@
   >
     <div
       v-if="route.query.next"
-      class="mb-8 border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
+      class="mb-8 max-w-2xl mx-auto rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
       <p class="text-sm text-(--color-text)">
         Vul eerst uw facturatiegegevens in om uw bestelling te kunnen plaatsen.
       </p>
     </div>
 
-    <form class="max-w-2xl space-y-6" @submit.prevent="save()">
+    <form class="max-w-2xl mx-auto space-y-6" @submit.prevent="save()">
       <fieldset class="space-y-5">
         <legend
           class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
@@ -153,7 +153,7 @@
         <button
           type="submit"
           :disabled="pending"
-          class="bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {{ pending ? "Opslaan…" : "Gegevens opslaan" }}
         </button>
@@ -242,6 +242,7 @@ async function save() {
 .acc-input {
   width: 100%;
   border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.7rem 0.85rem;
   font-size: 0.9rem;

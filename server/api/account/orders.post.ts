@@ -13,6 +13,8 @@ import { requireUser } from "~~/server/utils/session";
  * bestelregel.
  */
 const bodySchema = z.object({
+  name: z.string().trim().max(200).optional(),
+  note: z.string().trim().max(2000).optional(),
   items: z
     .array(
       z.object({
@@ -68,7 +70,12 @@ export default defineEventHandler(async (event) => {
   const order = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(orders)
-      .values({ userId: user.id, billingSnapshot: billing })
+      .values({
+        userId: user.id,
+        billingSnapshot: billing,
+        name: body.name || null,
+        note: body.note || null,
+      })
       .returning();
 
     await tx.insert(orderItems).values(

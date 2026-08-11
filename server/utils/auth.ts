@@ -41,6 +41,33 @@ export const auth = betterAuth({
     requireEmailVerification: false,
   },
 
+  /**
+   * Google/Microsoft loggen pas in zodra de bijhorende env-vars gezet zijn
+   * (zie .env.example) — zo blijft de app werken (enkel e-mail/wachtwoord)
+   * als die nog niet geconfigureerd zijn, in plaats van te crashen op een
+   * lege clientId/secret.
+   */
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET
+      ? {
+          microsoft: {
+            clientId: process.env.MICROSOFT_CLIENT_ID,
+            clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+            // "common" laat zowel werk- als privé-Microsoft-accounts toe.
+            tenantId: process.env.MICROSOFT_TENANT_ID || "common",
+          },
+        }
+      : {}),
+  },
+
   user: {
     additionalFields: {
       // Spiegelt de extra kolom in server/database/schema/auth.ts.

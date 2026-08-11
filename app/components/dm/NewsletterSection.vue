@@ -37,7 +37,7 @@
         de rest.
       </p>
       <form
-        class="mx-auto flex max-w-125 flex-col items-center border border-white/15 bg-black/30 p-1.5 sm:flex-row"
+        class="mx-auto flex max-w-125 flex-col items-center rounded-2xl border border-white/15 bg-black/30 p-1.5 sm:flex-row sm:rounded-full"
         @submit.prevent
       >
         <span class="px-4 text-[1.5rem] text-(--color-accent)">✉</span>
@@ -48,7 +48,7 @@
         />
         <button
           type="submit"
-          class="w-full cursor-pointer border-none bg-[#c89868] px-6 py-3 text-[0.85rem] font-semibold tracking-widest text-[#1a0a0a] uppercase transition-colors duration-200 hover:bg-[#d8a878] sm:w-auto"
+          class="w-full cursor-pointer rounded-xl border-none bg-[#c89868] px-6 py-3 text-[0.85rem] font-semibold tracking-widest text-[#1a0a0a] uppercase transition-colors duration-200 hover:bg-[#d8a878] sm:w-auto sm:rounded-full"
         >
           + Houd mij op de hoogte
         </button>

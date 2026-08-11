@@ -32,7 +32,7 @@
             {{ post.day }}
           </div>
           <div
-            class="relative mb-7 aspect-[4/3] overflow-hidden border-t-3 border-t-transparent transition-colors duration-300 group-hover:border-t-[#c89868]"
+            class="relative mb-7 aspect-[4/3] overflow-hidden rounded-xl border-t-3 border-t-transparent transition-colors duration-300 group-hover:border-t-[#c89868]"
           >
             <img
               :src="post.image"
@@ -69,7 +69,7 @@
               <span
                 v-for="tag in [post.comments, post.views]"
                 :key="tag"
-                class="rounded-xs border border-[#c89868]/25 px-2.5 py-0.5 text-[0.75rem] tracking-widest text-(--color-accent) uppercase"
+                class="rounded-full border border-[#c89868]/25 px-2.5 py-0.5 text-[0.75rem] tracking-widest text-(--color-accent) uppercase"
                 >✓ {{ tag }}</span
               >
             </div>

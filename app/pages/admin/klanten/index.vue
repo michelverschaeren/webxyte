@@ -18,7 +18,7 @@
       <li
         v-for="c in items"
         :key="c.id"
-        class="border border-(--color-border) bg-(--color-surface-2)"
+        class="rounded-xl border border-(--color-border) bg-(--color-surface-2) overflow-hidden"
       >
         <NuxtLink
           :to="`/admin/klanten/${c.id}`"
@@ -40,13 +40,14 @@
     </ul>
     <p
       v-else
-      class="border border-(--color-border) bg-(--color-surface-2) px-4 py-10 text-center text-sm text-(--color-text-muted) sm:hidden"
+      class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-4 py-10 text-center text-sm text-(--color-text-muted) sm:hidden"
     >
       Geen klanten gevonden.
     </p>
 
     <!-- Tabel (desktop) -->
-    <div class="hidden overflow-x-auto border border-(--color-border) sm:block">
+    <div class="hidden rounded-xl border border-(--color-border) overflow-hidden sm:block">
+      <div class="overflow-x-auto">
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
@@ -107,6 +108,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <div
@@ -116,7 +118,7 @@
       <button
         type="button"
         :disabled="page <= 1"
-        class="border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page--"
       >
         Vorige
@@ -127,7 +129,7 @@
       <button
         type="button"
         :disabled="page >= pagination.pageCount"
-        class="border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page++"
       >
         Volgende
@@ -197,6 +199,7 @@ function formatDate(value: string): string {
 <style scoped>
 .adm-input {
   border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.6rem 0.85rem;
   font-size: 0.85rem;

@@ -1,8 +1,8 @@
 <template>
-  <AccountShell title="Bestelling" :subtitle="formatDate(order.createdAt)">
+  <AccountShell :title="order.name || 'Bestelling'" :subtitle="formatDate(order.createdAt)">
     <div
       v-if="justPlaced"
-      class="mb-8 border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4"
+      class="mb-8 rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4"
     >
       <p class="font-semibold text-(--color-text-strong)">
         Bedankt voor uw bestelling!
@@ -12,6 +12,16 @@
         mogelijk verwerkt en geleverd. U vindt de bestelling hier steeds
         terug.
       </p>
+    </div>
+
+    <div
+      v-if="order.note"
+      class="mb-8 rounded-r-xl border-l-2 border-(--color-border-strong) bg-(--color-surface-2) px-5 py-4"
+    >
+      <p class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase">
+        Notitie
+      </p>
+      <p class="mt-1 text-sm whitespace-pre-line text-(--color-text)">{{ order.note }}</p>
     </div>
 
     <div class="mb-6 flex flex-wrap items-center gap-4">
@@ -24,7 +34,7 @@
       <AccountOrderStatus :status="order.status" class="ml-auto" />
     </div>
 
-    <div class="mb-10 border border-(--color-border) bg-(--color-surface-2) px-4 py-6 sm:px-8">
+    <div class="mb-10 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-4 py-6 sm:px-8">
       <AccountOrderProgress :status="order.status" />
     </div>
 
@@ -41,7 +51,7 @@
           <li
             v-for="item in order.items"
             :key="item.id"
-            class="flex items-center gap-4 border border-(--color-border) bg-(--color-surface-2) px-4 py-3"
+            class="flex items-center gap-4 rounded-lg border border-(--color-border) bg-(--color-surface-2) px-4 py-3"
             :class="{ 'opacity-50': !item.available }"
           >
             <div class="min-w-0 flex-1">
@@ -64,7 +74,7 @@
         </ul>
 
         <!-- Reorder -->
-        <div class="mt-6 border border-[#c89868]/30 bg-(--color-surface-2) p-5">
+        <div class="mt-6 rounded-xl border border-[#c89868]/30 bg-(--color-surface-2) p-5">
           <h3 class="font-semibold text-(--color-text-strong)">Opnieuw bestellen</h3>
           <p class="mt-1 text-sm text-(--color-text-muted)">
             {{ reorderSummary }}
@@ -73,7 +83,7 @@
             <button
               type="button"
               :disabled="reorderItems.length === 0"
-              class="bg-[#b8252a] px-4 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              class="rounded-lg bg-[#b8252a] px-4 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
               @click="reorder('replace')"
             >
               Vervang mandje
@@ -81,7 +91,7 @@
             <button
               type="button"
               :disabled="reorderItems.length === 0"
-              class="border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              class="rounded-lg border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
               @click="reorder('append')"
             >
               Toevoegen aan mandje
@@ -98,7 +108,7 @@
           — Gefactureerd aan —
         </h2>
         <div
-          class="space-y-1 border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)"
+          class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)"
         >
           <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
           <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">

@@ -127,7 +127,7 @@ async function onLogout() {
 }
 .adm-tab--active {
   color: var(--color-text-strong);
-  border-bottom-color: #c89868;
+  border-bottom-color: #b8252a;
 }
 .adm-tab--muted {
   flex: 0 0 auto;

@@ -24,7 +24,7 @@ export function useCart() {
 
   const items = useState<CartItem[]>("cart", () => []);
   const isOpen = useState<boolean>("cart-open", () => false);
-  const isMaximized = useState<boolean>("cart-maximized", () => false);
+  const toastVisible = useState<boolean>("cart-toast", () => false);
   const loaded = useState<boolean>("cart-loaded", () => false);
   const loading = useState<boolean>("cart-loading", () => false);
 
@@ -88,7 +88,7 @@ export function useCart() {
   ) {
     const qty = Math.max(1, Math.floor(quantity));
     mergeLocal(product, qty);
-    if (openDrawer) isOpen.value = true;
+    if (openDrawer && !isOpen.value) toastVisible.value = true;
 
     if (!auth.isLoggedIn.value) return;
     $fetch("/api/account/cart/items", {
@@ -115,7 +115,7 @@ export function useCart() {
         });
       }
     }
-    if (openDrawer) isOpen.value = true;
+    if (openDrawer && !isOpen.value) toastVisible.value = true;
 
     if (!auth.isLoggedIn.value || list.length === 0) return;
     $fetch("/api/account/cart/bulk", {
@@ -137,7 +137,7 @@ export function useCart() {
       const { quantity, ...rest } = it;
       return { ...rest, quantity: Math.max(1, Math.floor(quantity)) };
     });
-    if (openDrawer) isOpen.value = true;
+    if (openDrawer && !isOpen.value) toastVisible.value = true;
 
     if (!auth.isLoggedIn.value) return;
     $fetch("/api/account/cart/bulk", {
@@ -188,7 +188,7 @@ export function useCart() {
   return {
     items,
     isOpen,
-    isMaximized,
+    toastVisible,
     loading,
     totalItems,
     ensureLoaded,

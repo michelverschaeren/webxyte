@@ -1,6 +1,6 @@
 <template>
   <span
-    class="inline-flex shrink-0 items-center border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase"
+    class="inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase"
     :style="{ color: style.color, borderColor: style.color }"
   >
     {{ style.label }}

@@ -42,7 +42,8 @@
         — Meest verkocht —
       </h2>
 
-      <div class="overflow-x-auto border border-(--color-border)">
+      <div class="rounded-xl border border-(--color-border) overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="w-full text-sm border-collapse">
           <thead>
             <tr
@@ -67,6 +68,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </section>
   </AdminShell>
@@ -94,6 +96,7 @@ const { data: stats } = await useFetch<Stats>("/api/admin/stats");
   flex-direction: column;
   gap: 0.35rem;
   border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
   background: var(--color-surface-2);
   padding: 1.5rem;
   text-align: left;

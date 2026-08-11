@@ -12,7 +12,7 @@
       </div>
 
       <!-- Status wijzigen -->
-      <div class="mb-10 border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:px-8">
+      <div class="mb-10 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:px-8">
         <p class="mb-3 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
           — Status —
         </p>
@@ -25,7 +25,7 @@
           <button
             type="button"
             :disabled="selectedStatus === order.status || saving"
-            class="bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+            class="rounded-lg bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
             @click="saveStatus()"
           >
             {{ saving ? "Bezig…" : "Status opslaan" }}
@@ -45,7 +45,7 @@
             <li
               v-for="item in order.items"
               :key="item.id"
-              class="flex items-center gap-4 border border-(--color-border) bg-(--color-surface-2) px-4 py-3"
+              class="flex items-center gap-4 rounded-lg border border-(--color-border) bg-(--color-surface-2) px-4 py-3"
               :class="{ 'opacity-50': !item.available }"
             >
               <div class="min-w-0 flex-1">
@@ -70,7 +70,7 @@
             <h2 class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
               — Klant —
             </h2>
-            <div class="border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
+            <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
               <p class="font-semibold text-(--color-text-strong)">{{ order.customer.name }}</p>
               <p class="text-(--color-text-muted)">{{ order.customer.email }}</p>
               <NuxtLink
@@ -86,7 +86,7 @@
             <h2 class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
               — Gefactureerd aan —
             </h2>
-            <div class="space-y-1 border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
+            <div class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
               <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
               <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
                 BTW {{ order.billing.vatNumber }}
@@ -200,6 +200,7 @@ function formatDate(value: string | Date): string {
 <style scoped>
 .adm-input {
   border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.6rem 0.85rem;
   font-size: 0.85rem;

@@ -52,7 +52,7 @@
       <div class="text-center mt-12">
         <NuxtLink
           to="/producten"
-          class="inline-block border-2 border-[#c89868] text-(--color-accent) px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
+          class="inline-block rounded-xl border-2 border-[#c89868] text-(--color-accent) px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
           >Alle categorieën →</NuxtLink
         >
       </div>

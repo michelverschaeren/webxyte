@@ -57,6 +57,13 @@ export function useOrderLists() {
     "order-lists-editing-name",
     () => "",
   );
+  /** Werkkopie van de items van de lijst die net bewerkt wordt — losstaand
+   * van de opgeslagen lijst, zodat "Toevoegen" de bewerkte versie in het
+   * mandje kan zetten zonder meteen op te slaan. */
+  const draftItems = useState<SavedListItem[]>(
+    "order-lists-draft-items",
+    () => [],
+  );
 
   async function fetchLists() {
     loading.value = true;
@@ -129,11 +136,46 @@ export function useOrderLists() {
   function openEditor(id: string) {
     editingListId.value = id;
     editorDraftName.value = getList(id)?.name ?? "";
+    draftItems.value = getList(id)?.items.map((i) => ({ ...i })) ?? [];
   }
 
   function closeEditor() {
     editingListId.value = null;
     editorDraftName.value = "";
+    draftItems.value = [];
+  }
+
+  const isDraftDirty = computed(() => {
+    const list = editingListId.value ? getList(editingListId.value) : null;
+    if (!list) return false;
+    if (list.name !== editorDraftName.value.trim()) return true;
+    if (list.items.length !== draftItems.value.length) return true;
+    return list.items.some((orig, i) => {
+      const cur = draftItems.value[i];
+      return !cur || cur.id !== orig.id || cur.quantity !== orig.quantity;
+    });
+  });
+
+  function updateDraftQty(idx: number, qty: number) {
+    const item = draftItems.value[idx];
+    if (!item) return;
+    const v = Number.isFinite(qty) ? Math.floor(qty) : 1;
+    if (v <= 0) draftItems.value.splice(idx, 1);
+    else item.quantity = v;
+  }
+
+  function removeDraftItem(idx: number) {
+    draftItems.value.splice(idx, 1);
+  }
+
+  /** Bewaart de werkkopie op de opgeslagen lijst (naam + items). */
+  async function saveDraft() {
+    const id = editingListId.value;
+    if (!id) return;
+    await updateList(id, {
+      name: editorDraftName.value,
+      items: draftItems.value.map((i) => ({ ...i })),
+    });
   }
 
   /**
@@ -163,6 +205,8 @@ export function useOrderLists() {
     panelMaximized,
     editingListId,
     editorDraftName,
+    draftItems,
+    isDraftDirty,
     ensureLoaded,
     fetchLists,
     reset,
@@ -175,5 +219,8 @@ export function useOrderLists() {
     closePanel,
     openEditor,
     closeEditor,
+    updateDraftQty,
+    removeDraftItem,
+    saveDraft,
   };
 }

@@ -2,7 +2,7 @@
   <div class="bg-(--color-bg) text-(--color-text) min-h-screen">
     <!-- Page header -->
     <div
-      class="relative py-20 px-4 overflow-hidden"
+      class="relative pt-46.5 pb-20 px-4 overflow-hidden"
       style="
         background: radial-gradient(
           ellipse at 50% 40%,
@@ -12,7 +12,7 @@
         );
       "
     >
-      <div class="relative z-1 max-w-300 mx-auto text-center pt-12">
+      <div class="relative z-1 max-w-300 mx-auto text-center">
         <h1
           class="font-['Playfair_Display',Georgia,serif] text-[clamp(2.5rem,6vw,5rem)] font-black text-white leading-[1.05] mb-4"
         >
@@ -47,13 +47,13 @@
             v-model="search"
             type="text"
             placeholder="Zoek op naam, artikelnr of fabrikant…"
-            class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+            class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
           />
         </div>
         <button
           type="button"
           @click="orderLists.openPanel()"
-          class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] text-(--color-accent) text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+          class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] rounded-xl text-(--color-accent) text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
         >
           <svg
             class="w-4 h-4"
@@ -76,7 +76,9 @@
           >
         </button>
         <!-- Layout toggle -->
-        <div class="shrink-0 flex border border-(--color-border-strong)">
+        <div
+          class="shrink-0 flex border border-(--color-border-strong) rounded-xl overflow-hidden"
+        >
           <button
             type="button"
             @click="viewLayout = 'grid'"
@@ -176,7 +178,7 @@
           <div class="lg:hidden mb-5">
             <select
               v-model="selectedCategorySlug"
-              class="w-full px-4 py-3 bg-(--color-surface) border border-(--color-border) text-(--color-text) text-sm focus:outline-none focus:border-[#c89868]"
+              class="w-full px-4 py-3 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) text-sm focus:outline-none focus:border-[#c89868]"
             >
               <option :value="null">
                 Alle categorieën ({{ totalActiveCount }})
@@ -198,7 +200,7 @@
           >
             <span
               v-if="selectedCategorySlug"
-              class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
               {{ activeCategoryName }}
               <button
@@ -210,7 +212,7 @@
             </span>
             <span
               v-if="selectedSupplier"
-              class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               {{ selectedSupplier }}
               <button
@@ -222,7 +224,7 @@
             </span>
             <span
               v-if="search"
-              class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-(--color-hover) text-(--color-text-muted) border border-(--color-border)"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-(--color-hover) text-(--color-text-muted) border border-(--color-border)"
             >
               "{{ search }}"
               <button
@@ -252,7 +254,7 @@
                 selectedCategorySlug = null;
                 selectedSupplier = null;
               "
-              class="mt-2 px-6 py-3 bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
+              class="mt-2 px-6 py-3 rounded-lg bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
             >
               Reset filters
             </button>
@@ -266,7 +268,7 @@
             <div
               v-for="product in items"
               :key="product.id"
-              class="group bg-(--color-surface) border border-(--color-border) hover:border-[#c89868]/50 transition-all duration-300 flex flex-col"
+              class="group bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden hover:border-[#c89868]/50 transition-all duration-300 flex flex-col"
             >
               <div class="p-5 flex flex-col gap-3 flex-1">
                 <div class="flex items-start justify-between gap-3">
@@ -287,7 +289,7 @@
                       i
                     </button>
                     <span
-                      class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
+                      class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
                       >{{ product.articleNr }}</span
                     >
                   </div>
@@ -358,7 +360,11 @@
           </div>
 
           <!-- Table layout -->
-          <div v-else-if="viewLayout === 'table'" class="overflow-x-auto">
+          <div
+            v-else-if="viewLayout === 'table'"
+            class="border border-(--color-border) rounded-xl overflow-hidden"
+          >
+            <div class="overflow-x-auto">
             <table class="w-full text-sm border-collapse">
               <thead>
                 <tr
@@ -514,7 +520,7 @@
                     <!-- Mobile fallback: art. nr + supplier -->
                     <div class="flex gap-2 mt-0.5 sm:hidden">
                       <span
-                        class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 px-1.5 py-0.5"
+                        class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-1.5 py-0.5"
                         >{{ product.articleNr }}</span
                       >
                       <button
@@ -528,7 +534,7 @@
                   </td>
                   <td class="py-2.5 px-3 hidden sm:table-cell">
                     <span
-                      class="text-[0.75rem] text-(--color-accent) border border-[#c89868]/25 px-2 py-0.5 uppercase tracking-[0.08em]"
+                      class="text-[0.75rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
                       >{{ product.articleNr }}</span
                     >
                   </td>
@@ -561,7 +567,9 @@
                   </td>
                   <td class="py-2 px-3">
                     <div class="flex items-center justify-center gap-1.5">
-                      <div class="flex items-center border border-(--color-border)">
+                      <div
+                        class="flex items-center border border-(--color-border) rounded-lg overflow-hidden"
+                      >
                         <button
                           type="button"
                           @click="setQty(product.id, getQty(product.id) - 1)"
@@ -594,7 +602,7 @@
                       <button
                         type="button"
                         @click="addToCart(product)"
-                        class="h-8 px-3 bg-[#b8252a] text-white text-[0.7rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors whitespace-nowrap"
+                        class="h-8 px-3 rounded-lg bg-[#b8252a] text-white text-[0.7rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors whitespace-nowrap"
                       >
                         + Toevoegen
                       </button>
@@ -603,6 +611,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           <!-- Load more -->
@@ -613,16 +622,16 @@
             <p class="text-sm text-(--color-text-muted)">
               {{ items.length }} van {{ pagination.total }} producten
             </p>
-            <div class="w-full max-w-xs bg-(--color-hover) h-0.5">
+            <div class="w-full max-w-xs bg-(--color-hover) h-0.5 rounded-full overflow-hidden">
               <div
-                class="h-0.5 bg-[#c89868] transition-all duration-300"
+                class="h-0.5 bg-[#c89868] rounded-full transition-all duration-300"
                 :style="`width: ${Math.min((items.length / pagination.total) * 100, 100)}%`"
               />
             </div>
             <button
               v-if="hasMore"
               @click="loadMore"
-              class="px-8 py-3 border border-[#c89868] text-(--color-accent) text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
+              class="px-8 py-3 rounded-xl border border-[#c89868] text-(--color-accent) text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
             >
               Meer laden
             </button>

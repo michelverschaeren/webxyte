@@ -36,7 +36,7 @@
         </p>
         <NuxtLink
           to="/producten"
-          class="inline-block bg-[#c89868] px-8 py-[0.9rem] text-[0.8rem] font-semibold tracking-[0.15em] text-[#1a0a0a] uppercase no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d8a878]"
+          class="inline-block rounded-xl bg-[#c89868] px-8 py-[0.9rem] text-[0.8rem] font-semibold tracking-[0.15em] text-[#1a0a0a] uppercase no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d8a878]"
           >Bekijk ons gamma</NuxtLink
         >
       </div>

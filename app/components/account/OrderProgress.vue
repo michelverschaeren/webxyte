@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="status === 'geannuleerd'"
-    class="flex items-center gap-3 border border-[#b8252a]/40 bg-(--color-surface-2) px-5 py-4"
+    class="flex items-center gap-3 rounded-xl border border-[#b8252a]/40 bg-(--color-surface-2) px-5 py-4"
   >
     <span class="text-lg text-[#b8252a]">✕</span>
     <p class="text-sm text-(--color-text)">

@@ -5,7 +5,7 @@
   >
     <div
       v-if="!billing"
-      class="mb-8 flex flex-wrap items-center gap-4 border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
+      class="mb-8 flex flex-wrap items-center gap-4 rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
       <p class="flex-1 text-sm text-(--color-text)">
         Vul uw facturatiegegevens in — die hebben wij nodig voor u kunt
@@ -13,7 +13,7 @@
       </p>
       <NuxtLink
         to="/account/gegevens"
-        class="bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f]"
       >
         Nu invullen
       </NuxtLink>
@@ -69,7 +69,7 @@
         <li
           v-for="order in recentOrders"
           :key="order.id"
-          class="border border-(--color-border) bg-(--color-surface-2) transition-colors hover:border-[#c89868]/40"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) transition-colors hover:border-[#c89868]/40"
         >
           <NuxtLink
             :to="`/account/bestellingen/${order.id}`"
@@ -135,6 +135,7 @@ function formatDate(value: string | Date): string {
   flex-direction: column;
   gap: 0.35rem;
   border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
   background: var(--color-surface-2);
   padding: 1.5rem;
   text-align: left;

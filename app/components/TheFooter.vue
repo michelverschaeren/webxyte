@@ -8,14 +8,13 @@
         <!-- Brand -->
         <div>
           <div class="mb-4 flex items-center gap-3">
-            <div
-              class="flex h-9 w-9 items-center justify-center text-sm font-black text-white"
-              style="background: #b8252a"
-            >
-              VV
-            </div>
+            <img
+              :src="theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'"
+              alt="Vleeswaren Vermeir logo"
+              class="h-9 w-9 rounded-lg object-contain"
+            />
             <span class="text-lg font-bold text-[var(--color-text-strong)]"
-              >Vleeswaren <span class="text-(--color-accent)">Vermeir</span></span
+              >Vleeswaren <span class="text-(--color-accent)">Vermeir BV</span></span
             >
           </div>
           <p class="text-sm leading-relaxed text-[var(--color-text-muted)]">
@@ -121,6 +120,8 @@
 </template>
 
 <script setup lang="ts">
+const { theme } = useTheme();
+
 const links = [
   { to: "/", label: "Home" },
   { to: "/producten", label: "Producten & Bestellen" },

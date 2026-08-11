@@ -20,7 +20,7 @@
       </select>
       <NuxtLink
         to="/admin/producten/nieuw"
-        class="ml-auto bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        class="ml-auto rounded-lg bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
       >
         + Nieuw product
       </NuxtLink>
@@ -30,7 +30,8 @@
       {{ pagination?.total ?? 0 }} producten
     </p>
 
-    <div class="overflow-x-auto border border-(--color-border)">
+    <div class="rounded-xl border border-(--color-border) overflow-hidden">
+      <div class="overflow-x-auto">
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
@@ -104,7 +105,7 @@
             </td>
             <td class="px-4 py-2.5">
               <span
-                class="px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em]"
+                class="rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em]"
                 :class="
                   p.isActive
                     ? 'text-[#8fc98f] border border-[#8fc98f]/40'
@@ -130,6 +131,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <div
@@ -139,7 +141,7 @@
       <button
         type="button"
         :disabled="page <= 1"
-        class="border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page--"
       >
         Vorige
@@ -150,7 +152,7 @@
       <button
         type="button"
         :disabled="page >= pagination.pageCount"
-        class="border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page++"
       >
         Volgende
@@ -249,6 +251,7 @@ const pagination = computed(() => data.value?.pagination);
 <style scoped>
 .adm-input {
   border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.6rem 0.85rem;
   font-size: 0.85rem;

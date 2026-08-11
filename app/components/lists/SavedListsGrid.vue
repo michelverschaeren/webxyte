@@ -46,9 +46,11 @@
     <div
       v-else
       :class="
-        large
-          ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-          : 'space-y-3'
+        horizontal
+          ? 'space-y-3'
+          : large
+            ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            : 'space-y-3'
       "
     >
       <ListsSavedListCard
@@ -56,11 +58,12 @@
         :key="list.id"
         :list="list"
         :large="large"
+        :horizontal="horizontal"
+        :inline-edit="inlineEdit"
         selectable
         :selected="selected.includes(list.id)"
         @toggle="toggle(list.id)"
-        @replace="replaceCart(list.id)"
-        @append="appendCart(list.id)"
+        @append="appendCart(list.id, $event)"
         @edit="orderLists.openEditor(list.id)"
         @delete="orderLists.deleteList(list.id)"
       />
@@ -90,7 +93,7 @@
           <button
             type="button"
             :disabled="mergedItems.length === 0"
-            class="bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
             @click="addSelectedToCart()"
           >
             Toevoegen aan winkelmandje
@@ -102,7 +105,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ large?: boolean }>();
+import type { SavedListItem } from "~/composables/useOrderLists";
+
+defineProps<{ large?: boolean; horizontal?: boolean; inlineEdit?: boolean }>();
 const emit = defineEmits<{ done: [] }>();
 
 const cart = useCart();
@@ -118,17 +123,10 @@ function toggle(id: string) {
   else selected.value.splice(idx, 1);
 }
 
-function replaceCart(id: string) {
-  const list = orderLists.getList(id);
-  if (!list) return;
-  cart.replaceItems(toCartItems(list.items.filter((i) => i.available !== false)));
-  emit("done");
-}
-
-function appendCart(id: string) {
-  const list = orderLists.getList(id);
-  if (!list) return;
-  cart.addItems(toCartItems(list.items.filter((i) => i.available !== false)));
+function appendCart(id: string, items?: SavedListItem[]) {
+  const source = items ?? orderLists.getList(id)?.items;
+  if (!source) return;
+  cart.addItems(toCartItems(source.filter((i) => i.available !== false)));
   emit("done");
 }
 

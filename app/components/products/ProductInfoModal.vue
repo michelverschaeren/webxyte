@@ -14,7 +14,7 @@
         class="fixed inset-0 z-[61] flex items-center justify-center p-4 pointer-events-none"
       >
         <div
-          class="pointer-events-auto w-full max-w-4xl h-[85vh] flex flex-col border border-[#c89868]/30 shadow-2xl"
+          class="pointer-events-auto w-full max-w-4xl h-[85vh] flex flex-col rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
           style="background: var(--color-surface)"
         >
           <!-- Header -->
@@ -45,12 +45,12 @@
                 :href="pdfUrl"
                 target="_blank"
                 rel="noopener"
-                class="px-3 py-1.5 border border-[#c89868] text-(--color-accent) text-[0.7rem] font-semibold uppercase tracking-[0.1em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                class="px-3 py-1.5 rounded-lg border border-[#c89868] text-(--color-accent) text-[0.7rem] font-semibold uppercase tracking-[0.1em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                 >Nieuw tabblad</a
               >
               <button
                 @click="$emit('close')"
-                class="p-1.5 text-(--color-text-muted) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
+                class="rounded-lg p-1.5 text-(--color-text-muted) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
                 aria-label="Sluit"
               >
                 <svg

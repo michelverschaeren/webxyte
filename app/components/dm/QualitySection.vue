@@ -53,7 +53,7 @@
           </p>
           <NuxtLink
             to="/contact"
-            class="inline-block bg-[#c89868] text-[#1a0a0a] px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#d8a878] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(200,152,104,0.3)] transition-all duration-200"
+            class="inline-block rounded-xl bg-[#c89868] text-[#1a0a0a] px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#d8a878] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(200,152,104,0.3)] transition-all duration-200"
             >+ Contacteer ons</NuxtLink
           >
         </div>

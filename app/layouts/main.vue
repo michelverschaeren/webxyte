@@ -41,7 +41,11 @@
           <!-- Logo -->
           <NuxtLink to="/" class="dm-logo">
             <img
-              :src="'/images/favicon2.png'"
+              :src="
+                theme === 'dark'
+                  ? '/images/logo-dark.png'
+                  : '/images/logo-light.png'
+              "
               alt="Vleeswaren Vermeir logo"
               class="dm-logo-badge"
             />
@@ -69,9 +73,7 @@
             <!-- Thema -->
             <button
               class="dm-icon-btn"
-              :aria-label="
-                theme === 'dark' ? 'Licht thema' : 'Donker thema'
-              "
+              :aria-label="theme === 'dark' ? 'Licht thema' : 'Donker thema'"
               :title="theme === 'dark' ? 'Licht thema' : 'Donker thema'"
               @click="toggleTheme()"
             >
@@ -103,22 +105,6 @@
               </svg>
             </button>
 
-            <!-- Wishlist -->
-            <button class="dm-icon-btn dm-wishlist-btn" aria-label="Verlanglijst">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
-
             <!-- Login / account -->
             <button
               class="dm-icon-btn"
@@ -142,9 +128,9 @@
             </button>
 
             <!-- Cart -->
-            <button
+            <NuxtLink
+              to="/winkelmandje"
               class="dm-icon-btn"
-              @click="cart.isOpen.value = !cart.isOpen.value"
               aria-label="Winkelwagen"
             >
               <svg
@@ -162,7 +148,7 @@
               <span v-if="cart.totalItems.value > 0" class="dm-cart-badge">
                 {{ cart.totalItems.value > 99 ? "99+" : cart.totalItems.value }}
               </span>
-            </button>
+            </NuxtLink>
 
             <!-- Mobile hamburger -->
             <button
@@ -378,7 +364,7 @@ onMounted(() => {
 .dm-logo-badge {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
+  border-radius: 0.5rem;
   object-fit: contain;
 }
 .dm-logo-text {
@@ -462,7 +448,7 @@ onMounted(() => {
   justify-content: center;
   background: transparent;
   color: var(--color-text);
-  border-radius: 4px;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
 }
