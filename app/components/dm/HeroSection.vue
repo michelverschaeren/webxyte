@@ -74,7 +74,7 @@
         >
           <img
             class="block h-full w-full object-cover filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
-            src="/images/hero_bg.png"
+            src="/images/hero6.png"
             alt="Verse vleeswaren Vermeir"
           />
         </div>

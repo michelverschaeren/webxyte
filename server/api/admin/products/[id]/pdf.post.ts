@@ -51,6 +51,15 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Bestand is groter dan 15MB.",
     });
   }
+  // Content-Type komt van de client en is te vervalsen; de echte PDF-magic
+  // bytes controleren voorkomt dat een ander bestandstype als .pdf onder
+  // /docs/products/ terechtkomt en publiek geserveerd wordt.
+  if (file.data.subarray(0, 5).toString("latin1") !== "%PDF-") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Bestand is geen geldig PDF-bestand.",
+    });
+  }
 
   mkdirSync(DOCS_DIR(), { recursive: true });
   const fileName = `${product.articleNr}.pdf`;

@@ -20,6 +20,22 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    // Basis response-headers voor de hele site. Geen CSP hier: dat vergt
+    // uitgebreide browser-tests tegen Google Fonts/naive-ui/Vite-HMR en
+    // wordt best apart aangepakt.
+    "/**": {
+      headers: {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        // Genegeerd door browsers over http, dus onschadelijk in lokale dev.
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains",
+      },
+    },
+  },
+
   app: {
     head: {
       link: [

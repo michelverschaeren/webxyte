@@ -67,6 +67,16 @@ export const auth = betterAuth({
     // Verplicht achter de reverse proxy van Dokploy (Traefik) op https.
     useSecureCookies: process.env.NODE_ENV === "production",
   },
+
+  /**
+   * Better Auth's default (`enabled: isProduction`) hangt af van hoe Dokploy
+   * NODE_ENV precies zet — expliciet aanzetten maakt dat onafhankelijk
+   * daarvan. Ingebouwde regels beperken /sign-in en /sign-up al streng tot
+   * 3 pogingen per 10s per IP; dat volstaat hier zonder extra storage.
+   */
+  rateLimit: {
+    enabled: true,
+  },
 });
 
 /** Het volledige, afgeleide sessietype — inclusief je eigen `role`. */
