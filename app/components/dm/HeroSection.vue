@@ -69,11 +69,11 @@
       <!-- Hero text + image -->
       <div class="relative z-2 flex flex-1 flex-col items-center px-4 pt-62">
         <div
-          class="relative z-2 flex w-full flex-1 justify-center"
+          class="relative z-2 mx-auto flex w-full max-w-205 justify-center"
           :style="{ opacity: bgOpacity }"
         >
           <img
-            class="block h-full w-full object-cover filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
+            class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
             src="/images/hero6.png"
             alt="Verse vleeswaren Vermeir"
           />

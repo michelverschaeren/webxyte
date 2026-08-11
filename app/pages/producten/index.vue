@@ -127,27 +127,29 @@
 
       <div class="flex gap-8">
         <!-- Sidebar (desktop) -->
-        <aside class="hidden lg:block w-60 shrink-0">
-          <div class="bg-(--color-surface) border border-(--color-border)">
-            <div class="px-5 py-4 border-b border-(--color-border)">
+        <aside class="hidden lg:block w-64 shrink-0">
+          <div
+            class="sticky top-8 bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden"
+          >
+            <div class="px-6 py-5">
               <p
                 class="uppercase tracking-[0.2em] text-[0.7rem] text-(--color-accent) font-semibold"
               >
                 Categorieën
               </p>
             </div>
-            <div class="py-2">
+            <div class="flex flex-col gap-1 px-3 pb-4">
               <button
                 @click="selectedCategorySlug = null"
-                class="w-full text-left px-5 py-2.5 text-sm transition-colors"
+                class="w-full flex items-center justify-between gap-3 text-left px-4 py-3 text-sm rounded-lg transition-colors"
                 :class="
                   !selectedCategorySlug
-                    ? 'text-(--color-accent) bg-(--color-hover)'
+                    ? 'text-(--color-accent) bg-(--color-hover) font-medium'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
               >
-                Alle categorieën
-                <span class="float-right text-(--color-accent)/60">{{
+                <span>Alle categorieën</span>
+                <span class="text-(--color-accent)/60 text-xs">{{
                   totalActiveCount
                 }}</span>
               </button>
@@ -155,14 +157,14 @@
                 v-for="cat in categories"
                 :key="cat.id"
                 @click="selectedCategorySlug = cat.slug"
-                class="w-full text-left px-5 py-2 text-sm transition-colors"
+                class="w-full text-left px-4 py-3 text-sm rounded-lg transition-colors"
                 :class="
                   selectedCategorySlug === cat.slug
-                    ? 'text-(--color-accent) bg-(--color-hover)'
+                    ? 'text-(--color-accent) bg-(--color-hover) font-medium'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
               >
-                {{ cat.emoji }} {{ cat.name }}
+                {{ cat.name }}
               </button>
             </div>
           </div>
