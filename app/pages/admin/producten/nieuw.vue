@@ -10,7 +10,7 @@
           maxlength="32"
           placeholder="bv. 10000"
           class="adm-input"
-        />
+        >
       </label>
 
       <label class="block">
@@ -21,7 +21,7 @@
           required
           maxlength="200"
           class="adm-input"
-        />
+        >
       </label>
 
       <label class="block">
@@ -32,7 +32,7 @@
           required
           maxlength="200"
           class="adm-input"
-        />
+        >
       </label>
 
       <label class="block">
@@ -54,7 +54,7 @@
             maxlength="64"
             placeholder="bv. KG, ST, 6x80gr."
             class="adm-input"
-          />
+          >
         </label>
         <label class="block">
           <span class="adm-label">Prijs (€)</span>
@@ -65,7 +65,7 @@
             step="0.01"
             placeholder="optioneel"
             class="adm-input"
-          />
+          >
         </label>
       </div>
 

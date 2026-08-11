@@ -48,7 +48,7 @@
               "
               alt="Vleeswaren Vermeir logo"
               class="dm-logo-badge"
-            />
+            >
             <div class="dm-logo-text">
               <span class="dm-logo-name">Vleeswaren</span>
               <span class="dm-logo-accent">Vermeir</span>
@@ -153,8 +153,8 @@
             <!-- Mobile hamburger -->
             <button
               class="dm-icon-btn dm-hamburger"
-              @click="mobileOpen = !mobileOpen"
               aria-label="Menu"
+              @click="mobileOpen = !mobileOpen"
             >
               <svg
                 v-if="!mobileOpen"

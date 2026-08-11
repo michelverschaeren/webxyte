@@ -1,5 +1,5 @@
 <template>
-  <section class="py-24 bg-[var(--color-bg)]">
+  <section class="py-24 bg-(--color-bg)">
     <div class="max-w-300 mx-auto px-6">
       <div class="text-center mb-12">
         <p
@@ -8,7 +8,7 @@
           — Uitgebreid gamma —
         </p>
         <h2
-          class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-[var(--color-text-strong)] mb-4 leading-[1.1]"
+          class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-(--color-text-strong) mb-4 leading-[1.1]"
         >
           <span class="block">Van fijne vleeswaren tot</span>
           <span
@@ -17,7 +17,7 @@
           >
         </h2>
         <p
-          class="max-w-150 mx-auto mt-6 text-[var(--color-text-muted)] leading-[1.7] text-[1.05rem]"
+          class="max-w-150 mx-auto mt-6 text-(--color-text-muted) leading-[1.7] text-[1.05rem]"
         >
           Van sauzen tot verpakkingsmateriaal. Bij Vleeswaren Vermeir kan u
           terecht voor ieder product en met al uw vragen betreffende die
@@ -29,7 +29,7 @@
         <div
           v-for="category in categories"
           :key="category.name"
-          class="group cursor-pointer text-center text-[var(--color-text-muted)] transition-transform duration-300 hover:-translate-y-2"
+          class="group cursor-pointer text-center text-(--color-text-muted) transition-transform duration-300 hover:-translate-y-2"
         >
           <div
             class="mx-auto mb-4 flex h-32 w-full items-center justify-center sm:h-40"
@@ -39,7 +39,7 @@
               :alt="category.name"
               loading="lazy"
               class="sketch-img h-full w-full object-contain transition-all duration-300 group-hover:-translate-y-1.5 group-hover:scale-105"
-            />
+            >
           </div>
           <p
             class="m-0 text-[0.75rem] font-semibold tracking-[0.15em] uppercase transition-colors duration-300 group-hover:text-(--color-accent)"

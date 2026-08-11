@@ -11,7 +11,7 @@
             :src="'/images/favicon.png'"
             alt="Vleeswaren Vermeir logo"
             class="w-9 h-9 rounded-lg shrink-0 object-contain"
-          />
+          >
           <span
             class="font-bold text-lg tracking-tight text-site hidden sm:block"
           >
@@ -58,9 +58,9 @@
 
           <!-- Cart button -->
           <button
-            @click="cart.isOpen.value = !cart.isOpen.value"
             class="relative p-2 rounded-lg text-site hover:bg-surface-2 transition-colors"
             aria-label="Winkelwagen"
+            @click="cart.isOpen.value = !cart.isOpen.value"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -87,9 +87,9 @@
 
           <!-- Mobile hamburger -->
           <button
-            @click="mobileOpen = !mobileOpen"
             class="md:hidden p-2 rounded-lg text-site hover:bg-surface-2 transition-colors"
             aria-label="Menu"
+            @click="mobileOpen = !mobileOpen"
           >
             <svg
               v-if="!mobileOpen"
@@ -136,13 +136,13 @@
           v-for="link in links"
           :key="link.to"
           :to="link.to"
-          @click="mobileOpen = false"
           class="block px-3 py-2.5 rounded-lg text-sm font-medium text-site hover:bg-surface-2 transition-colors"
           :style="
             isActive(link.to)
               ? `color: var(--color-primary); font-weight: 600;`
               : ''
           "
+          @click="mobileOpen = false"
         >
           {{ link.label }}
         </NuxtLink>

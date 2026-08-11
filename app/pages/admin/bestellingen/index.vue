@@ -6,7 +6,7 @@
         type="text"
         placeholder="Zoek op klant, e-mail of bedrijf…"
         class="adm-input max-w-sm flex-1"
-      />
+      >
       <select v-model="status" class="adm-input w-auto">
         <option value="">Alle statussen</option>
         <option v-for="s in ORDER_STATUSES" :key="s" :value="s">
@@ -63,7 +63,7 @@
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
-            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-[0.1em] text-(--color-text-muted)"
+            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
           >
             <th class="px-4 py-3 text-left font-semibold">Datum</th>
             <th class="px-4 py-3 text-left font-semibold">Klant</th>
@@ -74,7 +74,7 @@
               Artikelen
             </th>
             <th class="px-4 py-3 text-left font-semibold">Status</th>
-            <th class="px-4 py-3"></th>
+            <th class="px-4 py-3"/>
           </tr>
         </thead>
         <tbody>

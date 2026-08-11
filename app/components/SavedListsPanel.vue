@@ -63,8 +63,8 @@
               >
                 <button
                   type="button"
-                  @click="orderLists.closeEditor()"
                   class="font-bold text-(--color-accent) hover:text-(--color-text-strong) transition-colors whitespace-nowrap"
+                  @click="orderLists.closeEditor()"
                 >
                   Mijn bestellijsten
                 </button>
@@ -79,7 +79,7 @@
                       : 'text-sm max-w-40'
                   "
                   placeholder="Naam van de lijst"
-                />
+                >
               </nav>
             </div>
           </div>
@@ -89,9 +89,9 @@
             <button
               v-if="isEditing"
               type="button"
-              @click="orderLists.closeEditor()"
               class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-accent) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Terug naar overzicht"
+              @click="orderLists.closeEditor()"
             >
               <svg
                 class="h-4 w-4"
@@ -112,9 +112,9 @@
             <button
               v-if="!isEditing"
               type="button"
-              @click="switchToCart()"
               class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-accent) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               title="Wissel naar het winkelmandje"
+              @click="switchToCart()"
             >
               <svg
                 class="h-4 w-4"
@@ -138,16 +138,16 @@
             </button>
             <button
               type="button"
-              @click="
-                orderLists.panelMaximized.value =
-                  !orderLists.panelMaximized.value
-              "
               class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
               :title="
                 orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'
               "
               :aria-label="
                 orderLists.panelMaximized.value ? 'Verkleinen' : 'Maximaliseren'
+              "
+              @click="
+                orderLists.panelMaximized.value =
+                  !orderLists.panelMaximized.value
               "
             >
               <svg
@@ -180,9 +180,9 @@
               </svg>
             </button>
             <button
-              @click="orderLists.closePanel()"
               class="rounded-lg p-1.5 text-(--color-text) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
               aria-label="Sluit"
+              @click="orderLists.closePanel()"
             >
               <svg
                 class="w-5 h-5"

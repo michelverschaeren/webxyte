@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="border-t border-[var(--color-border)]"
+    class="border-t border-(--color-border)"
     style="background: var(--color-surface-strong)"
   >
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -12,12 +12,12 @@
               :src="theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'"
               alt="Vleeswaren Vermeir logo"
               class="h-9 w-9 rounded-lg object-contain"
-            />
-            <span class="text-lg font-bold text-[var(--color-text-strong)]"
+            >
+            <span class="text-lg font-bold text-(--color-text-strong)"
               >Vleeswaren <span class="text-(--color-accent)">Vermeir BV</span></span
             >
           </div>
-          <p class="text-sm leading-relaxed text-[var(--color-text-muted)]">
+          <p class="text-sm leading-relaxed text-(--color-text-muted)">
             Van generatie op generatie een familiebedrijf met oog voor
             kwaliteit, versheid en persoonlijke service.
           </p>
@@ -30,7 +30,7 @@
           >
             Contact
           </h3>
-          <ul class="space-y-2 text-sm text-[var(--color-text-muted)]">
+          <ul class="space-y-2 text-sm text-(--color-text-muted)">
             <li class="flex items-start gap-2">
               <svg
                 class="mt-0.5 h-4 w-4 shrink-0 text-(--color-accent)"
@@ -98,7 +98,7 @@
             <li v-for="link in links" :key="link.to">
               <NuxtLink
                 :to="link.to"
-                class="text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-strong)]"
+                class="text-(--color-text-muted) transition-colors hover:text-(--color-text-strong)"
                 >{{ link.label }}</NuxtLink
               >
             </li>
@@ -107,7 +107,7 @@
       </div>
 
       <div
-        class="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[var(--color-border)] pt-6 text-xs text-[var(--color-text-muted)] sm:flex-row"
+        class="mt-10 flex flex-col items-center justify-between gap-3 border-t border-(--color-border) pt-6 text-xs text-(--color-text-muted) sm:flex-row"
       >
         <span
           >© {{ new Date().getFullYear() }} Vleeswaren Vermeir. Alle rechten

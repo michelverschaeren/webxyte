@@ -47,7 +47,7 @@
         <table class="w-full text-sm border-collapse">
           <thead>
             <tr
-              class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-[0.1em] text-(--color-text-muted)"
+              class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
             >
               <th class="px-4 py-3 text-left font-semibold">Artikelnr</th>
               <th class="px-4 py-3 text-left font-semibold">Product</th>

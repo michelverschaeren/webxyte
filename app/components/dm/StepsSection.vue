@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-[var(--color-bg)] py-24">
+  <section class="bg-(--color-bg) py-24">
     <div class="mx-auto max-w-300 px-6">
       <div class="mb-12 text-center">
         <p
@@ -8,7 +8,7 @@
           — Onze service —
         </p>
         <h2
-          class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-[var(--color-text-strong)]"
+          class="mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-bold text-(--color-text-strong)"
         >
           <span class="block">Van bestelling</span>
           <span
@@ -32,13 +32,13 @@
             {{ post.day }}
           </div>
           <div
-            class="relative mb-7 aspect-[4/3] overflow-hidden rounded-xl border-t-3 border-t-transparent transition-colors duration-300 group-hover:border-t-[#c89868]"
+            class="relative mb-7 aspect-4/3 overflow-hidden rounded-xl border-t-3 border-t-transparent transition-colors duration-300 group-hover:border-t-[#c89868]"
           >
             <img
               :src="post.image"
               :alt="post.title"
               class="h-full w-full object-cover brightness-[.8] saturate-[.8] transition-all duration-500 group-hover:scale-105 group-hover:brightness-100 group-hover:saturate-[1.1]"
-            />
+            >
             <div
               class="absolute inset-0"
               style="
@@ -48,7 +48,7 @@
                   transparent 50%
                 );
               "
-            ></div>
+            />
           </div>
           <div class="px-2 text-left">
             <span
@@ -56,12 +56,12 @@
               >{{ post.category }}</span
             >
             <h3
-              class="m-0 mb-3 font-['Playfair_Display',serif] text-[1.2rem] leading-[1.25] text-[var(--color-text-strong)]"
+              class="m-0 mb-3 font-['Playfair_Display',serif] text-[1.2rem] leading-tight text-(--color-text-strong)"
             >
               {{ post.title }}
             </h3>
             <p
-              class="m-0 mb-4 text-[0.88rem] leading-[1.65] text-[var(--color-text-muted)]"
+              class="m-0 mb-4 text-[0.88rem] leading-[1.65] text-(--color-text-muted)"
             >
               {{ post.excerpt }}
             </p>

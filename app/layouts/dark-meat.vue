@@ -44,7 +44,7 @@
               :src="'/images/favicon2.png'"
               alt="Vleeswaren Vermeir logo"
               class="dm-logo-badge"
-            />
+            >
             <div class="dm-logo-text">
               <span class="dm-logo-name">Vleeswaren</span>
               <span class="dm-logo-accent">Vermeir</span>
@@ -101,8 +101,8 @@
             <!-- Cart -->
             <button
               class="dm-icon-btn"
-              @click="cart.isOpen.value = !cart.isOpen.value"
               aria-label="Winkelwagen"
+              @click="cart.isOpen.value = !cart.isOpen.value"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -124,8 +124,8 @@
             <!-- Mobile hamburger -->
             <button
               class="dm-icon-btn dm-hamburger"
-              @click="mobileOpen = !mobileOpen"
               aria-label="Menu"
+              @click="mobileOpen = !mobileOpen"
             >
               <svg
                 v-if="!mobileOpen"

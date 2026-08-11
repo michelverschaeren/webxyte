@@ -1,13 +1,19 @@
 import type { H3Event } from "h3";
-import { auth } from "./auth";
+import { auth, type AuthSession } from "./auth";
 
 /**
  * Leest de sessie uit de request-cookies. Geeft `null` voor een gast.
  * Bewust níét `getSession` genoemd: die naam is al van h3 en zou de
  * auto-import ervan overschrijven.
+ *
+ * `auth.api.getSession`'s eigen returntype kent onze `role`-additionalField
+ * niet (een gekende Better Auth-beperking — dat werkt enkel via `$Infer`),
+ * vandaar de cast naar `AuthSession`: op runtime staat `role` er wél op.
  */
 export async function getAuthSession(event: H3Event) {
-  return auth.api.getSession({ headers: event.headers });
+  return auth.api.getSession({ headers: event.headers }) as Promise<
+    AuthSession | null
+  >;
 }
 
 /**

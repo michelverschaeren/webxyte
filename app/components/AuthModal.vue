@@ -145,7 +145,7 @@
                 autocomplete="organization"
                 placeholder="bv. Restaurant De Kroon"
                 class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
-              />
+              >
             </label>
 
             <label class="block">
@@ -160,7 +160,7 @@
                 autocomplete="email"
                 placeholder="naam@bedrijf.be"
                 class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
-              />
+              >
             </label>
 
             <label class="block">
@@ -175,7 +175,7 @@
                 :autocomplete="isLogin ? 'current-password' : 'new-password'"
                 placeholder="Minimaal 8 tekens"
                 class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
-              />
+              >
             </label>
 
             <p v-if="error" class="text-xs text-[#e06a6a]">{{ error }}</p>

@@ -20,24 +20,24 @@
 
     <input
       :value="modelValue"
-      @input="
-        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-      "
       type="text"
       placeholder="Zoek op naam, artikelnummer of leverancier…"
       class="w-full pl-12 pr-12 py-3.5 rounded-xl text-sm border border-site bg-surface text-site placeholder:text-muted focus:outline-none transition-all duration-200"
       :style="`focus:ring: 2px solid var(--color-primary); focus:border-color: var(--color-primary);`"
-      @focus="focused = true"
-      @blur="focused = false"
       :class="focused ? 'ring-2' : ''"
       :style-focus="`ring-color: var(--color-primary);`"
-    />
+      @input="
+        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+      "
+      @focus="focused = true"
+      @blur="focused = false"
+    >
 
     <!-- Clear button -->
     <button
       v-if="modelValue"
-      @click="$emit('update:modelValue', '')"
       class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-0.5 hover:bg-surface-2 transition-colors"
+      @click="$emit('update:modelValue', '')"
     >
       <svg
         class="w-4 h-4"

@@ -30,7 +30,7 @@
             autocomplete="organization"
             placeholder="bv. Restaurant De Kroon"
             class="acc-input"
-          />
+          >
         </label>
 
         <label class="block">
@@ -41,7 +41,7 @@
             maxlength="32"
             placeholder="bv. BE0123.456.789 (optioneel)"
             class="acc-input"
-          />
+          >
         </label>
       </fieldset>
 
@@ -64,7 +64,7 @@
             autocomplete="street-address"
             placeholder="bv. Schoolstraat 51"
             class="acc-input"
-          />
+          >
         </label>
 
         <div class="grid gap-5 sm:grid-cols-[1fr_2fr]">
@@ -78,7 +78,7 @@
               autocomplete="postal-code"
               placeholder="1980"
               class="acc-input"
-            />
+            >
           </label>
           <label class="block">
             <span class="acc-label">Gemeente <span aria-hidden="true">*</span></span>
@@ -90,7 +90,7 @@
               autocomplete="address-level2"
               placeholder="Zemst"
               class="acc-input"
-            />
+            >
           </label>
         </div>
 
@@ -103,7 +103,7 @@
             maxlength="120"
             autocomplete="country-name"
             class="acc-input"
-          />
+          >
         </label>
       </fieldset>
 
@@ -125,7 +125,7 @@
               autocomplete="tel"
               placeholder="015 61 15 39"
               class="acc-input"
-            />
+            >
           </label>
           <label class="block">
             <span class="acc-label"
@@ -139,7 +139,7 @@
               autocomplete="email"
               placeholder="facturen@bedrijf.be"
               class="acc-input"
-            />
+            >
           </label>
         </div>
       </fieldset>

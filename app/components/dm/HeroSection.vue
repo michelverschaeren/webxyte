@@ -7,7 +7,7 @@
       <div
         class="hero-bg absolute inset-0 z-0"
         :style="{ opacity: bgOpacity }"
-      ></div>
+      />
 
       <!-- Decorative leaves -->
       <span class="hero-leaf hl-1">
@@ -72,10 +72,15 @@
           class="relative z-2 mx-auto flex w-full max-w-205 justify-center"
           :style="{ opacity: bgOpacity }"
         >
-          <img
+          <NuxtImg
             class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
             src="/images/hero6.png"
             alt="Verse vleeswaren Vermeir"
+            width="1386"
+            height="1386"
+            format="webp"
+            sizes="(max-width: 640px) 100vw, 820px"
+            preload
           />
         </div>
       </div>
@@ -114,9 +119,9 @@
           class="group relative flex items-center gap-3 border-r border-white/10 px-3 py-5 text-white transition-colors duration-300 last:border-r-0 even:border-r-0 hover:bg-black/20 md:gap-5 md:px-6 md:py-7 md:even:border-r"
         >
           <div
-            v-html="feat.icon"
             class="h-9.5 w-9.5 shrink-0 text-(--color-accent) [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current"
-          ></div>
+            v-html="feat.icon"
+          />
           <p
             class="m-0 text-[0.72rem] leading-[1.4] tracking-[0.06em] wrap-break-word uppercase md:text-[0.82rem]"
           >
@@ -127,7 +132,7 @@
           </p>
           <span
             class="absolute right-0 bottom-0 left-0 h-0.75 origin-left scale-x-0 bg-[#c89868] transition-transform duration-300 group-hover:scale-x-100"
-          ></span>
+          />
         </div>
       </div>
     </div>

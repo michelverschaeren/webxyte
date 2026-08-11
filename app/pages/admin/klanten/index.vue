@@ -6,7 +6,7 @@
         type="text"
         placeholder="Zoek op naam, e-mail of bedrijf…"
         class="adm-input max-w-sm flex-1"
-      />
+      >
     </div>
 
     <p class="mb-3 text-xs text-(--color-text-muted)">
@@ -51,7 +51,7 @@
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
-            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-[0.1em] text-(--color-text-muted)"
+            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
           >
             <th class="px-4 py-3 text-left font-semibold">Naam</th>
             <th class="hidden px-4 py-3 text-left font-semibold sm:table-cell">
@@ -67,7 +67,7 @@
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
               Laatste bestelling
             </th>
-            <th class="px-4 py-3"></th>
+            <th class="px-4 py-3"/>
           </tr>
         </thead>
         <tbody>

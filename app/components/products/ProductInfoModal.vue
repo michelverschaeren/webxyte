@@ -3,7 +3,7 @@
     <transition name="backdrop-fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
+        class="fixed inset-0 z-60 bg-black/70 backdrop-blur-sm"
         @click="$emit('close')"
       />
     </transition>
@@ -11,7 +11,7 @@
     <transition name="modal-pop">
       <div
         v-if="open"
-        class="fixed inset-0 z-[61] flex items-center justify-center p-4 pointer-events-none"
+        class="fixed inset-0 z-61 flex items-center justify-center p-4 pointer-events-none"
       >
         <div
           class="pointer-events-auto w-full max-w-4xl h-[85vh] flex flex-col rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
@@ -45,13 +45,13 @@
                 :href="pdfUrl"
                 target="_blank"
                 rel="noopener"
-                class="px-3 py-1.5 rounded-lg border border-[#c89868] text-(--color-accent) text-[0.7rem] font-semibold uppercase tracking-[0.1em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                class="px-3 py-1.5 rounded-lg border border-[#c89868] text-(--color-accent) text-[0.7rem] font-semibold uppercase tracking-widest hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                 >Nieuw tabblad</a
               >
               <button
-                @click="$emit('close')"
                 class="rounded-lg p-1.5 text-(--color-text-muted) hover:text-(--color-text-strong) hover:bg-(--color-hover) transition-colors"
                 aria-label="Sluit"
+                @click="$emit('close')"
               >
                 <svg
                   class="w-5 h-5"

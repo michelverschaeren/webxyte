@@ -22,7 +22,7 @@
         <h2
           class="mb-6 font-['Playfair_Display',serif] text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-bold text-(--color-text-strong)"
         >
-          Onze eigen<br />
+          Onze eigen<br >
           <span
             class="font-['Dancing_Script',cursive] font-normal text-[#b8252a]"
             >in-huis chauffeurs</span
@@ -45,12 +45,12 @@
       <div class="relative min-h-75 lg:min-h-125">
         <div
           class="absolute bottom-[30%] left-0 hidden h-50 w-[60%] bg-[#b8252a] lg:block"
-        ></div>
+        />
         <img
           src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80"
           alt="Onze chauffeur"
           class="h-75 w-full rounded-lg object-cover grayscale-[.2] lg:absolute lg:top-0 lg:right-0 lg:z-1 lg:h-125 lg:w-9/10"
-        />
+        >
       </div>
     </div>
   </section>

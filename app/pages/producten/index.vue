@@ -48,12 +48,12 @@
             type="text"
             placeholder="Zoek op naam, artikelnr of fabrikant…"
             class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-          />
+          >
         </div>
         <button
           type="button"
-          @click="orderLists.openPanel()"
           class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] rounded-xl text-(--color-accent) text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+          @click="orderLists.openPanel()"
         >
           <svg
             class="w-4 h-4"
@@ -81,7 +81,6 @@
         >
           <button
             type="button"
-            @click="viewLayout = 'grid'"
             :class="
               viewLayout === 'grid'
                 ? 'bg-(--color-hover) text-(--color-accent)'
@@ -90,6 +89,7 @@
             class="w-10 h-13 inline-flex items-center justify-center transition-colors"
             title="Rasterweergave"
             aria-label="Rasterweergave"
+            @click="viewLayout = 'grid'"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <rect x="2" y="2" width="7" height="7" rx="1" />
@@ -100,7 +100,6 @@
           </button>
           <button
             type="button"
-            @click="viewLayout = 'table'"
             :class="
               viewLayout === 'table'
                 ? 'bg-(--color-hover) text-(--color-accent)'
@@ -109,6 +108,7 @@
             class="w-10 h-13 inline-flex items-center justify-center transition-colors border-l border-(--color-border-strong)"
             title="Lijstweergave"
             aria-label="Lijstweergave"
+            @click="viewLayout = 'table'"
           >
             <svg
               class="w-4 h-4"
@@ -142,13 +142,13 @@
             </div>
             <div class="flex flex-col gap-1 px-3 pb-4">
               <button
-                @click="selectedCategorySlug = null"
                 class="w-full flex items-center justify-between gap-3 text-left px-4 py-3 text-sm rounded-lg transition-colors"
                 :class="
                   !selectedCategorySlug
                     ? 'text-(--color-accent) bg-(--color-hover) font-medium'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
+                @click="selectedCategorySlug = null"
               >
                 <span>Alle categorieën</span>
                 <span class="text-(--color-accent)/60 text-xs">{{
@@ -158,13 +158,13 @@
               <button
                 v-for="cat in categories"
                 :key="cat.id"
-                @click="selectedCategorySlug = cat.slug"
                 class="w-full text-left px-4 py-3 text-sm rounded-lg transition-colors"
                 :class="
                   selectedCategorySlug === cat.slug
                     ? 'text-(--color-accent) bg-(--color-hover) font-medium'
                     : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
                 "
+                @click="selectedCategorySlug = cat.slug"
               >
                 {{ cat.name }}
               </button>
@@ -204,8 +204,8 @@
             >
               {{ activeCategoryName }}
               <button
-                @click="selectedCategorySlug = null"
                 class="hover:text-(--color-accent) transition-colors"
+                @click="selectedCategorySlug = null"
               >
                 ✕
               </button>
@@ -216,8 +216,8 @@
             >
               {{ selectedSupplier }}
               <button
-                @click="selectedSupplier = null"
                 class="hover:text-(--color-accent) transition-colors"
+                @click="selectedSupplier = null"
               >
                 ✕
               </button>
@@ -228,8 +228,8 @@
             >
               "{{ search }}"
               <button
-                @click="search = ''"
                 class="hover:text-(--color-accent) transition-colors"
+                @click="search = ''"
               >
                 ✕
               </button>
@@ -249,12 +249,12 @@
               Probeer een andere zoekterm, categorie of fabrikant.
             </p>
             <button
+              class="mt-2 px-6 py-3 rounded-lg bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
               @click="
                 search = '';
                 selectedCategorySlug = null;
                 selectedSupplier = null;
               "
-              class="mt-2 px-6 py-3 rounded-lg bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
             >
               Reset filters
             </button>
@@ -281,10 +281,10 @@
                     <button
                       v-if="product.infoPdf"
                       type="button"
-                      @click="openInfo(product)"
                       :title="`Productfiche ${product.name}`"
                       :aria-label="`Toon productfiche ${product.name}`"
                       class="w-6 h-6 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.7rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                      @click="openInfo(product)"
                     >
                       i
                     </button>
@@ -302,17 +302,17 @@
                 </p>
                 <button
                   type="button"
-                  @click="selectedSupplier = product.supplier"
                   :title="`Filter op fabrikant: ${product.supplier}`"
                   class="text-(--color-text-muted) hover:text-(--color-accent) text-[0.8rem] transition-colors text-left"
+                  @click="selectedSupplier = product.supplier"
                 >
                   {{ product.supplier }}
                 </button>
                 <button
                   type="button"
-                  @click="selectedCategorySlug = product.category.slug"
                   :title="`Filter op categorie: ${product.category.name}`"
                   class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest mt-auto transition-colors text-left"
+                  @click="selectedCategorySlug = product.category.slug"
                 >
                   {{ product.category.name }}
                 </button>
@@ -321,9 +321,9 @@
                 <div class="flex items-center select-none">
                   <button
                     type="button"
-                    @click="setQty(product.id, getQty(product.id) - 1)"
                     class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
                     aria-label="Verlaag aantal"
+                    @click="setQty(product.id, getQty(product.id) - 1)"
                   >
                     −
                   </button>
@@ -331,27 +331,27 @@
                     type="number"
                     min="1"
                     :value="getQty(product.id)"
+                    class="w-10 h-10 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     @input="
                       setQty(
                         product.id,
                         Number(($event.target as HTMLInputElement).value),
                       )
                     "
-                    class="w-10 h-10 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
+                  >
                   <button
                     type="button"
-                    @click="setQty(product.id, getQty(product.id) + 1)"
                     class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
                     aria-label="Verhoog aantal"
+                    @click="setQty(product.id, getQty(product.id) + 1)"
                   >
                     +
                   </button>
                 </div>
                 <button
                   type="button"
-                  @click="addToCart(product)"
                   class="flex-1 bg-[#b8252a] text-white text-[0.75rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors"
+                  @click="addToCart(product)"
                 >
                   + Toevoegen
                 </button>
@@ -373,13 +373,13 @@
                   <th class="text-left py-3 px-3 font-semibold">
                     <button
                       type="button"
-                      @click="toggleSort('name')"
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'name'
                           ? 'text-(--color-accent)'
                           : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
+                      @click="toggleSort('name')"
                     >
                       Product
                       <span
@@ -397,13 +397,13 @@
                   >
                     <button
                       type="button"
-                      @click="toggleSort('articleNr')"
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'articleNr'
                           ? 'text-(--color-accent)'
                           : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
+                      @click="toggleSort('articleNr')"
                     >
                       Art. nr
                       <span
@@ -421,13 +421,13 @@
                   >
                     <button
                       type="button"
-                      @click="toggleSort('supplier')"
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'supplier'
                           ? 'text-(--color-accent)'
                           : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
+                      @click="toggleSort('supplier')"
                     >
                       Fabrikant
                       <span
@@ -445,13 +445,13 @@
                   >
                     <button
                       type="button"
-                      @click="toggleSort('unit')"
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'unit'
                           ? 'text-(--color-accent)'
                           : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
+                      @click="toggleSort('unit')"
                     >
                       Eenheid
                       <span
@@ -469,13 +469,13 @@
                   >
                     <button
                       type="button"
-                      @click="toggleSort('category')"
                       class="inline-flex items-center gap-1.5 group"
                       :class="
                         sortKey === 'category'
                           ? 'text-(--color-accent)'
                           : 'text-(--color-accent)/60 hover:text-(--color-accent)'
                       "
+                      @click="toggleSort('category')"
                     >
                       Categorie
                       <span
@@ -510,9 +510,9 @@
                       <button
                         v-if="product.infoPdf"
                         type="button"
-                        @click="openInfo(product)"
                         :title="`Productfiche ${product.name}`"
                         class="shrink-0 w-5 h-5 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.65rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                        @click="openInfo(product)"
                       >
                         i
                       </button>
@@ -525,8 +525,8 @@
                       >
                       <button
                         type="button"
-                        @click="selectedSupplier = product.supplier"
                         class="text-[0.7rem] text-(--color-text-muted) hover:text-(--color-accent) transition-colors"
+                        @click="selectedSupplier = product.supplier"
                       >
                         {{ product.supplier }}
                       </button>
@@ -543,9 +543,9 @@
                   >
                     <button
                       type="button"
-                      @click="selectedSupplier = product.supplier"
                       :title="`Filter op fabrikant: ${product.supplier}`"
                       class="text-(--color-text-muted) hover:text-(--color-accent) transition-colors text-left"
+                      @click="selectedSupplier = product.supplier"
                     >
                       {{ product.supplier }}
                     </button>
@@ -558,9 +558,9 @@
                   <td class="py-2.5 px-3 hidden xl:table-cell">
                     <button
                       type="button"
-                      @click="selectedCategorySlug = product.category.slug"
                       :title="`Filter op categorie: ${product.category.name}`"
                       class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest transition-colors text-left"
+                      @click="selectedCategorySlug = product.category.slug"
                     >
                       {{ product.category.name }}
                     </button>
@@ -572,9 +572,9 @@
                       >
                         <button
                           type="button"
-                          @click="setQty(product.id, getQty(product.id) - 1)"
                           class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
                           aria-label="Verlaag aantal"
+                          @click="setQty(product.id, getQty(product.id) - 1)"
                         >
                           −
                         </button>
@@ -582,27 +582,27 @@
                           type="number"
                           min="1"
                           :value="getQty(product.id)"
+                          class="w-9 h-8 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           @input="
                             setQty(
                               product.id,
                               Number(($event.target as HTMLInputElement).value),
                             )
                           "
-                          class="w-9 h-8 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        />
+                        >
                         <button
                           type="button"
-                          @click="setQty(product.id, getQty(product.id) + 1)"
                           class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
                           aria-label="Verhoog aantal"
+                          @click="setQty(product.id, getQty(product.id) + 1)"
                         >
                           +
                         </button>
                       </div>
                       <button
                         type="button"
-                        @click="addToCart(product)"
                         class="h-8 px-3 rounded-lg bg-[#b8252a] text-white text-[0.7rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors whitespace-nowrap"
+                        @click="addToCart(product)"
                       >
                         + Toevoegen
                       </button>
@@ -630,8 +630,8 @@
             </div>
             <button
               v-if="hasMore"
-              @click="loadMore"
               class="px-8 py-3 rounded-xl border border-[#c89868] text-(--color-accent) text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-all duration-200"
+              @click="loadMore"
             >
               Meer laden
             </button>

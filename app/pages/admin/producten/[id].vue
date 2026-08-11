@@ -12,7 +12,7 @@
           required
           maxlength="200"
           class="adm-input"
-        />
+        >
       </label>
 
       <label class="block">
@@ -23,7 +23,7 @@
           required
           maxlength="200"
           class="adm-input"
-        />
+        >
       </label>
 
       <label class="block">
@@ -38,7 +38,7 @@
       <div class="grid gap-5 sm:grid-cols-2">
         <label class="block">
           <span class="adm-label">Eenheid</span>
-          <input v-model="form.unit" type="text" maxlength="64" class="adm-input" />
+          <input v-model="form.unit" type="text" maxlength="64" class="adm-input" >
         </label>
         <label class="block">
           <span class="adm-label">Prijs (€)</span>
@@ -49,7 +49,7 @@
             step="0.01"
             placeholder="optioneel"
             class="adm-input"
-          />
+          >
         </label>
       </div>
 
@@ -65,7 +65,7 @@
       </label>
 
       <label class="flex items-center gap-3">
-        <input v-model="form.isActive" type="checkbox" class="h-4 w-4" />
+        <input v-model="form.isActive" type="checkbox" class="h-4 w-4" >
         <span class="text-sm text-(--color-text)"
           >Actief (zichtbaar op de site)</span
         >
@@ -106,7 +106,7 @@
           accept="application/pdf"
           class="adm-input"
           @change="onFileSelected"
-        />
+        >
         <p v-if="pdfError" class="text-sm text-[#e06a6a]">{{ pdfError }}</p>
         <p v-if="pdfPending" class="text-sm text-(--color-text-muted)">
           Bezig met uploaden…

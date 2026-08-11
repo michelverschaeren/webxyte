@@ -15,7 +15,7 @@
           :checked="selected"
           class="h-4 w-4 shrink-0 accent-[#c89868]"
           @change="emit('toggle')"
-        />
+        >
         <span class="min-w-0">
           <span class="block truncate text-sm font-semibold text-(--color-text-strong)">{{
             list.name
@@ -134,7 +134,7 @@
           :checked="selected"
           class="mt-1 h-4 w-4 shrink-0 accent-[#c89868]"
           @change="emit('toggle')"
-        />
+        >
         <span class="min-w-0">
           <span
             class="block truncate font-semibold text-(--color-text-strong)"

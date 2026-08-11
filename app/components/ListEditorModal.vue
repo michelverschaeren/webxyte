@@ -40,9 +40,9 @@
           <div class="flex items-center select-none shrink-0">
             <button
               type="button"
-              @click="orderLists.updateDraftQty(idx, item.quantity - 1)"
               class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border) rounded-l-lg"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
+              @click="orderLists.updateDraftQty(idx, item.quantity - 1)"
             >
               −
             </button>
@@ -50,31 +50,31 @@
               type="number"
               min="1"
               :value="item.quantity"
+              class="bg-transparent text-center text-(--color-text) focus:outline-none border-y border-(--color-border) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              :class="maximized ? 'w-16 h-10 text-base' : 'w-12 h-8 text-sm'"
               @input="
                 orderLists.updateDraftQty(
                   idx,
                   Number(($event.target as HTMLInputElement).value),
                 )
               "
-              class="bg-transparent text-center text-(--color-text) focus:outline-none border-y border-(--color-border) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              :class="maximized ? 'w-16 h-10 text-base' : 'w-12 h-8 text-sm'"
-            />
+            >
             <button
               type="button"
-              @click="orderLists.updateDraftQty(idx, item.quantity + 1)"
               class="text-(--color-accent) hover:bg-(--color-hover) transition-colors border border-(--color-border) rounded-r-lg"
               :class="maximized ? 'w-10 h-10 text-xl' : 'w-8 h-8 text-lg'"
+              @click="orderLists.updateDraftQty(idx, item.quantity + 1)"
             >
               +
             </button>
           </div>
 
           <button
-            @click="orderLists.removeDraftItem(idx)"
             class="text-(--color-text-muted) hover:text-[#b8252a] transition-colors shrink-0"
             :class="maximized ? 'p-2' : 'p-1.5'"
             title="Verwijderen"
             aria-label="Verwijderen"
+            @click="orderLists.removeDraftItem(idx)"
           >
             <svg
               :class="maximized ? 'w-5 h-5' : 'w-4 h-4'"
@@ -106,11 +106,11 @@
           <button
             type="button"
             :disabled="orderLists.draftItems.value.length === 0"
-            @click="appendCart()"
             class="rounded-lg border border-[#c89868] text-(--color-accent) font-semibold uppercase tracking-[0.08em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="
               maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2.5 text-[0.7rem]'
             "
+            @click="appendCart()"
           >
             Toevoegen aan winkelmandje
           </button>
@@ -118,10 +118,10 @@
         <div class="flex gap-2">
           <button
             type="button"
-            @click="saveChanges()"
             :disabled="!orderLists.isDraftDirty.value || saving"
             class="flex-1 rounded-lg border border-(--color-border-strong) text-(--color-text) font-semibold uppercase tracking-[0.08em] hover:bg-(--color-hover) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :class="maximized ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
+            @click="saveChanges()"
           >
             {{ saving ? "Opslaan…" : "Wijzigingen opslaan" }}
           </button>

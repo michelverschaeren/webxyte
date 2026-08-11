@@ -15,14 +15,20 @@ export const auth = betterAuth({
    * Better Auth weigert requests van een onbekende origin (CSRF-bescherming).
    * In productie is dat strikt BETTER_AUTH_URL; lokaal wisselt de dev-server
    * van poort zodra 3000 bezet is, wat anders "Invalid origin" oplevert bij
-   * elke login. Daarom is localhost tijdens ontwikkeling poort-onafhankelijk.
+   * elke login. Daarom is localhost tijdens ontwikkeling poort-onafhankelijk
+   * via Better Auth's eigen wildcard-patronen (enkel `string[]` toegestaan,
+   * geen RegExp — vandaar de `*` i.p.v. de vroegere regex-poort-match).
    */
-  trustedOrigins: [
+  trustedOrigins:
     process.env.NODE_ENV === "production"
-      ? undefined
-      : [/^https?:\/\/localhost(:\d+)?$/, /^https?:\/\/127\.0\.0\.1(:\d+)?$/],
-    "https://vleeswaren.webxyte.be",
-  ],
+      ? ["https://vleeswaren.webxyte.be"]
+      : [
+          "http://localhost:*",
+          "https://localhost:*",
+          "http://127.0.0.1:*",
+          "https://127.0.0.1:*",
+          "https://vleeswaren.webxyte.be",
+        ],
   database: drizzleAdapter(db, {
     provider: "pg",
     // De sleutels hier moeten matchen met de modelnamen van Better Auth.

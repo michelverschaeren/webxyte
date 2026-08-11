@@ -4,6 +4,29 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
   devtools: { enabled: true },
 
+  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxtjs/seo", "nuxt-ai-ready"],
+
+  // Basisgegevens voor de hele "Nuxt SEO"-suite (sitemap, robots.txt,
+  // canonical URLs, Schema.org, OG-afbeeldingen, …) — zonder `site.url`
+  // kunnen die geen absolute URL's opbouwen.
+  site: {
+    url: "https://vleeswaren.webxyte.be",
+    name: "Vleeswaren Vermeir",
+  },
+
+  // Klanten- en beheerpagina's zijn achter login/rol beveiligd — ze horen
+  // niet in de sitemap, robots.txt-indexering of llms.txt te staan.
+  robots: {
+    disallow: ["/account", "/account/**", "/admin", "/admin/**"],
+  },
+
+  // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf
+  // (geen externe dienst nodig) — past bij de self-hosted Dokploy-setup.
+  image: {
+    format: ["webp"],
+    quality: 80,
+  },
+
   css: ["~/assets/css/main.css"],
 
   runtimeConfig: {

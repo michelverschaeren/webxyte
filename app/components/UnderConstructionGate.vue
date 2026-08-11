@@ -83,7 +83,7 @@
               :class="{ 'uc-input--error': error }"
               autocomplete="off"
               @input="error = false"
-            />
+            >
             <button type="submit" class="uc-submit">Inloggen</button>
             <p v-if="error" class="uc-error">Onjuist wachtwoord. Probeer opnieuw.</p>
           </form>

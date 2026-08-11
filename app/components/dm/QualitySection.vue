@@ -1,6 +1,6 @@
 <template>
   <section
-    class="py-24 bg-[var(--color-bg)] bg-[radial-gradient(circle_at_20%_30%,rgba(184,37,42,0.05),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(184,37,42,0.05),transparent_50%)]"
+    class="py-24 bg-(--color-bg) bg-[radial-gradient(circle_at_20%_30%,rgba(184,37,42,0.05),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(184,37,42,0.05),transparent_50%)]"
   >
     <div class="max-w-300 mx-auto px-6">
       <div
@@ -14,7 +14,7 @@
             — Onze service —
           </p>
           <h2
-            class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-[var(--color-text-strong)] mb-4 leading-[1.1]"
+            class="font-['Playfair_Display',Georgia,serif] text-[clamp(2rem,4vw,3.25rem)] font-bold text-(--color-text-strong) mb-4 leading-[1.1]"
           >
             <span class="block">Persoonlijke</span>
             <span
@@ -26,7 +26,7 @@
             <li
               v-for="point in qualityPoints"
               :key="point.title"
-              class="flex gap-4 items-start py-4 border-b border-[var(--color-border)] last:border-b-0"
+              class="flex gap-4 items-start py-4 border-b border-(--color-border) last:border-b-0"
             >
               <div
                 class="w-11 h-11 border border-[#c89868] text-(--color-accent) rounded-full flex items-center justify-center shrink-0"
@@ -35,17 +35,17 @@
               </div>
               <div>
                 <h4
-                  class="text-[var(--color-text-strong)] text-[1rem] m-0 mb-1 uppercase tracking-widest"
+                  class="text-(--color-text-strong) text-[1rem] m-0 mb-1 uppercase tracking-widest"
                 >
                   {{ point.title }}
                 </h4>
-                <p class="text-[var(--color-text-muted)] m-0 text-[0.9rem] leading-normal">
+                <p class="text-(--color-text-muted) m-0 text-[0.9rem] leading-normal">
                   {{ point.text }}
                 </p>
               </div>
             </li>
           </ul>
-          <p class="text-[var(--color-text-muted)] leading-[1.7] my-8">
+          <p class="text-(--color-text-muted) leading-[1.7] my-8">
             Door de diepgewortelde waardes van Vleeswaren Vermeir, als hecht
             familiebedrijf, trachten wij met onze klanten steeds een
             persoonlijke vertrouwensband op te bouwen. U wordt steeds bediend
@@ -64,7 +64,7 @@
             src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=900&q=80"
             alt="Premium vlees"
             class="max-w-full brightness-90 contrast-110 rounded-xl shadow-[0_40px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(200,152,104,0.1)]"
-          />
+          >
           <div
             class="stamp absolute -top-5 right-0 lg:-right-2.5 w-27.5 h-27.5 lg:w-35 lg:h-35 bg-[#b8252a] rounded-full flex items-center justify-center text-white shadow-[0_10px_40px_rgba(184,37,42,0.6),0_0_0_4px_rgba(184,37,42,0.2),0_0_0_8px_rgba(184,37,42,0.1)]"
           >
@@ -75,7 +75,7 @@
               >
               <span
                 class="block text-[0.65rem] uppercase tracking-[0.12em] mt-1 opacity-90"
-                >bewezen<br />kwaliteit</span
+                >bewezen<br >kwaliteit</span
               >
             </div>
           </div>

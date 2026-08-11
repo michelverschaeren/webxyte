@@ -53,9 +53,9 @@
               </p>
             </div>
             <button
-              @click="cart.toastVisible.value = false"
               aria-label="Sluiten"
               class="shrink-0 rounded-md p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+              @click="cart.toastVisible.value = false"
             >
               <svg
                 class="h-4 w-4"
@@ -118,9 +118,9 @@
             <div class="flex items-center gap-1 shrink-0">
               <button
                 type="button"
-                @click="checkout.openLists()"
                 class="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
                 title="Wissel naar mijn bestellijsten"
+                @click="checkout.openLists()"
               >
                 <svg
                   class="h-4 w-4"
@@ -138,9 +138,9 @@
                 Lijsten
               </button>
               <button
-                @click="cart.isOpen.value = false"
                 class="rounded-lg p-1.5 text-(--color-text) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
                 aria-label="Sluit"
+                @click="cart.isOpen.value = false"
               >
                 <svg
                   class="h-5 w-5"
@@ -217,8 +217,8 @@
                 <!-- Quantity + remove -->
                 <div class="flex shrink-0 flex-col items-end gap-2">
                   <button
-                    @click="confirmingRemoveId = item.id"
                     class="rounded-md p-1 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-[#b8252a]"
+                    @click="confirmingRemoveId = item.id"
                   >
                     <svg
                       class="h-3.5 w-3.5"
@@ -237,8 +237,8 @@
                   <!-- Qty stepper -->
                   <div class="flex items-center gap-1">
                     <button
-                      @click="cart.updateQuantity(item.id, item.quantity - 1)"
                       class="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
+                      @click="cart.updateQuantity(item.id, item.quantity - 1)"
                     >
                       −
                     </button>
@@ -251,8 +251,8 @@
                       ></span
                     >
                     <button
-                      @click="cart.updateQuantity(item.id, item.quantity + 1)"
                       class="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-border) text-sm font-bold text-(--color-accent) transition-colors hover:bg-(--color-hover)"
+                      @click="cart.updateQuantity(item.id, item.quantity + 1)"
                     >
                       +
                     </button>
@@ -312,8 +312,8 @@
             <NuxtLink
               v-if="cart.items.value.length > 0"
               to="/winkelmandje"
-              @click="cart.isOpen.value = false"
               class="block w-full rounded-lg border border-(--color-border-strong) py-3 text-center text-sm font-semibold tracking-widest text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+              @click="cart.isOpen.value = false"
             >
               Winkelmandje bekijken
             </NuxtLink>
@@ -330,15 +330,15 @@
               <button
                 type="button"
                 :disabled="cart.items.value.length === 0"
-                @click="checkout.openSaveModal()"
                 class="rounded-lg border border-[#c89868] px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+                @click="checkout.openSaveModal()"
               >
                 Lijst opslaan
               </button>
               <button
                 type="button"
-                @click="checkout.openLists()"
                 class="rounded-lg border border-(--color-border-strong) px-3 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+                @click="checkout.openLists()"
               >
                 Mijn lijsten
               </button>
@@ -346,8 +346,8 @@
 
             <button
               v-if="cart.items.value.length > 0"
-              @click="checkout.openClearConfirm()"
               class="w-full rounded-lg py-2 text-xs font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+              @click="checkout.openClearConfirm()"
             >
               Bestellijst wissen
             </button>
@@ -393,7 +393,7 @@
               Lijst opslaan voor later
             </h3>
           </div>
-          <form @submit.prevent="checkout.confirmSave()" class="space-y-4 px-5 py-5">
+          <form class="space-y-4 px-5 py-5" @submit.prevent="checkout.confirmSave()">
             <label class="block">
               <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
                 >Naam van de lijst</span
@@ -406,7 +406,7 @@
                 required
                 placeholder="bv. Wekelijkse bestelling"
                 class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
-              />
+              >
             </label>
             <p class="text-[0.7rem] text-(--color-text-muted)">
               {{ cart.totalItems.value }} stuks in
@@ -418,8 +418,8 @@
             <div class="flex justify-end gap-2 pt-1">
               <button
                 type="button"
-                @click="checkout.closeSaveModal()"
                 class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+                @click="checkout.closeSaveModal()"
               >
                 Annuleren
               </button>
@@ -472,7 +472,7 @@
               Bestelling plaatsen
             </h3>
           </div>
-          <form @submit.prevent="checkout.placeOrder()" class="space-y-4 px-5 py-5">
+          <form class="space-y-4 px-5 py-5" @submit.prevent="checkout.placeOrder()">
             <label class="block">
               <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
                 >Naam van de bestelling</span
@@ -485,7 +485,7 @@
                 required
                 placeholder="bv. Weekbestelling"
                 class="w-full rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
-              />
+              >
             </label>
             <label class="block">
               <span class="mb-2 block text-xs font-medium text-(--color-text-muted)"
@@ -505,8 +505,8 @@
             <div class="flex justify-end gap-2 pt-1">
               <button
                 type="button"
-                @click="checkout.closeOrderModal()"
                 class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+                @click="checkout.closeOrderModal()"
               >
                 Annuleren
               </button>
@@ -570,15 +570,15 @@
             <div class="flex justify-end gap-2 pt-1">
               <button
                 type="button"
-                @click="checkout.closeClearConfirm()"
                 class="rounded-lg px-4 py-2 text-xs font-medium text-(--color-text-muted) hover:text-(--color-text-strong)"
+                @click="checkout.closeClearConfirm()"
               >
                 Annuleren
               </button>
               <button
                 type="button"
-                @click="checkout.confirmClear()"
                 class="rounded-lg bg-[#b8252a] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#8b1f1f]"
+                @click="checkout.confirmClear()"
               >
                 Winkelmandje wissen
               </button>

@@ -1,9 +1,9 @@
 <template>
   <div
-    class="overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]"
+    class="overflow-x-hidden bg-(--color-bg) text-(--color-text)"
   >
     <DmHeroSection />
-    <div class="relative z-10 bg-[var(--color-bg)]">
+    <div class="relative z-10 bg-(--color-bg)">
       <DmAboutSection />
       <DmSplitSection />
       <DmQualitySection />

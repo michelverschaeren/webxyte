@@ -14,20 +14,20 @@
               alt="De eigenaars van Vleeswaren Vermeir"
               loading="lazy"
               class="block aspect-4/5 h-full w-full object-cover"
-            />
+            >
             <div
               class="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0f0d0d]/60 via-transparent to-transparent"
-            ></div>
+            />
           </div>
           <!-- Decorative accent -->
           <div
             aria-hidden="true"
             class="absolute -bottom-5 -left-5 -z-10 h-32 w-32 rounded-lg border-2 border-[#b8252a]/60 hidden lg:block"
-          ></div>
+          />
           <div
             aria-hidden="true"
             class="absolute -top-5 -right-5 -z-10 h-24 w-24 rounded-lg bg-[#c89868]/15 hidden lg:block"
-          ></div>
+          />
           <!-- Caption badge -->
           <div
             class="absolute bottom-4 left-4 rounded bg-[#0f0d0d]/85 px-4 py-2 backdrop-blur-sm"

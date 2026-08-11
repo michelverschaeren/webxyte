@@ -6,7 +6,7 @@
         type="text"
         placeholder="Zoek op naam, artikelnr of leverancier…"
         class="adm-input max-w-sm flex-1"
-      />
+      >
       <select v-model="categorySlug" class="adm-input w-auto">
         <option :value="null">Alle categorieën</option>
         <option v-for="cat in categories" :key="cat.id" :value="cat.slug">
@@ -35,7 +35,7 @@
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr
-            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-[0.1em] text-(--color-text-muted)"
+            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
           >
             <th class="px-4 py-3 text-left font-semibold">
               <button type="button" class="adm-sort" @click="toggleSort('articleNr')">
@@ -66,7 +66,7 @@
               </button>
             </th>
             <th class="px-4 py-3 text-left font-semibold">Status</th>
-            <th class="px-4 py-3"></th>
+            <th class="px-4 py-3"/>
           </tr>
         </thead>
         <tbody>

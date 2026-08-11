@@ -19,7 +19,7 @@
           transparent 70%
         );
       "
-    ></div>
+    />
     <div class="relative z-1 mx-auto max-w-300 px-6">
       <h2
         class="m-0 mb-4 font-['Playfair_Display',Georgia,serif] text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.2] font-bold text-white"
@@ -45,7 +45,7 @@
           type="email"
           placeholder="Uw e-mailadres"
           class="w-full flex-1 border-none bg-transparent px-3 py-3 text-[0.95rem] text-white placeholder-white/50 outline-none"
-        />
+        >
         <button
           type="submit"
           class="w-full cursor-pointer rounded-xl border-none bg-[#c89868] px-6 py-3 text-[0.85rem] font-semibold tracking-widest text-[#1a0a0a] uppercase transition-colors duration-200 hover:bg-[#d8a878] sm:w-auto sm:rounded-full"
