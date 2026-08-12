@@ -13,7 +13,7 @@ importers:
         version: 2.1.0(@types/node@26.1.2)(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.3)(rollup@4.62.4)(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.8)(yaml@2.9.0)))(unstorage@1.17.5(db0@0.3.4(better-sqlite3@13.0.3)(drizzle-orm@0.45.2(better-sqlite3@13.0.3)(kysely@0.29.4)(postgres@3.4.9)))(ioredis@5.11.1))
       '@nuxtjs/seo':
         specifier: 5.3.12
-        version: 5.3.12(8c14b37fdaf9ad26020c433d4876d64c)
+        version: 5.3.12(4103c2d2df3c8cba9e053680019cc387)
       '@takumi-rs/core':
         specifier: ^2.7.1
         version: 2.7.1(csstype@3.2.3)
@@ -63,6 +63,9 @@ importers:
       eslint-plugin-tailwindcss:
         specifier: ^3.18.3
         version: 3.18.3(tailwindcss@4.3.3)
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@26.1.2)
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -6225,8 +6228,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.3':
     optionalDependencies:
@@ -6888,14 +6890,14 @@ snapshots:
       - vite
       - vue
 
-  '@nuxtjs/seo@5.3.12(8c14b37fdaf9ad26020c433d4876d64c)':
+  '@nuxtjs/seo@5.3.12(4103c2d2df3c8cba9e053680019cc387)':
     dependencies:
       '@nuxt/kit': 4.5.2(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.3)(rollup@4.62.4)(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.8)(yaml@2.9.0)))
       '@nuxtjs/robots': 6.1.4(6970b2c1efc1f869943693cbae0fc7f7)
       '@nuxtjs/sitemap': 8.3.4(6970b2c1efc1f869943693cbae0fc7f7)
       nuxt: 4.5.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@oxc-project/types@0.143.0)(@parcel/watcher@2.5.6)(@types/node@26.1.2)(@vue/compiler-sfc@3.5.41)(better-sqlite3@13.0.3)(cac@7.0.0)(commander@14.0.3)(db0@0.3.4(better-sqlite3@13.0.3)(drizzle-orm@0.45.2(better-sqlite3@13.0.3)(kysely@0.29.4)(postgres@3.4.9)))(drizzle-orm@0.45.2(better-sqlite3@13.0.3)(kysely@0.29.4)(postgres@3.4.9))(esbuild@0.28.1)(eslint@10.8.0(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.33.0)(magicast@0.5.4)(optionator@0.9.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(rollup-plugin-visualizer@7.0.1(rolldown@1.2.3)(rollup@4.62.4))(rollup@4.62.4)(srvx@0.11.22)(terser@5.49.2)(tsx@4.23.8)(typescript@5.9.3)(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.8)(yaml@2.9.0))(vue-tsc@3.3.9(typescript@5.9.3))(yaml@2.9.0)
       nuxt-link-checker: 5.1.3(7d17995299549eb456203ce42c7fd826)
-      nuxt-og-image: 6.7.8(bbaf865c56ca9b1e7dd88fee39d37867)
+      nuxt-og-image: 6.7.8(bc559b4c8aa30fd5f54fce140b101c83)
       nuxt-schema-org: 6.2.9(14cf2ca5e4e3adb9f68e3bd03e44f99f)
       nuxt-seo-utils: 8.4.1(dd58b26b6ffe54eccbaf97b6064387ca)
       nuxt-site-config: 4.2.2(6970b2c1efc1f869943693cbae0fc7f7)
@@ -9654,7 +9656,7 @@ snapshots:
       - vue
       - zod
 
-  nuxt-og-image@6.7.8(bbaf865c56ca9b1e7dd88fee39d37867):
+  nuxt-og-image@6.7.8(bc559b4c8aa30fd5f54fce140b101c83):
     dependencies:
       '@clack/prompts': 1.7.0
       '@nuxt/kit': 4.5.2(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.3)(rollup@4.62.4)(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.8)(yaml@2.9.0)))
@@ -9691,6 +9693,7 @@ snapshots:
     optionalDependencies:
       '@takumi-rs/core': 2.7.1(csstype@3.2.3)
       nitropack: 2.13.4(@parcel/watcher@2.5.6)(better-sqlite3@13.0.3)(drizzle-orm@0.45.2(better-sqlite3@13.0.3)(kysely@0.29.4)(postgres@3.4.9))(oxc-parser@0.143.0)(rolldown@1.2.3)(srvx@0.11.22)(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.8)(yaml@2.9.0))
+      sharp: 0.35.3(@types/node@26.1.2)
       tailwindcss: 4.3.3
       zod: 4.4.3
     transitivePeerDependencies:
@@ -10570,7 +10573,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.3
       '@img/sharp-win32-x64': 0.35.3
       '@types/node': 26.1.2
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
