@@ -64,12 +64,15 @@
           <div
             class="group relative col-span-2 row-span-2 overflow-hidden rounded-xl bg-(--color-surface)"
           >
-            <img
-              src="https://images.unsplash.com/photo-1551028150-64b9f398f678?auto=format&fit=crop&w=900&q=80"
+            <NuxtImg
+              src="/images/site/verse-steak.jpg"
               alt="Verse steak"
               loading="lazy"
+              format="webp"
+              quality="70"
+              sizes="sm:63vw md:63vw lg:330px"
               class="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            >
+            />
             <div
               class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent p-3"
             >
@@ -79,20 +82,26 @@
             </div>
           </div>
           <div class="group relative overflow-hidden rounded-xl bg-(--color-surface)">
-            <img
-              src="https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=400&q=80"
+            <NuxtImg
+              src="/images/site/gegrilde-steak.jpg"
               alt="Gegrilde steak"
               loading="lazy"
+              format="webp"
+              quality="70"
+              sizes="sm:31vw md:31vw lg:165px"
               class="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            >
+            />
           </div>
           <div class="group relative overflow-hidden rounded-xl bg-(--color-surface)">
-            <img
-              src="https://images.unsplash.com/photo-1432139509613-5c4255815697?auto=format&fit=crop&w=400&q=80"
+            <NuxtImg
+              src="/images/site/vlees-product.jpg"
               alt="Vlees product"
               loading="lazy"
+              format="webp"
+              quality="70"
+              sizes="sm:31vw md:31vw lg:165px"
               class="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            >
+            />
           </div>
         </div>
       </div>

@@ -60,11 +60,15 @@
 
         <!-- Right: image + stamp -->
         <div class="relative text-center">
-          <img
-            src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=900&q=80"
+          <NuxtImg
+            src="/images/site/premium-vlees.jpg"
             alt="Premium vlees"
+            loading="lazy"
+            format="webp"
+            quality="70"
+            sizes="sm:100vw md:100vw lg:550px"
             class="max-w-full brightness-90 contrast-110 rounded-xl shadow-[0_40px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(200,152,104,0.1)]"
-          >
+          />
           <div
             class="stamp absolute -top-5 right-0 lg:-right-2.5 w-27.5 h-27.5 lg:w-35 lg:h-35 bg-[#b8252a] rounded-full flex items-center justify-center text-white shadow-[0_10px_40px_rgba(184,37,42,0.6),0_0_0_4px_rgba(184,37,42,0.2),0_0_0_8px_rgba(184,37,42,0.1)]"
           >

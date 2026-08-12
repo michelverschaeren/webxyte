@@ -107,8 +107,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     // Basis response-headers voor de hele site. Geen CSP hier: dat vergt
-    // uitgebreide browser-tests tegen Google Fonts/naive-ui/Vite-HMR en
-    // wordt best apart aangepakt.
+    // uitgebreide browser-tests tegen Vite-HMR en wordt best apart aangepakt.
     "/**": {
       headers: {
         "X-Content-Type-Options": "nosniff",
@@ -133,6 +132,18 @@ export default defineNuxtConfig({
         lang: "nl-BE",
       },
     },
+  },
+
+  nitro: {
+    // Comprimeert alles onder .output/public (JS, CSS, fonts) tijdens de build
+    // en serveert de .br/.gz-variant op basis van Accept-Encoding. Dat is de
+    // helft van het compressieverhaal die zónder proxy-wijziging kan: brotli
+    // op maximale kwaliteit, één keer betaald bij het bouwen in plaats van
+    // bij elke request.
+    //
+    // De SSR-HTML valt hier NIET onder — die wordt per request gerenderd en
+    // kan enkel door Traefik gecomprimeerd worden (zie README/Dokploy).
+    compressPublicAssets: { gzip: true, brotli: true },
   },
 
   vite: {

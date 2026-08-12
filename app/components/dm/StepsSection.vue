@@ -34,11 +34,15 @@
           <div
             class="relative mb-7 aspect-4/3 overflow-hidden rounded-xl border-t-3 border-t-transparent transition-colors duration-300 group-hover:border-t-[#c89868]"
           >
-            <img
+            <NuxtImg
               :src="post.image"
               :alt="post.title"
+              loading="lazy"
+              format="webp"
+              quality="70"
+              sizes="sm:100vw md:50vw lg:270px"
               class="h-full w-full object-cover brightness-[.8] saturate-[.8] transition-all duration-500 group-hover:scale-105 group-hover:brightness-100 group-hover:saturate-[1.1]"
-            >
+            />
             <div
               class="absolute inset-0"
               style="
@@ -91,7 +95,7 @@ const posts = [
     comments: "Flexibel",
     views: "Online",
     image:
-      "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=700&q=80",
+      "/images/site/gegrilde-steak.jpg",
   },
   {
     title: "Verwerken",
@@ -102,7 +106,7 @@ const posts = [
     comments: "Voor 8u",
     views: "Op maat",
     image:
-      "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=700&q=80",
+      "/images/site/verwerken.jpg",
   },
   {
     title: "Levering",
@@ -113,7 +117,7 @@ const posts = [
     comments: "In-huis",
     views: "Persoonlijk",
     image:
-      "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80",
+      "/images/site/levering.jpg",
   },
   {
     title: "Nalevering",
@@ -124,7 +128,7 @@ const posts = [
     comments: "Dezelfde week",
     views: "Volledig",
     image:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=700&q=80",
+      "/images/site/nalevering.jpg",
   },
 ];
 </script>

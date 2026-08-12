@@ -75,9 +75,10 @@
           <!-- Dit is het LCP-element. `sizes` moet de syntaxis van @nuxt/image
                volgen; de rauwe media query die hier stond werd stil genegeerd,
                waardoor mobiel altijd de 1640w-variant van 362 kB binnenhaalde.
-               Let op: een vw-waarde heeft een breakpoint-prefix nodig (`xs:`),
-               anders kent de module de schermbreedte niet en genereert ze
-               varianten van 1 en 2 pixel breed. De drop-shadow eronder
+               Let op: een vw-waarde heeft een breakpoint-prefix nodig, anders
+               kent de module de schermbreedte niet en genereert ze varianten
+               van 1 en 2 pixel breed. `sm:` is daarbij de kleinste die telt —
+               een `xs:`-prefix wordt genegeerd. De drop-shadow eronder
                verbergt compressieruis, vandaar q70. -->
           <NuxtImg
             class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
@@ -87,7 +88,7 @@
             height="1386"
             format="webp"
             quality="70"
-            sizes="xs:100vw sm:100vw md:820px"
+            sizes="sm:100vw md:820px"
             preload
           />
         </div>

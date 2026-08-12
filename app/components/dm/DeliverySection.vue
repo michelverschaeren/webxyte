@@ -46,11 +46,15 @@
         <div
           class="absolute bottom-[30%] left-0 hidden h-50 w-[60%] bg-[#b8252a] lg:block"
         />
-        <img
-          src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80"
+        <NuxtImg
+          src="/images/site/chauffeur.jpg"
           alt="Onze chauffeur"
+          loading="lazy"
+          format="webp"
+          quality="70"
+          sizes="sm:100vw md:100vw lg:500px"
           class="h-75 w-full rounded-lg object-cover grayscale-[.2] lg:absolute lg:top-0 lg:right-0 lg:z-1 lg:h-125 lg:w-9/10"
-        >
+        />
       </div>
     </div>
   </section>

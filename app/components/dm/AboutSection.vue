@@ -9,12 +9,15 @@
           <div
             class="relative overflow-hidden rounded-lg shadow-2xl shadow-black/40"
           >
-            <img
-              src="https://images.unsplash.com/photo-1605522561233-768ad7a8fabf?auto=format&fit=crop&w=900&q=80"
+            <NuxtImg
+              src="/images/site/eigenaars.jpg"
               alt="De eigenaars van Vleeswaren Vermeir"
               loading="lazy"
+              format="webp"
+              quality="70"
+              sizes="sm:100vw md:100vw lg:540px"
               class="block aspect-4/5 h-full w-full object-cover"
-            >
+            />
             <div
               class="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0f0d0d]/60 via-transparent to-transparent"
             />
