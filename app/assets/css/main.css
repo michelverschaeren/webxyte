@@ -60,8 +60,12 @@ html,
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
+  /* "Inter" stond hier wel in de stack maar werd nergens ingeladen, dus de
+     bodytekst rendert sinds jaar en dag in system-ui. Nu @nuxt/fonts elke
+     font-family automatisch zelf host, zou het teruggezet worden op een
+     échte download — bewust weggelaten. Wil je Inter alsnog: zet hem terug
+     en de module regelt de rest. */
   font-family:
-    "Inter",
     system-ui,
     -apple-system,
     sans-serif;

@@ -21,13 +21,13 @@ export const auth = betterAuth({
    */
   trustedOrigins:
     process.env.NODE_ENV === "production"
-      ? ["https://vleeswaren.webxyte.be"]
+      ? ["https://vleeswarenvermeir.be"]
       : [
           "http://localhost:*",
           "https://localhost:*",
           "http://127.0.0.1:*",
           "https://127.0.0.1:*",
-          "https://vleeswaren.webxyte.be",
+          "https://vleeswarenvermeir.be",
         ],
   database: drizzleAdapter(db, {
     provider: "pg",

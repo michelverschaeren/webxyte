@@ -34,12 +34,17 @@
           <div
             class="mx-auto mb-4 flex h-32 w-full items-center justify-center sm:h-40"
           >
-            <img
+            <!-- Getoond op ~105px (mobiel, 3 kolommen) tot ~215px (5 kolommen);
+                 `sizes` houdt de srcset daar strak op, i.p.v. de rauwe PNG's
+                 van 270 kB–3,5 MB die hier vroeger stonden. -->
+            <NuxtImg
               :src="category.img"
               :alt="category.name"
               loading="lazy"
+              format="webp"
+              sizes="110px sm:220px"
               class="sketch-img h-full w-full object-contain transition-all duration-300 group-hover:-translate-y-1.5 group-hover:scale-105"
-            >
+            />
           </div>
           <p
             class="m-0 text-[0.75rem] font-semibold tracking-[0.15em] uppercase transition-colors duration-300 group-hover:text-(--color-accent)"
@@ -61,26 +66,28 @@
 </template>
 
 <script setup lang="ts">
+// Absolute paden: relatieve src'en ("images/…") braken zodra deze sectie op
+// een geneste route zou staan, en @nuxt/image vereist ze sowieso.
 const categories = [
   {
     name: "Salami",
-    img: "images/categorie/salami.png",
+    img: "/images/categorie/salami.png",
   },
   {
     name: "Ham",
-    img: "images/categorie/ham.png",
+    img: "/images/categorie/ham.png",
   },
   {
     name: "Kaas",
-    img: "images/categorie/kaas.png",
+    img: "/images/categorie/kaas.png",
   },
   {
     name: "Salades",
-    img: "images/categorie/salades.png",
+    img: "/images/categorie/salades.png",
   },
   {
     name: "Bereide gerechten",
-    img: "images/categorie/lasagne.png",
+    img: "/images/categorie/lasagne.png",
   },
 ];
 </script>

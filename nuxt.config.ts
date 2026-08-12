@@ -4,13 +4,42 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxtjs/seo"],
+  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxt/fonts", "@nuxtjs/seo"],
+
+  // Zelf-gehoste fonts i.p.v. de render-blokkerende stylesheet van Google:
+  // die kostte twee extra origins (preconnect naar fonts.googleapis.com én
+  // fonts.gstatic.com) vóór er ook maar één letter op het scherm stond. De
+  // @font-face-regels komen nu inline in de HTML, met unicode-range, dus de
+  // browser haalt enkel de latijnse subset op.
+  //
+  // De gewichten hieronder zijn precies wat de componenten gebruiken (900 en
+  // 600 zitten niet in de default 400/700 van de module). Geen italic: de
+  // oude Google-URL vroeg Playfair-italic op, maar die staat nergens in de
+  // templates; de enige cursieve tekst is Dancing Script, en daarvan bestaat
+  // bij Google geen echte italic — die werd altijd al synthetisch schuin
+  // gezet. Italic schrappen scheelt 12 @font-face-regels op élke pagina.
+  fonts: {
+    families: [
+      {
+        name: "Playfair Display",
+        provider: "google",
+        weights: [400, 700, 900],
+        styles: ["normal"],
+      },
+      {
+        name: "Dancing Script",
+        provider: "google",
+        weights: [400, 600, 700],
+        styles: ["normal"],
+      },
+    ],
+  },
 
   // Basisgegevens voor de hele "Nuxt SEO"-suite (sitemap, robots.txt,
   // canonical URLs, Schema.org, OG-afbeeldingen, …) — zonder `site.url`
   // kunnen die geen absolute URL's opbouwen.
   site: {
-    url: "https://vleeswaren.webxyte.be",
+    url: "https://vleeswarenvermeir.be",
     name: "Vleeswaren Vermeir",
     description:
       "Vleeswaren Vermeir levert meer dan 5000 vleeswaren aan handelaars in België. Familiebedrijf in Zemst met persoonlijke service en breed gamma.",
@@ -48,6 +77,16 @@ export default defineNuxtConfig({
   image: {
     format: ["webp"],
     quality: 80,
+
+    // IPX zet standaard `max-age=60`: elke bezoeker lokte na een minuut een
+    // verse transform van een bron-PNG van megabytes uit (gemeten TTFB tot
+    // ~1 s op de hero). Elke /_ipx-URL draagt zijn transformatie in het pad,
+    // dus een andere variant is per definitie een andere URL — veilig om een
+    // jaar te bewaren. Dit kan niet via `routeRules`: de IPX-handler zet de
+    // header zelf, vóór Nitro's route-headers erop komen.
+    ipx: {
+      maxAge: 60 * 60 * 24 * 365,
+    },
   },
 
   css: ["~/assets/css/main.css"],
@@ -80,6 +119,12 @@ export default defineNuxtConfig({
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains",
       },
     },
+
+    // Bestanden uit public/ hebben geen hash in hun naam en kunnen dus wél
+    // wijzigen onder dezelfde URL — een maand cache, maar geen `immutable`.
+    "/images/**": {
+      headers: { "cache-control": "public, max-age=2592000" },
+    },
   },
 
   app: {
@@ -87,37 +132,10 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "nl-BE",
       },
-      link: [
-        {
-          rel: "preconnect",
-          href: "https://fonts.googleapis.com",
-        },
-        {
-          rel: "preconnect",
-          href: "https://fonts.gstatic.com",
-          crossorigin: "",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Dancing+Script:wght@400;600;700&display=swap",
-        },
-      ],
     },
-  },
-
-  build: {
-    transpile: [
-      "naive-ui",
-      "vueuc",
-      "@css-render/vue3-ssr",
-      "@juggle/resize-observer",
-    ],
   },
 
   vite: {
     plugins: [tailwindcss()],
-    optimizeDeps: {
-      include: ["naive-ui", "vueuc"],
-    },
   },
 });
