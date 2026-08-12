@@ -110,20 +110,6 @@
               </svg>
               {{ socialPending === "google" ? "Even geduld…" : "Doorgaan met Google" }}
             </button>
-            <button
-              type="button"
-              :disabled="socialPending !== null"
-              class="flex w-full items-center justify-center gap-2.5 rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-4 py-2.5 text-sm font-medium text-(--color-text) transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-50"
-              @click="loginWithSocial('microsoft')"
-            >
-              <svg class="h-4.5 w-4.5 shrink-0" viewBox="0 0 23 23">
-                <path fill="#f35325" d="M1 1h10v10H1z" />
-                <path fill="#81bc06" d="M12 1h10v10H12z" />
-                <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                <path fill="#ffba08" d="M12 12h10v10H12z" />
-              </svg>
-              {{ socialPending === "microsoft" ? "Even geduld…" : "Doorgaan met Microsoft" }}
-            </button>
 
             <div class="flex items-center gap-3 pt-1">
               <span class="h-px flex-1 bg-(--color-border)" />

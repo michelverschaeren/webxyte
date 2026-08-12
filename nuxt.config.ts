@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxtjs/seo", "nuxt-ai-ready"],
+  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxtjs/seo"],
 
   // Basisgegevens voor de hele "Nuxt SEO"-suite (sitemap, robots.txt,
   // canonical URLs, Schema.org, OG-afbeeldingen, …) — zonder `site.url`
@@ -12,12 +12,35 @@ export default defineNuxtConfig({
   site: {
     url: "https://vleeswaren.webxyte.be",
     name: "Vleeswaren Vermeir",
+    description:
+      "Vleeswaren Vermeir levert meer dan 5000 vleeswaren aan handelaars in België. Familiebedrijf in Zemst met persoonlijke service en breed gamma.",
+    defaultLocale: "nl-BE",
   },
 
-  // Klanten- en beheerpagina's zijn achter login/rol beveiligd — ze horen
-  // niet in de sitemap, robots.txt-indexering of llms.txt te staan.
+  // Zet het bedrijf als Schema.org LocalBusiness — voedt Google's
+  // Knowledge Panel / lokale zoekresultaten met adres, telefoon en logo
+  // (dezelfde gegevens als op de contactpagina).
+  schemaOrg: {
+    identity: {
+      "@type": ["Organization", "LocalBusiness"],
+      name: "Vleeswaren Vermeir",
+      logo: "/images/logo-light.png",
+      telephone: "+32 15 61 15 39",
+      email: "vleeswarenvermeir@telenet.be",
+      address: {
+        streetAddress: "Schoolstraat 51",
+        postalCode: "1980",
+        addressLocality: "Zemst",
+        addressCountry: "BE",
+      },
+    },
+  },
+
+  // Klanten- en beheerpagina's zijn achter login/rol beveiligd, en het
+  // winkelmandje heeft geen unieke content — ze horen niet in de sitemap,
+  // robots.txt-indexering of llms.txt te staan.
   robots: {
-    disallow: ["/account", "/account/**", "/admin", "/admin/**"],
+    disallow: ["/account", "/account/**", "/admin", "/admin/**", "/winkelmandje"],
   },
 
   // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf
@@ -61,7 +84,15 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: {
+        lang: "nl-BE",
+      },
       link: [
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/images/favicon.png",
+        },
         {
           rel: "preconnect",
           href: "https://fonts.googleapis.com",
