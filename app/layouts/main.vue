@@ -40,14 +40,18 @@
         <div class="dm-nav-inner">
           <!-- Logo -->
           <NuxtLink to="/" class="dm-logo">
+            <!-- Beide varianten renderen en via CSS schakelen: de server kent
+                 het thema niet meer, dus `theme` is hier tijdens SSR altijd
+                 "dark" en een `:src` zou flitsen. -->
             <img
-              :src="
-                theme === 'dark'
-                  ? '/images/logo-dark.png'
-                  : '/images/logo-light.png'
-              "
+              src="/images/logo-dark.png"
               alt="Vleeswaren Vermeir logo"
-              class="dm-logo-badge"
+              class="dm-logo-badge only-dark"
+            >
+            <img
+              src="/images/logo-light.png"
+              alt="Vleeswaren Vermeir logo"
+              class="dm-logo-badge only-light"
             >
             <div class="dm-logo-text">
               <span class="dm-logo-name">Vleeswaren</span>
@@ -71,14 +75,16 @@
           <!-- Right actions -->
           <div class="dm-nav-actions">
             <!-- Thema -->
+            <!-- Label bewust thema-onafhankelijk: een `:aria-label` zou tijdens
+                 SSR altijd van "dark" uitgaan en pas bij hydratie kloppen. -->
             <button
               class="dm-icon-btn"
-              :aria-label="theme === 'dark' ? 'Licht thema' : 'Donker thema'"
-              :title="theme === 'dark' ? 'Licht thema' : 'Donker thema'"
+              aria-label="Thema wisselen"
+              title="Thema wisselen"
               @click="toggleTheme()"
             >
               <svg
-                v-if="theme === 'dark'"
+                class="only-dark"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -91,7 +97,7 @@
                 />
               </svg>
               <svg
-                v-else
+                class="only-light"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -222,7 +228,8 @@ const route = useRoute();
 const cart = useCart();
 const auth = useAuth();
 const authModal = useAuthModal();
-const { theme, toggle: toggleTheme } = useTheme();
+// Enkel de toggle: het thema zelf schakelt via CSS op `[data-theme]`.
+const { toggle: toggleTheme } = useTheme();
 const mobileOpen = ref(false);
 const scrolled = ref(false);
 

@@ -131,6 +131,17 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "nl-BE",
       },
+      script: [
+        {
+          // Zet `data-theme` nog vóór de eerste paint, zodat een bezoeker met
+          // het lichte thema geen donkere flits ziet. Moet inline en blokkerend
+          // zijn: een extern of `defer`-script draait pas na de eerste paint.
+          // Bewust piepklein gehouden — dit staat op het kritieke pad.
+          innerHTML:
+            "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){}",
+          tagPosition: "head",
+        },
+      ],
     },
   },
 

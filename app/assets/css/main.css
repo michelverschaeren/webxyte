@@ -55,6 +55,21 @@
   --color-accent: #8a5f2e;
 }
 
+/* ── Thema-afhankelijke elementen ────────────────────────────────────
+ * Sinds het thema in localStorage zit (en niet meer in een cookie) kent de
+ * server het niet meer: tijdens SSR is `theme` altijd "dark". Alles wat per
+ * thema verschilt én meteen zichtbaar is, wordt daarom in beide varianten
+ * gerenderd en hier geschakeld op `data-theme` — dat attribuut staat er al
+ * vóór de eerste paint, dus zo is er geen flits.
+ *
+ * `display: none` haalt het verborgen element ook uit de accessibility-tree,
+ * dus screenreaders zien er altijd precies één.
+ */
+[data-theme="light"] .only-dark,
+:root:not([data-theme="light"]) .only-light {
+  display: none;
+}
+
 /* ── Global base ─────────────────────────────────────────────────── */
 html,
 body {

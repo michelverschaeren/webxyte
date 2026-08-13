@@ -9,9 +9,14 @@
         <div>
           <div class="mb-4 flex items-center gap-3">
             <img
-              :src="theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'"
+              src="/images/logo-dark.png"
               alt="Vleeswaren Vermeir logo"
-              class="h-9 w-9 rounded-lg object-contain"
+              class="only-dark h-9 w-9 rounded-lg object-contain"
+            >
+            <img
+              src="/images/logo-light.png"
+              alt="Vleeswaren Vermeir logo"
+              class="only-light h-9 w-9 rounded-lg object-contain"
             >
             <span class="text-lg font-bold text-(--color-text-strong)"
               >Vleeswaren <span class="text-(--color-accent)">Vermeir BV</span></span
@@ -120,8 +125,6 @@
 </template>
 
 <script setup lang="ts">
-const { theme } = useTheme();
-
 const links = [
   { to: "/", label: "Home" },
   { to: "/producten", label: "Producten & Bestellen" },
