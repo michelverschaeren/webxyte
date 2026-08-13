@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "fetch:site": "node scripts/fetch-site.mjs",
+    "verify:perf": "node scripts/verify-perf.mjs",
     "playwright:install": "playwright install chromium"
   },
   "dependencies": {

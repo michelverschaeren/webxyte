@@ -1,0 +1,17 @@
+node_modules
+.output
+.nuxt
+.nitro
+.data
+.cache
+dist
+.git
+.github
+.vscode
+content-import
+lighthouse-report*
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store

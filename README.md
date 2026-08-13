@@ -53,6 +53,38 @@ pnpm typecheck
 pnpm build
 ```
 
+### Performance and security verification
+
+The starter ships with compression, prerendering, image optimization, cache
+headers and security headers configured — but config is a claim, not proof. A
+proxy or CDN in front can strip any of it, and one malformed `sizes` string
+silently breaks a srcset. `scripts/verify-perf.mjs` checks the real responses:
+
+```bash
+pnpm build
+pnpm preview                              # terminal 1
+pnpm verify:perf http://localhost:3000    # terminal 2
+pnpm verify:perf https://your-deploy.com  # or against the real thing
+```
+
+It exits non-zero on: a response without `Content-Encoding`, a `1w`/`2w` srcset
+candidate (the @nuxt/image `sizes` trap), an image not served as WebP, a
+`/_ipx/` response without `cache-control`, a missing security header, or a
+generated image candidate wider than its source file.
+
+**Read [CLAUDE.md](CLAUDE.md) before adding images or pages** — it documents the
+rules these checks enforce and, more importantly, why each one exists.
+
+## Deployment
+
+`Dockerfile` is multi-stage with an explicitly pinned Node version. Build and
+run it with:
+
+```bash
+docker build -t my-site .
+docker run --rm -p 3000:3000 my-site
+```
+
 ## Rebuilding an existing site
 
 Use this when a client wants their outdated site redesigned and you need its text, structure, and images as raw material.
@@ -86,7 +118,16 @@ Use this when a client wants their outdated site redesigned and you need its tex
 - [ ] Set the site's fonts via the `fonts` config in `nuxt.config.ts` if the client uses something other than the system default
 - [ ] Replace `public/favicon.ico`
 - [ ] Set page titles/meta via `useSeoMeta`/`useHead` in `app/app.vue` or per-page
+- [ ] **Replace the four placeholder images in `public/images/`** with the real
+      ones. They are generated abstract gradients — they exist so the image
+      pipeline has something to optimize and `pnpm verify:perf` has something to
+      check. Everything in `public/` is served publicly, so they ship if you
+      leave them.
+- [ ] **Rewrite `app/pages/index.vue`** with the client's content. Keep the
+      `<NuxtImg>` patterns (see [CLAUDE.md](CLAUDE.md)) — replace the copy.
 - [ ] Remove `content-import/` before shipping, if it was used
+- [ ] Run through the definition of done in [CLAUDE.md](CLAUDE.md) against the
+      deployed site before handing it over
 
 ## Recommended VS Code extensions
 
