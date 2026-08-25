@@ -6,7 +6,14 @@ import { cartItems } from "~~/server/database/schema";
 export async function getCartItems(userId: string) {
   const rows = await db.query.cartItems.findMany({
     where: eq(cartItems.userId, userId),
-    orderBy: asc(cartItems.createdAt),
+    // `id` als tiebreaker: regels die in bulk zijn toegevoegd (lijst
+    // importeren, gastenmandje samenvoegen bij inloggen) delen exact
+    // dezelfde `createdAt` (Postgres bevriest `now()` per transactie).
+    // Zonder een unieke tweede sleutel viel de sortering bij zo'n
+    // gelijkspel terug op de fysieke rijvolgorde, die verschuift zodra
+    // een regel wordt geüpdatet — vandaar items die van plek wisselden
+    // bij het aanpassen van een hoeveelheid.
+    orderBy: [asc(cartItems.createdAt), asc(cartItems.id)],
     with: { product: true },
   });
 

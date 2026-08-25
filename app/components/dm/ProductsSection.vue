@@ -26,9 +26,10 @@
       </div>
 
       <div class="grid grid-cols-3 sm:grid-cols-5 gap-4 sm:gap-6">
-        <div
+        <NuxtLink
           v-for="category in categories"
           :key="category.name"
+          :to="`/producten?category=${category.slug}`"
           class="group cursor-pointer text-center text-(--color-text-muted) transition-transform duration-300 hover:-translate-y-2"
         >
           <div
@@ -51,7 +52,7 @@
           >
             {{ category.name }}
           </p>
-        </div>
+        </NuxtLink>
       </div>
 
       <div class="text-center mt-12">
@@ -72,22 +73,27 @@ const categories = [
   {
     name: "Salami",
     img: "/images/categorie/salami.png",
+    slug: "salamis",
   },
   {
     name: "Ham",
     img: "/images/categorie/ham.png",
+    slug: "hespen",
   },
   {
     name: "Kaas",
     img: "/images/categorie/kaas.png",
+    slug: "kazen",
   },
   {
     name: "Salades",
     img: "/images/categorie/salades.png",
+    slug: "salades",
   },
   {
     name: "Bereide gerechten",
     img: "/images/categorie/lasagne.png",
+    slug: "traiteur",
   },
 ];
 </script>
