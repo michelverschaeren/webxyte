@@ -44,7 +44,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     id: order.id,
-    status: order.status,
     createdAt: order.createdAt,
     billing: order.billingSnapshot as BillingDetails,
     customer,

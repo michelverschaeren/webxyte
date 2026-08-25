@@ -26,7 +26,6 @@ export default defineEventHandler(async (event) => {
     db
       .select({
         id: orders.id,
-        status: orders.status,
         name: orders.name,
         createdAt: orders.createdAt,
         lineCount: raw<number>`count(${orderItems.id})::int`,

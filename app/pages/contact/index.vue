@@ -3,14 +3,7 @@
     <!-- Page header -->
     <div
       class="relative pt-46.5 pb-20 px-4 overflow-hidden"
-      style="
-        background: radial-gradient(
-          ellipse at 50% 40%,
-          var(--gradient-banner-1) 0%,
-          var(--gradient-banner-2) 45%,
-          var(--gradient-banner-3) 100%
-        );
-      "
+      style="background: radial-gradient(ellipse at 50% 40%, var(--gradient-banner-1) 0%, var(--gradient-banner-2) 45%, var(--gradient-banner-3) 100%)"
     >
       <div class="relative z-1 max-w-300 mx-auto text-center">
         <h1
@@ -69,10 +62,7 @@
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2499.01!2d4.462458!3d50.981381!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTDCsDU4JzUzLjAiTiA0wrAyNyc0NC44IkU!5e0!3m2!1snl!2sbe!4v1000000000000"
               width="100%"
               height="300"
-              style="
-                border: 0;
-                filter: grayscale(0.6) brightness(0.7) contrast(1.2);
-              "
+              style="border: 0; filter: grayscale(0.6) brightness(0.7) contrast(1.2)"
               allowfullscreen
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"

@@ -7,15 +7,16 @@
       <p class="text-sm text-(--color-text-muted)">
         Vink meerdere lijsten aan om ze samen aan uw mandje toe te voegen.
       </p>
-      <NuxtLink
-        to="/winkelmandje"
+      <button
+        type="button"
         class="ml-auto rounded-lg border border-[#c89868] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+        @click="goToCart()"
       >
         Winkelmandje ({{ cart.totalItems.value }})
-      </NuxtLink>
+      </button>
     </div>
 
-    <ListsSavedListsGrid horizontal inline-edit @done="navigateTo('/winkelmandje')" />
+    <ListsSavedListsGrid horizontal inline-edit @done="goToCart()" />
   </AccountShell>
 </template>
 
@@ -29,4 +30,9 @@ const orderLists = useOrderLists();
 await useAsyncData("account:lists", () => orderLists.fetchLists());
 
 onBeforeUnmount(() => orderLists.closeEditor());
+
+function goToCart() {
+  cart.showCartOnly.value = true;
+  navigateTo("/producten");
+}
 </script>

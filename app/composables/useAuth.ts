@@ -3,6 +3,9 @@
  *
  *   const { user, isLoggedIn, isAdmin, login, logout } = useAuth();
  *
+ * Geen `register()`: klanten krijgen hun account van een beheerder, er is
+ * geen publieke registratie (zie server/utils/auth.ts, disableSignUp).
+ *
  * Gebruikt `useAsyncData` zodat de sessie al tijdens SSR opgehaald wordt en
  * via de payload naar de browser gaat — geen tweede request, en geen "flits"
  * van uitgelogde UI. Op de server sturen we de cookie handmatig mee, want
@@ -44,12 +47,6 @@ export function useAuth() {
     return result;
   }
 
-  async function register(name: string, email: string, password: string) {
-    const result = await authClient.signUp.email({ name, email, password });
-    if (!result.error) await refresh();
-    return result;
-  }
-
   async function logout() {
     await authClient.signOut();
     session.value = null;
@@ -66,7 +63,6 @@ export function useAuth() {
     isPending,
     refresh,
     login,
-    register,
     logout,
   };
 }

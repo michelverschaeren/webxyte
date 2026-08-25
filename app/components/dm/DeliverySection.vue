@@ -1,13 +1,7 @@
 <template>
   <section
     class="overflow-hidden py-24"
-    style="
-      background: linear-gradient(
-        135deg,
-        var(--color-surface-strong) 0%,
-        var(--color-surface) 100%
-      );
-    "
+    style="background: linear-gradient(135deg, var(--color-surface-strong) 0%, var(--color-surface) 100%)"
   >
     <div
       class="mx-auto grid max-w-300 grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16"

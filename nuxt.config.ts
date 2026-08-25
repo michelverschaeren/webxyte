@@ -65,11 +65,10 @@ export default defineNuxtConfig({
     },
   },
 
-  // Klanten- en beheerpagina's zijn achter login/rol beveiligd, en het
-  // winkelmandje heeft geen unieke content — ze horen niet in de sitemap,
-  // robots.txt-indexering of llms.txt te staan.
+  // Klanten- en beheerpagina's zijn achter login/rol beveiligd — ze horen
+  // niet in de sitemap, robots.txt-indexering of llms.txt te staan.
   robots: {
-    disallow: ["/account", "/account/**", "/admin", "/admin/**", "/winkelmandje"],
+    disallow: ["/account", "/account/**", "/admin", "/admin/**"],
   },
 
   // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf

@@ -1,8 +1,14 @@
 /**
- * Bestellen + "lijst opslaan"-flow rond het winkelmandje. Gedeeld tussen de
- * mandje-drawer en de volledige /winkelmandje-pagina zodat de foutafhandeling
- * (ontbrekende facturatiegegevens, niet meer beschikbare producten) niet
- * dubbel onderhouden hoeft te worden.
+ * Bestellen + "lijst opslaan"-flow rond het winkelmandje, dat volledig op de
+ * productenpagina leeft (zie CartCheckoutModals.vue). Losstaand van useCart
+ * zodat de foutafhandeling (ontbrekende facturatiegegevens, niet meer
+ * beschikbare producten) op één plek blijft.
+ *
+ * State via `useState` i.p.v. lokale `ref`s: de knoppen (producten-pagina)
+ * en de modals (CartCheckoutModals.vue) roepen deze composable elk apart
+ * aan, en moeten daarbij wél naar dezelfde open/dicht-status kijken —
+ * anders opent een klik op "Bestelling plaatsen" een modal-instantie die
+ * nergens gerenderd wordt.
  */
 export function useCartCheckout() {
   const cart = useCart();
@@ -10,23 +16,23 @@ export function useCartCheckout() {
   const auth = useAuth();
   const authModal = useAuthModal();
 
-  const placing = ref(false);
-  const orderError = ref("");
+  const placing = useState<boolean>("checkout-placing", () => false);
+  const orderError = useState<string>("checkout-order-error", () => "");
 
-  const saveModalOpen = ref(false);
-  const saveName = ref("");
+  const saveModalOpen = useState<boolean>("checkout-save-modal-open", () => false);
+  const saveName = useState<string>("checkout-save-name", () => "");
 
-  const importModalOpen = ref(false);
+  const importModalOpen = useState<boolean>("checkout-import-modal-open", () => false);
 
-  const clearConfirmOpen = ref(false);
+  const clearConfirmOpen = useState<boolean>("checkout-clear-confirm-open", () => false);
 
-  const orderModalOpen = ref(false);
-  const orderName = ref("");
-  const orderNote = ref("");
+  const orderModalOpen = useState<boolean>("checkout-order-modal-open", () => false);
+  const orderName = useState<string>("checkout-order-name", () => "");
+  const orderNote = useState<string>("checkout-order-note", () => "");
 
   function requireLogin(): boolean {
     if (auth.isLoggedIn.value) return true;
-    authModal.open("login");
+    authModal.open();
     return false;
   }
 

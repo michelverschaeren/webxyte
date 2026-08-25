@@ -47,7 +47,6 @@ export default defineEventHandler(async (event) => {
   const customerOrders = await db
     .select({
       id: orders.id,
-      status: orders.status,
       createdAt: orders.createdAt,
       lineCount: raw<number>`count(${orderItems.id})::int`,
       totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,

@@ -7,12 +7,6 @@
         placeholder="Zoek op klant, e-mail of bedrijf…"
         class="adm-input max-w-sm flex-1"
       >
-      <select v-model="status" class="adm-input w-auto">
-        <option value="">Alle statussen</option>
-        <option v-for="s in ORDER_STATUSES" :key="s" :value="s">
-          {{ statusLabel(s) }}
-        </option>
-      </select>
     </div>
 
     <p class="mb-3 text-xs text-(--color-text-muted)">
@@ -39,7 +33,6 @@
                 {{ o.customerEmail }}
               </p>
             </div>
-            <AccountOrderStatus :status="o.status" class="shrink-0" />
           </div>
           <div
             class="flex items-center justify-between gap-3 text-xs text-(--color-text-muted)"
@@ -73,7 +66,6 @@
             <th class="hidden px-4 py-3 text-right font-semibold sm:table-cell">
               Artikelen
             </th>
-            <th class="px-4 py-3 text-left font-semibold">Status</th>
             <th class="px-4 py-3"/>
           </tr>
         </thead>
@@ -98,9 +90,6 @@
             <td class="hidden px-4 py-2.5 text-right text-(--color-text-muted) sm:table-cell">
               {{ o.lineCount }} · {{ o.totalQuantity }} st.
             </td>
-            <td class="px-4 py-2.5">
-              <AccountOrderStatus :status="o.status" />
-            </td>
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
                 :to="`/admin/bestellingen/${o.id}`"
@@ -111,7 +100,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td colspan="6" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td colspan="5" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen bestellingen gevonden.
             </td>
           </tr>
@@ -151,21 +140,8 @@
 definePageMeta({ layout: "main", middleware: "admin" });
 useHead({ title: "Bestellingen — Vleeswaren Vermeir" });
 
-const ORDER_STATUSES = ["nieuw", "in_behandeling", "voltooid", "geannuleerd"] as const;
-
-const STATUS_LABELS: Record<string, string> = {
-  nieuw: "Nieuw",
-  in_behandeling: "In behandeling",
-  voltooid: "Voltooid",
-  geannuleerd: "Geannuleerd",
-};
-function statusLabel(s: string): string {
-  return STATUS_LABELS[s] ?? s;
-}
-
 interface OrderDto {
   id: string;
-  status: string;
   createdAt: string;
   customerName: string;
   customerEmail: string;
@@ -189,18 +165,15 @@ watch(search, (value) => {
   }, 300);
 });
 
-const route = useRoute();
-const status = ref(typeof route.query.status === "string" ? route.query.status : "");
 const page = ref(1);
 const PAGE_SIZE = 25;
 
-watch([debouncedSearch, status], () => {
+watch(debouncedSearch, () => {
   page.value = 1;
 });
 
 const query = computed(() => ({
   search: debouncedSearch.value || undefined,
-  status: status.value || undefined,
   page: page.value,
   perPage: PAGE_SIZE,
 }));

@@ -8,30 +8,6 @@
         >
           ← Alle bestellingen
         </NuxtLink>
-        <AccountOrderStatus :status="order.status" class="ml-auto" />
-      </div>
-
-      <!-- Status wijzigen -->
-      <div class="mb-10 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:px-8">
-        <p class="mb-3 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
-          — Status —
-        </p>
-        <div class="flex flex-wrap items-center gap-3">
-          <select v-model="selectedStatus" class="adm-input w-auto">
-            <option v-for="s in ORDER_STATUSES" :key="s" :value="s">
-              {{ statusLabel(s) }}
-            </option>
-          </select>
-          <button
-            type="button"
-            :disabled="selectedStatus === order.status || saving"
-            class="rounded-lg bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
-            @click="saveStatus()"
-          >
-            {{ saving ? "Bezig…" : "Status opslaan" }}
-          </button>
-          <p v-if="saved" class="text-sm text-[#8fc98f]">Opgeslagen.</p>
-        </div>
       </div>
 
       <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
@@ -108,20 +84,8 @@
 const route = useRoute();
 definePageMeta({ layout: "main", middleware: "admin" });
 
-const ORDER_STATUSES = ["nieuw", "in_behandeling", "voltooid", "geannuleerd"] as const;
-const STATUS_LABELS: Record<string, string> = {
-  nieuw: "Nieuw",
-  in_behandeling: "In behandeling",
-  voltooid: "Voltooid",
-  geannuleerd: "Geannuleerd",
-};
-function statusLabel(s: string): string {
-  return STATUS_LABELS[s] ?? s;
-}
-
 interface OrderDetail {
   id: string;
-  status: string;
   createdAt: string;
   customer: { id: string; name: string; email: string };
   billing: {
@@ -145,7 +109,7 @@ interface OrderDetail {
   }[];
 }
 
-const { data, refresh } = await useFetch<OrderDetail>(
+const { data } = await useFetch<OrderDetail>(
   `/api/admin/orders/${route.params.id}`,
 );
 
@@ -160,33 +124,6 @@ if (!data.value) {
 const order = computed(() => data.value ?? null);
 useHead({ title: "Bestelling — Beheer — Vleeswaren Vermeir" });
 
-const selectedStatus = ref(data.value.status);
-const saving = ref(false);
-const saved = ref(false);
-
-watch(
-  () => order.value?.status,
-  (status) => {
-    if (status) selectedStatus.value = status;
-  },
-);
-
-async function saveStatus() {
-  if (!order.value || saving.value) return;
-  saving.value = true;
-  saved.value = false;
-  try {
-    await $fetch(`/api/admin/orders/${order.value.id}`, {
-      method: "PATCH",
-      body: { status: selectedStatus.value },
-    });
-    await refresh();
-    saved.value = true;
-  } finally {
-    saving.value = false;
-  }
-}
-
 function formatDate(value: string | Date): string {
   return new Date(value).toLocaleDateString("nl-BE", {
     weekday: "long",
@@ -196,18 +133,3 @@ function formatDate(value: string | Date): string {
   });
 }
 </script>
-
-<style scoped>
-.adm-input {
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.5rem;
-  background: var(--color-surface-2);
-  padding: 0.6rem 0.85rem;
-  font-size: 0.85rem;
-  color: var(--color-text-strong);
-}
-.adm-input:focus {
-  outline: none;
-  border-color: #c89868;
-}
-</style>

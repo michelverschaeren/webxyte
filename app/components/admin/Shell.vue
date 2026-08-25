@@ -3,14 +3,7 @@
     <!-- Page header -->
     <div
       class="relative overflow-hidden px-4 py-14 sm:py-20"
-      style="
-        background: radial-gradient(
-          ellipse at 50% 40%,
-          #7a1a1a 0%,
-          #4a0e0e 45%,
-          #1a0808 100%
-        );
-      "
+      style="background: radial-gradient(ellipse at 50% 40%, #7a1a1a 0%, #4a0e0e 45%, #1a0808 100%)"
     >
       <div class="relative z-1 mx-auto max-w-300 pt-12 text-center">
         <p

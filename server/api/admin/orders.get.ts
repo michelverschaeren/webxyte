@@ -2,7 +2,6 @@ import { and, count, desc, eq, ilike, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
-  ORDER_STATUSES,
   billingDetails,
   orderItems,
   orders,
@@ -18,7 +17,6 @@ import { requireAdmin } from "~~/server/utils/session";
  */
 const querySchema = z.object({
   search: z.string().trim().min(1).optional(),
-  status: z.enum(ORDER_STATUSES).optional(),
   page: z.coerce.number().int().min(1).default(1),
   perPage: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -26,13 +24,12 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { search, status, page, perPage } = await getValidatedQuery(
+  const { search, page, perPage } = await getValidatedQuery(
     event,
     (data) => querySchema.parse(data),
   );
 
   const filters = [
-    status ? eq(orders.status, status) : undefined,
     search
       ? or(
           ilike(user.name, `%${search}%`),
@@ -48,7 +45,6 @@ export default defineEventHandler(async (event) => {
     db
       .select({
         id: orders.id,
-        status: orders.status,
         createdAt: orders.createdAt,
         customerName: user.name,
         customerEmail: user.email,

@@ -3,17 +3,7 @@
     title="Beheer"
     subtitle="Overzicht van de productcatalogus, verkoop en klanten."
   >
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <NuxtLink
-        to="/admin/bestellingen?status=nieuw"
-        class="adm-card"
-        :class="{ 'adm-card--alert': (stats?.pendingOrders ?? 0) > 0 }"
-      >
-        <span class="adm-card-value">{{ stats?.pendingOrders ?? "—" }}</span>
-        <span class="adm-card-title">Nieuwe bestellingen</span>
-        <span class="adm-card-hint">Wachten op verwerking</span>
-      </NuxtLink>
-
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <NuxtLink to="/admin/producten" class="adm-card">
         <span class="adm-card-value">{{ stats?.totalProducts ?? "—" }}</span>
         <span class="adm-card-title">Producten</span>
@@ -82,7 +72,6 @@ interface Stats {
   totalProducts: number;
   activeProducts: number;
   customerCount: number;
-  pendingOrders: number;
   soldQuantity: number;
   topProducts: { articleNr: string; name: string; totalQuantity: number }[];
 }
@@ -112,12 +101,6 @@ a.adm-card:hover {
 .adm-card--action {
   border-style: dashed;
   color: var(--color-accent);
-}
-.adm-card--alert {
-  border-color: rgba(184, 37, 42, 0.5);
-}
-.adm-card--alert .adm-card-value {
-  color: #b8252a;
 }
 .adm-card-value {
   font-family: "Playfair Display", Georgia, serif;

@@ -31,11 +31,6 @@
       >
         ← Alle bestellingen
       </NuxtLink>
-      <AccountOrderStatus :status="order.status" class="ml-auto" />
-    </div>
-
-    <div class="mb-10 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-4 py-6 sm:px-8">
-      <AccountOrderProgress :status="order.status" />
     </div>
 
     <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
@@ -186,7 +181,9 @@ function formatDate(value: string | Date): string {
 
 function reorder(mode: "replace" | "append") {
   if (reorderItems.value.length === 0) return;
-  if (mode === "replace") cart.replaceItems(reorderItems.value);
-  else cart.addItems(reorderItems.value);
+  if (mode === "replace") cart.replaceItems(reorderItems.value, false);
+  else cart.addItems(reorderItems.value, false);
+  cart.showCartOnly.value = true;
+  navigateTo("/producten");
 }
 </script>

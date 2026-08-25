@@ -27,6 +27,10 @@ export function useCart() {
   const toastVisible = useState<boolean>("cart-toast", () => false);
   const loaded = useState<boolean>("cart-loaded", () => false);
   const loading = useState<boolean>("cart-loading", () => false);
+  /** Filtert de productenpagina tot enkel wat al in het mandje zit — zet
+   * door het mandje-icoontje op /producten, of door elders "naar mandje"
+   * te klikken nu het mandje geen eigen pagina/paneel meer heeft. */
+  const showCartOnly = useState<boolean>("cart-show-only", () => false);
 
   const totalItems = computed(() =>
     items.value.reduce((sum, i) => sum + i.quantity, 0),
@@ -189,6 +193,7 @@ export function useCart() {
     items,
     isOpen,
     toastVisible,
+    showCartOnly,
     loading,
     totalItems,
     ensureLoaded,

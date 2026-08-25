@@ -45,13 +45,7 @@
             />
             <div
               class="absolute inset-0"
-              style="
-                background: linear-gradient(
-                  to top,
-                  rgba(15, 13, 13, 0.7) 0%,
-                  transparent 50%
-                );
-              "
+              style="background: linear-gradient(to top, rgba(15, 13, 13, 0.7) 0%, transparent 50%)"
             />
           </div>
           <div class="px-2 text-left">

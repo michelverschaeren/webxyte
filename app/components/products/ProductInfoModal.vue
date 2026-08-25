@@ -20,13 +20,7 @@
           <!-- Header -->
           <div
             class="flex items-center justify-between px-5 py-4 border-b border-(--color-border)"
-            style="
-              background: linear-gradient(
-                135deg,
-                var(--color-surface-strong) 0%,
-                var(--color-surface) 100%
-              );
-            "
+            style="background: linear-gradient(135deg, var(--color-surface-strong) 0%, var(--color-surface) 100%)"
           >
             <div class="min-w-0">
               <p

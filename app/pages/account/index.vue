@@ -86,7 +86,6 @@
                 · {{ order.totalQuantity }} stuks
               </p>
             </div>
-            <AccountOrderStatus :status="order.status" />
           </NuxtLink>
         </li>
       </ul>

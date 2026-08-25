@@ -13,7 +13,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (auth.isLoggedIn.value) return;
 
-  if (import.meta.client) useAuthModal().open("login");
+  if (import.meta.client) useAuthModal().open();
 
   return navigateTo("/");
 });

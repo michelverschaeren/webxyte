@@ -182,7 +182,6 @@
     </main>
 
     <TheFooter />
-    <CartDrawer />
   </div>
 </template>
 

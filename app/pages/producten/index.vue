@@ -3,14 +3,7 @@
     <!-- Page header -->
     <div
       class="relative pt-46.5 pb-20 px-4 overflow-hidden"
-      style="
-        background: radial-gradient(
-          ellipse at 50% 40%,
-          var(--gradient-banner-1) 0%,
-          var(--gradient-banner-2) 45%,
-          var(--gradient-banner-3) 100%
-        );
-      "
+      style="background: radial-gradient(ellipse at 50% 40%, var(--gradient-banner-1) 0%, var(--gradient-banner-2) 45%, var(--gradient-banner-3) 100%)"
     >
       <div class="relative z-1 max-w-300 mx-auto text-center">
         <h1
@@ -25,108 +18,6 @@
     </div>
 
     <div class="max-w-325 mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <!-- Search bar + lists action -->
-      <div
-        class="mb-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center max-w-3xl mx-auto"
-      >
-        <div class="relative flex-1">
-          <svg
-            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-accent)"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Zoek op naam, artikelnr of fabrikant…"
-            class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-          >
-        </div>
-        <button
-          type="button"
-          class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-4 border border-[#c89868] rounded-xl text-(--color-accent) text-[0.75rem] font-semibold uppercase tracking-[0.15em] hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
-          @click="orderLists.openPanel()"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-            />
-          </svg>
-          Mijn bestellijsten
-          <span
-            v-if="orderLists.lists.value.length"
-            class="text-[0.7rem] opacity-70"
-            >({{ orderLists.lists.value.length }})</span
-          >
-        </button>
-        <!-- Layout toggle -->
-        <div
-          class="shrink-0 flex border border-(--color-border-strong) rounded-xl overflow-hidden"
-        >
-          <button
-            type="button"
-            :class="
-              viewLayout === 'grid'
-                ? 'bg-(--color-hover) text-(--color-accent)'
-                : 'text-(--color-text-muted) hover:text-(--color-text)'
-            "
-            class="w-10 h-13 inline-flex items-center justify-center transition-colors"
-            title="Rasterweergave"
-            aria-label="Rasterweergave"
-            @click="viewLayout = 'grid'"
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <rect x="2" y="2" width="7" height="7" rx="1" />
-              <rect x="11" y="2" width="7" height="7" rx="1" />
-              <rect x="2" y="11" width="7" height="7" rx="1" />
-              <rect x="11" y="11" width="7" height="7" rx="1" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            :class="
-              viewLayout === 'table'
-                ? 'bg-(--color-hover) text-(--color-accent)'
-                : 'text-(--color-text-muted) hover:text-(--color-text)'
-            "
-            class="w-10 h-13 inline-flex items-center justify-center transition-colors border-l border-(--color-border-strong)"
-            title="Lijstweergave"
-            aria-label="Lijstweergave"
-            @click="viewLayout = 'table'"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
       <div class="flex gap-8">
         <!-- Sidebar (desktop) -->
         <aside class="hidden lg:block w-64 shrink-0">
@@ -174,6 +65,134 @@
 
         <!-- Main area -->
         <div class="flex-1 min-w-0">
+          <!-- Search bar -->
+          <div class="relative mb-8">
+            <svg
+              class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-accent)"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Zoek op naam, artikelnr of fabrikant…"
+              class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+            >
+          </div>
+
+          <!-- Filters: naast de categorieën links zijn dit extra filters die
+               samen bepalen welke producten hieronder verschijnen. -->
+          <div class="mb-8">
+            <div class="flex items-center gap-2 mb-3">
+              <svg
+                class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 4.5h18M6 9.75h12M10.5 15h3"
+                />
+              </svg>
+              <span
+                class="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-(--color-accent) whitespace-nowrap"
+                >Filters</span
+              >
+              <div class="flex-1 h-px bg-(--color-border)" />
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <!-- Winkelmandje -->
+              <button
+                type="button"
+                role="switch"
+                :aria-checked="cart.showCartOnly.value"
+                class="inline-flex items-center gap-2 pl-4 pr-3.5 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                :class="
+                  cart.showCartOnly.value
+                    ? 'border-[#b8252a] bg-[#b8252a] text-white'
+                    : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
+                "
+                @click="toggleCartOnly()"
+              >
+                <svg
+                  class="w-3.5 h-3.5 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                Mijn winkelmandje
+                <span
+                  v-if="cart.totalItems.value > 0"
+                  class="inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 rounded-full text-[0.65rem] font-bold"
+                  :class="cart.showCartOnly.value ? 'bg-white/25' : 'bg-[#b8252a] text-white'"
+                  >{{ cart.totalItems.value > 99 ? "99+" : cart.totalItems.value }}</span
+                >
+              </button>
+
+              <!-- Eerder afgenomen -->
+              <button
+                type="button"
+                role="switch"
+                :aria-checked="purchasedOnly"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                :class="
+                  purchasedOnly
+                    ? 'border-[#b8252a] bg-[#b8252a] text-white'
+                    : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
+                "
+                @click="togglePurchasedOnly()"
+              >
+                Eerder afgenomen producten
+              </button>
+
+              <!-- Vorige bestelling -->
+              <button
+                v-if="!auth.isLoggedIn.value"
+                type="button"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover) text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                @click="authModal.open()"
+              >
+                Vorige bestelling
+              </button>
+              <select
+                v-else
+                :value="selectedOrderId"
+                :disabled="loadingOrderFilter"
+                class="pl-4 pr-8 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors cursor-pointer focus:outline-none bg-(--color-surface) disabled:opacity-60 disabled:cursor-wait"
+                :class="
+                  selectedOrderId
+                    ? 'border-[#b8252a] text-(--color-text)'
+                    : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text)'
+                "
+                @focus="ensurePreviousOrdersLoaded()"
+                @change="selectPreviousOrder(($event.target as HTMLSelectElement).value)"
+              >
+                <option value="">Vorige bestelling…</option>
+                <option v-for="o in previousOrders" :key="o.id" :value="o.id">
+                  {{ o.name || "Bestelling" }} — {{ formatOrderDate(o.createdAt) }}
+                </option>
+              </select>
+            </div>
+          </div>
+
           <!-- Mobile category select -->
           <div class="lg:hidden mb-5">
             <select
@@ -195,9 +214,52 @@
 
           <!-- Active filter chips -->
           <div
-            v-if="search || selectedCategorySlug || selectedSupplier"
+            v-if="
+              search ||
+              selectedCategorySlug ||
+              selectedSupplier ||
+              purchasedOnly ||
+              cart.showCartOnly.value ||
+              selectedOrderId
+            "
             class="flex flex-wrap gap-2 mb-5"
           >
+            <span
+              v-if="purchasedOnly"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+            >
+              Eerder afgenomen
+              <button
+                class="hover:text-(--color-accent) transition-colors"
+                @click="purchasedOnly = false"
+              >
+                ✕
+              </button>
+            </span>
+            <span
+              v-if="cart.showCartOnly.value"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+            >
+              Enkel winkelmandje
+              <button
+                class="hover:text-(--color-accent) transition-colors"
+                @click="cart.showCartOnly.value = false"
+              >
+                ✕
+              </button>
+            </span>
+            <span
+              v-if="selectedOrderId"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+            >
+              {{ selectedOrderLabel }}
+              <button
+                class="hover:text-(--color-accent) transition-colors"
+                @click="selectPreviousOrder('')"
+              >
+                ✕
+              </button>
+            </span>
             <span
               v-if="selectedCategorySlug"
               class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
@@ -254,114 +316,18 @@
                 search = '';
                 selectedCategorySlug = null;
                 selectedSupplier = null;
+                purchasedOnly = false;
+                cart.showCartOnly.value = false;
+                selectPreviousOrder('');
               "
             >
               Reset filters
             </button>
           </div>
 
-          <!-- Product grid -->
-          <div
-            v-else-if="viewLayout === 'grid'"
-            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
-          >
-            <div
-              v-for="product in items"
-              :key="product.id"
-              class="group bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden hover:border-[#c89868]/50 transition-all duration-300 flex flex-col"
-            >
-              <div class="p-5 flex flex-col gap-3 flex-1">
-                <div class="flex items-start justify-between gap-3">
-                  <h3
-                    class="text-(--color-text) font-semibold text-[0.95rem] leading-[1.3] group-hover:text-(--color-text-strong) transition-colors"
-                  >
-                    {{ product.name }}
-                  </h3>
-                  <div class="flex items-center gap-1.5 shrink-0">
-                    <button
-                      v-if="product.infoPdf"
-                      type="button"
-                      :title="`Productfiche ${product.name}`"
-                      :aria-label="`Toon productfiche ${product.name}`"
-                      class="w-6 h-6 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.7rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
-                      @click="openInfo(product)"
-                    >
-                      i
-                    </button>
-                    <span
-                      class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
-                      >{{ product.articleNr }}</span
-                    >
-                  </div>
-                </div>
-                <p
-                  v-if="product.unit"
-                  class="text-(--color-accent)/90 text-[0.8rem] font-medium"
-                >
-                  {{ product.unit }}
-                </p>
-                <button
-                  type="button"
-                  :title="`Filter op fabrikant: ${product.supplier}`"
-                  class="text-(--color-text-muted) hover:text-(--color-accent) text-[0.8rem] transition-colors text-left"
-                  @click="selectedSupplier = product.supplier"
-                >
-                  {{ product.supplier }}
-                </button>
-                <button
-                  type="button"
-                  :title="`Filter op categorie: ${product.category.name}`"
-                  class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest mt-auto transition-colors text-left"
-                  @click="selectedCategorySlug = product.category.slug"
-                >
-                  {{ product.category.name }}
-                </button>
-              </div>
-              <div class="flex items-stretch border-t border-(--color-border)">
-                <div class="flex items-center select-none">
-                  <button
-                    type="button"
-                    class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
-                    aria-label="Verlaag aantal"
-                    @click="setQty(product.id, getQty(product.id) - 1)"
-                  >
-                    −
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    :value="getQty(product.id)"
-                    class="w-10 h-10 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    @input="
-                      setQty(
-                        product.id,
-                        Number(($event.target as HTMLInputElement).value),
-                      )
-                    "
-                  >
-                  <button
-                    type="button"
-                    class="w-9 h-10 text-(--color-accent) hover:bg-(--color-hover) transition-colors text-lg"
-                    aria-label="Verhoog aantal"
-                    @click="setQty(product.id, getQty(product.id) + 1)"
-                  >
-                    +
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  class="flex-1 bg-[#b8252a] text-white text-[0.75rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors"
-                  @click="addToCart(product)"
-                >
-                  + Toevoegen
-                </button>
-              </div>
-            </div>
-          </div>
-
           <!-- Table layout -->
           <div
-            v-else-if="viewLayout === 'table'"
+            v-else
             class="border border-(--color-border) rounded-xl overflow-hidden"
           >
             <div class="overflow-x-auto">
@@ -489,9 +455,9 @@
                     </button>
                   </th>
                   <th
-                    class="py-3 px-3 font-semibold w-52 text-center text-(--color-accent)/60"
+                    class="py-3 px-3 font-semibold w-36 text-center text-(--color-accent)/60"
                   >
-                    Aantal &amp; Toevoegen
+                    Aantal
                   </th>
                 </tr>
               </thead>
@@ -566,46 +532,60 @@
                     </button>
                   </td>
                   <td class="py-2 px-3">
-                    <div class="flex items-center justify-center gap-1.5">
+                    <div class="flex items-center justify-center">
                       <div
-                        class="flex items-center border border-(--color-border) rounded-lg overflow-hidden"
+                        class="flex items-center border rounded-lg overflow-hidden transition-colors"
+                        :class="
+                          cartQty(product) > 0
+                            ? 'border-[#b8252a]/40 bg-[#b8252a]/5'
+                            : 'border-(--color-border)'
+                        "
                       >
                         <button
                           type="button"
-                          class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
+                          :disabled="cartQty(product) === 0"
+                          class="w-7 h-8 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                          :class="
+                            cartQty(product) > 0
+                              ? 'text-[#b8252a] hover:bg-[#b8252a]/10'
+                              : 'text-(--color-accent) hover:bg-(--color-hover)'
+                          "
                           aria-label="Verlaag aantal"
-                          @click="setQty(product.id, getQty(product.id) - 1)"
+                          @click="decrement(product)"
                         >
                           −
                         </button>
                         <input
                           type="number"
-                          min="1"
-                          :value="getQty(product.id)"
-                          class="w-9 h-8 bg-transparent text-center text-sm text-(--color-text) focus:outline-none focus:bg-(--color-hover) [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          min="0"
+                          :value="cartQty(product)"
+                          class="w-9 h-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          :class="
+                            cartQty(product) > 0
+                              ? 'text-[#b8252a] focus:bg-[#b8252a]/10'
+                              : 'text-(--color-text) focus:bg-(--color-hover)'
+                          "
                           @input="
-                            setQty(
-                              product.id,
+                            setCartQty(
+                              product,
                               Number(($event.target as HTMLInputElement).value),
                             )
                           "
                         >
                         <button
                           type="button"
-                          class="w-7 h-8 text-(--color-accent) hover:bg-(--color-hover) transition-colors"
+                          class="w-7 h-8 transition-colors"
+                          :class="
+                            cartQty(product) > 0
+                              ? 'text-[#b8252a] hover:bg-[#b8252a]/10'
+                              : 'text-(--color-accent) hover:bg-(--color-hover)'
+                          "
                           aria-label="Verhoog aantal"
-                          @click="setQty(product.id, getQty(product.id) + 1)"
+                          @click="increment(product)"
                         >
                           +
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        class="h-8 px-3 rounded-lg bg-[#b8252a] text-white text-[0.7rem] font-semibold uppercase tracking-[0.08em] hover:bg-[#8b1f1f] transition-colors whitespace-nowrap"
-                        @click="addToCart(product)"
-                      >
-                        + Toevoegen
-                      </button>
                     </div>
                   </td>
                 </tr>
@@ -640,6 +620,51 @@
       </div>
     </div>
 
+    <!-- Sticky winkelmandje-balk: het mandje leeft nu volledig op deze
+         pagina, dus deze balk vervangt de vroegere /winkelmandje-pagina en
+         mandje-drawer. -->
+    <div
+      v-if="cart.totalItems.value > 0"
+      class="sticky bottom-0 z-40 mt-10 border-t border-(--color-border) bg-(--color-surface-strong)/95 backdrop-blur-md"
+    >
+      <div
+        class="max-w-325 mx-auto flex flex-wrap items-center gap-4 px-4 py-4 sm:px-6 lg:px-8"
+      >
+        <div class="text-sm">
+          <span class="text-(--color-text-muted)">In winkelmandje</span>
+          <span class="ml-2 font-bold text-(--color-text-strong)">{{
+            cart.totalItems.value
+          }}</span>
+          <span class="text-(--color-text-muted)"
+            >&nbsp;stuk{{ cart.totalItems.value !== 1 ? "s" : "" }}</span
+          >
+        </div>
+        <div class="ml-auto flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="rounded-lg px-3 py-2.5 text-[0.7rem] font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+            @click="checkout.openClearConfirm()"
+          >
+            Wissen
+          </button>
+          <button
+            type="button"
+            class="rounded-lg border border-[#c89868] px-4 py-2.5 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+            @click="checkout.openSaveModal()"
+          >
+            Lijst opslaan
+          </button>
+          <button
+            type="button"
+            class="rounded-lg bg-[#b8252a] px-6 py-2.5 text-[0.75rem] font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+            @click="checkout.openOrderModal()"
+          >
+            Bestelling plaatsen
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Product info (PDF) modal -->
     <ProductsProductInfoModal
       :open="infoOpen"
@@ -647,6 +672,9 @@
       :pdf-url="infoProduct?.infoPdf ?? ''"
       @close="infoOpen = false"
     />
+
+    <!-- Lijst opslaan / bestelling plaatsen / mandje wissen -->
+    <CartCheckoutModals />
   </div>
 </template>
 
@@ -660,10 +688,10 @@ useSeoMeta({
 });
 
 const cart = useCart();
-const orderLists = useOrderLists();
+const checkout = useCartCheckout();
+const auth = useAuth();
+const authModal = useAuthModal();
 const route = useRoute();
-
-if (import.meta.client) orderLists.ensureLoaded();
 
 interface CategoryDto {
   id: string;
@@ -716,11 +744,87 @@ const selectedCategorySlug = ref<string | null>(
   (route.query.category as string) ?? null,
 );
 const selectedSupplier = ref<string | null>(null);
-// Een tabel is prima op desktop, maar voelt op een telefoon aan als een
-// spreadsheet — daar start de rasterweergave (productkaarten) standaard.
-const viewLayout = ref<"grid" | "table">(
-  import.meta.client && window.innerWidth < 640 ? "grid" : "table",
+
+const purchasedOnly = ref(false);
+function togglePurchasedOnly() {
+  if (!auth.isLoggedIn.value) {
+    authModal.open();
+    return;
+  }
+  purchasedOnly.value = !purchasedOnly.value;
+}
+
+// "Enkel winkelmandje" en "Vorige bestelling" beperken de lijst allebei tot
+// een vaste set artikelnummers — samen zetten zou geen zinnig resultaat
+// geven, dus ze sluiten elkaar uit.
+function toggleCartOnly() {
+  cart.showCartOnly.value = !cart.showCartOnly.value;
+  if (cart.showCartOnly.value) selectPreviousOrder("");
+}
+
+interface OrderSummaryDto {
+  id: string;
+  name: string | null;
+  createdAt: string;
+}
+
+const previousOrders = ref<OrderSummaryDto[]>([]);
+const previousOrdersLoaded = ref(false);
+async function ensurePreviousOrdersLoaded() {
+  if (previousOrdersLoaded.value || !auth.isLoggedIn.value) return;
+  previousOrdersLoaded.value = true;
+  const res = await $fetch<{ items: OrderSummaryDto[] }>("/api/account/orders", {
+    query: { perPage: 50 },
+  });
+  previousOrders.value = res.items;
+}
+
+const selectedOrderId = ref("");
+// Losstaand van `selectedOrderId` zodat de query pas herlaadt zodra de
+// artikelnummers van de bestelling ook echt binnen zijn — anders flitst de
+// lijst even leeg terwijl de bestelling nog opgehaald wordt.
+const selectedOrderArticleNrs = ref<string[] | null>(null);
+const loadingOrderFilter = ref(false);
+
+async function selectPreviousOrder(id: string) {
+  selectedOrderId.value = id;
+  if (!id) {
+    selectedOrderArticleNrs.value = null;
+    return;
+  }
+  cart.showCartOnly.value = false;
+  loadingOrderFilter.value = true;
+  try {
+    const order = await $fetch<{ items: { articleNr: string }[] }>(
+      `/api/account/orders/${id}`,
+    );
+    selectedOrderArticleNrs.value = order.items.map((i) => i.articleNr);
+  } finally {
+    loadingOrderFilter.value = false;
+  }
+}
+
+// Vangt ook de gevallen op waarin het mandje-filter van elders wordt
+// geactiveerd (navbalk-icoon, "opnieuw bestellen", mijn-lijsten-paneel).
+watch(
+  () => cart.showCartOnly.value,
+  (on) => {
+    if (on && selectedOrderId.value) selectPreviousOrder("");
+  },
 );
+
+const selectedOrderLabel = computed(() => {
+  const order = previousOrders.value.find((o) => o.id === selectedOrderId.value);
+  return order ? order.name || "Bestelling" : "Vorige bestelling";
+});
+
+function formatOrderDate(value: string): string {
+  return new Date(value).toLocaleDateString("nl-BE", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 // Table sort
 type SortKey = "name" | "articleNr" | "supplier" | "unit" | "category";
@@ -740,12 +844,24 @@ const PAGE_SIZE = 24;
 
 // Alle actieve filters/sortering in één object; wijzigt dit, dan herlaadt
 // pagina 1 automatisch via de `watch`-optie van useAsyncData hieronder.
+// `articleNrs` leest `cart.items` bewust enkel binnen de ternary: zolang
+// "enkel winkelmandje" uit staat, telt een wijzigend mandje (bv. via +/-)
+// niet als dependency en herlaadt de lijst dus niet bij elke klik. Voor
+// "vorige bestelling" wordt bewust `selectedOrderArticleNrs` gelezen i.p.v.
+// `selectedOrderId`, zodat de query pas verandert zodra de artikelnummers
+// er ook echt zijn (zie selectPreviousOrder).
 const queryParams = computed(() => ({
   category: selectedCategorySlug.value || undefined,
   search: debouncedSearch.value || undefined,
   supplier: selectedSupplier.value || undefined,
   sort: sortKey.value || undefined,
   sortDir: sortDir.value,
+  purchased: purchasedOnly.value || undefined,
+  articleNrs: cart.showCartOnly.value
+    ? cart.items.value.map((i) => i.articleNr).join(",")
+    : selectedOrderArticleNrs.value
+      ? selectedOrderArticleNrs.value.join(",")
+      : undefined,
 }));
 
 const { data: firstPage, pending } = await useAsyncData<ProductsResponse>(
@@ -797,14 +913,46 @@ async function loadMore() {
   extraItems.value.push(...res.items);
 }
 
-// Per-card quantity state
-const qtyMap = reactive<Record<string, number>>({});
-function getQty(id: string): number {
-  return qtyMap[id] ?? 1;
+// Aantal per product = rechtstreeks de hoeveelheid in het mandje — er is
+// geen apart "+ Toevoegen"-stapje meer, elke +/- klik past het mandje meteen
+// aan. Gekoppeld via product.id (de catalogus-UUID), want dat is ook de
+// sleutel die het mandje voor ingelogde klanten van de server terugkrijgt.
+function cartQty(product: ProductDto): number {
+  return cart.items.value.find((i) => i.id === product.id)?.quantity ?? 0;
 }
-function setQty(id: string, value: number) {
-  const v = Number.isFinite(value) ? Math.floor(value) : 1;
-  qtyMap[id] = Math.max(1, v);
+
+function setCartQty(product: ProductDto, value: number) {
+  const qty = Number.isFinite(value) ? Math.floor(value) : 0;
+  const clamped = Math.max(0, qty);
+  const existing = cart.items.value.find((i) => i.id === product.id);
+
+  if (clamped === 0) {
+    if (existing) cart.removeItem(existing.id);
+    return;
+  }
+  if (existing) {
+    cart.updateQuantity(existing.id, clamped);
+  } else {
+    cart.addItem(
+      {
+        id: product.id,
+        articleNr: product.articleNr,
+        name: product.name,
+        supplier: product.supplier,
+        unit: product.unit ?? undefined,
+      },
+      clamped,
+      false,
+    );
+  }
+}
+
+function increment(product: ProductDto) {
+  setCartQty(product, cartQty(product) + 1);
+}
+
+function decrement(product: ProductDto) {
+  setCartQty(product, cartQty(product) - 1);
 }
 
 // Info modal
@@ -820,21 +968,4 @@ const activeCategoryName = computed(
     categories.value.find((c) => c.slug === selectedCategorySlug.value)
       ?.name ?? "",
 );
-
-function addToCart(product: ProductDto) {
-  const qty = getQty(product.id);
-  cart.addItem(
-    {
-      // Artikelnummer als sleutel: zo valt een product uit een opgeslagen
-      // lijst of vorige bestelling samen met dezelfde regel in het mandje.
-      id: product.articleNr,
-      articleNr: product.articleNr,
-      name: product.name,
-      supplier: product.supplier,
-      unit: product.unit ?? undefined,
-    },
-    qty,
-  );
-  qtyMap[product.id] = 1;
-}
 </script>

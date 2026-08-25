@@ -40,7 +40,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     id: order.id,
-    status: order.status,
     name: order.name,
     note: order.note,
     createdAt: order.createdAt,

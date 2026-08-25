@@ -74,7 +74,6 @@
                 · {{ order.totalQuantity }} stuks
               </p>
             </div>
-            <AccountOrderStatus :status="order.status" />
           </li>
         </ul>
       </section>
@@ -101,7 +100,6 @@ interface CustomerDetail {
   } | null;
   orders: {
     id: string;
-    status: string;
     createdAt: string;
     lineCount: number;
     totalQuantity: number;

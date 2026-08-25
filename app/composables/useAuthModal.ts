@@ -1,15 +1,13 @@
-export type AuthModalTab = "login" | "register";
-
 /**
- * Stuurt de globale login/registratie-popup aan. Elk component kan hem
- * openen (navbar, winkelmandje, route-middleware) zonder eigen state.
+ * Stuurt de globale login-popup aan. Elk component kan hem openen (navbar,
+ * productenpagina, route-middleware) zonder eigen state. Enkel inloggen —
+ * er is geen publieke registratie, klanten krijgen hun account van een
+ * beheerder.
  */
 export function useAuthModal() {
   const isOpen = useState<boolean>("auth-modal-open", () => false);
-  const tab = useState<AuthModalTab>("auth-modal-tab", () => "login");
 
-  function open(target: AuthModalTab = "login") {
-    tab.value = target;
+  function open() {
     isOpen.value = true;
   }
 
@@ -17,5 +15,5 @@ export function useAuthModal() {
     isOpen.value = false;
   }
 
-  return { isOpen, tab, open, close };
+  return { isOpen, open, close };
 }

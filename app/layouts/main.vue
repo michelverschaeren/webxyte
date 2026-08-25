@@ -133,11 +133,13 @@
               <span v-if="auth.isLoggedIn.value" class="dm-account-dot" />
             </button>
 
-            <!-- Cart -->
-            <NuxtLink
-              to="/winkelmandje"
+            <!-- Cart: geen eigen pagina meer — springt naar het (uitgeklapte)
+                 mandje-filter op de productenpagina. -->
+            <button
+              type="button"
               class="dm-icon-btn"
               aria-label="Winkelwagen"
+              @click="goToCart()"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -154,7 +156,7 @@
               <span v-if="cart.totalItems.value > 0" class="dm-cart-badge">
                 {{ cart.totalItems.value > 99 ? "99+" : cart.totalItems.value }}
               </span>
-            </NuxtLink>
+            </button>
 
             <!-- Mobile hamburger -->
             <button
@@ -217,7 +219,6 @@
     </main>
 
     <TheFooter />
-    <CartDrawer />
     <SavedListsPanel />
     <AuthModal />
   </div>
@@ -245,7 +246,12 @@ if (import.meta.client) cart.ensureLoaded();
 
 function onAccountClick() {
   if (auth.isLoggedIn.value) navigateTo("/account");
-  else authModal.open("login");
+  else authModal.open();
+}
+
+function goToCart() {
+  cart.showCartOnly.value = true;
+  navigateTo("/producten");
 }
 
 function isActive(path: string) {

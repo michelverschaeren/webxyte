@@ -40,7 +40,6 @@
               · {{ order.totalQuantity }} stuks
             </p>
           </div>
-          <AccountOrderStatus :status="order.status" />
           <span
             class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase"
           >

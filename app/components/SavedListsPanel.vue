@@ -22,13 +22,7 @@
         <!-- Header -->
         <div
           class="flex items-center justify-between px-5 py-4 border-b border-(--color-border) shrink-0"
-          style="
-            background: linear-gradient(
-              135deg,
-              var(--color-surface-strong) 0%,
-              var(--color-surface) 100%
-            );
-          "
+          style="background: linear-gradient(135deg, var(--color-surface-strong) 0%, var(--color-surface) 100%)"
         >
           <!-- Breadcrumb / title area -->
           <div class="flex items-center gap-3 min-w-0">
@@ -242,7 +236,8 @@ const editorDraftName = computed({
 
 function switchToCart() {
   orderLists.closePanel();
-  cart.isOpen.value = true;
+  cart.showCartOnly.value = true;
+  navigateTo("/producten");
 }
 </script>
 

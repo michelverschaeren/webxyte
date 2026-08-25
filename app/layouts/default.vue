@@ -4,7 +4,6 @@
       <slot />
     </main>
     <TheFooter />
-    <CartDrawer />
     <SavedListsPanel />
   </div>
 </template>
