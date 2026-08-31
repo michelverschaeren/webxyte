@@ -1,5 +1,4 @@
-import { existsSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import { del } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
@@ -8,7 +7,7 @@ import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * DELETE /api/admin/products/:id/pdf — koppelt de productfiche los en
- * verwijdert het lokale bestand.
+ * verwijdert de blob.
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
@@ -29,9 +28,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Product niet gevonden." });
   }
 
-  if (product.infoPdf) {
-    const filePath = join(process.cwd(), "public", product.infoPdf);
-    if (existsSync(filePath)) unlinkSync(filePath);
+  // Rijen van vóór de blob-migratie dragen nog een pad als "/docs/products/…";
+  // daar hoort geen blob bij, dus enkel echte URL's doorgeven aan del().
+  if (product.infoPdf?.startsWith("http")) {
+    // Een al verwijderde blob is geen fout voor de gebruiker: de bedoeling
+    // (geen fiche meer aan dit product) wordt hieronder sowieso bereikt.
+    await del(product.infoPdf).catch((error) => {
+      console.error(`Blob verwijderen mislukt voor product ${id}:`, error);
+    });
   }
 
   const [updated] = await db

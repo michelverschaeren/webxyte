@@ -18,12 +18,16 @@
     "db:pull": "drizzle-kit pull",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
+    "db:pdfs-to-blob": "tsx server/database/migrate-pdfs-to-blob.ts",
+    "db:create-user": "tsx server/database/create-user.ts",
+    "db:import-legacy": "tsx server/database/import-legacy.ts",
     "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
   },
   "dependencies": {
     "@nuxt/image": "^2.1.0",
     "@nuxtjs/seo": "5.3.12",
     "@takumi-rs/core": "^2.7.1",
+    "@vercel/blob": "^2.8.0",
     "better-auth": "^1.6.26",
     "drizzle-orm": "^0.45.2",
     "nuxt": "4.5.2",
