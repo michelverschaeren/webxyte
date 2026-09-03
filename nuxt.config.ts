@@ -71,19 +71,18 @@ export default defineNuxtConfig({
     disallow: ["/account", "/account/**", "/admin", "/admin/**"],
   },
 
-  // Geen expliciete provider: @nuxt/image detecteert Vercel bij een deploy en
-  // schakelt zelf over naar /_vercel/image. Lokaal blijft het de ingebouwde
-  // ipx-provider (die de vercel-provider niet kan draaien — /_vercel/image
-  // bestaat enkel op Vercel zelf en geeft in dev gebroken afbeeldingen).
+  // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf
+  // (geen externe dienst nodig) — past bij de self-hosted Dokploy-setup.
   image: {
     format: ["webp"],
     quality: 80,
 
-    // IPX zet standaard `max-age=60`. Elke /_ipx-URL draagt zijn transformatie
-    // in het pad, dus een andere variant is per definitie een andere URL —
-    // veilig om een jaar te bewaren. Dit kan niet via `routeRules`: de
-    // IPX-handler zet de header zelf, vóór Nitro's route-headers erop komen.
-    // Raakt op Vercel niets: daar loopt het via /_vercel/image.
+    // IPX zet standaard `max-age=60`: elke bezoeker lokte na een minuut een
+    // verse transform van een bron-PNG van megabytes uit (gemeten TTFB tot
+    // ~1 s op de hero). Elke /_ipx-URL draagt zijn transformatie in het pad,
+    // dus een andere variant is per definitie een andere URL — veilig om een
+    // jaar te bewaren. Dit kan niet via `routeRules`: de IPX-handler zet de
+    // header zelf, vóór Nitro's route-headers erop komen.
     ipx: {
       maxAge: 60 * 60 * 24 * 365,
     },
@@ -92,11 +91,8 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   runtimeConfig: {
-    // Server-only. Leeg laten: wordt gevuld vanuit .env / de Environment
-    // Variables van het Vercel-project. Let op: de server-code leest deze
-    // waarden rechtstreeks via process.env.DATABASE_URL en
-    // process.env.BETTER_AUTH_SECRET, dus zet in Vercel de KALE namen —
-    // niet de NUXT_-prefix die runtimeConfig hier zou vullen.
+    // Server-only. Leeg laten: wordt gevuld vanuit .env / Dokploy env-vars.
+    // NUXT_DATABASE_URL en NUXT_BETTER_AUTH_SECRET overschrijven deze.
     databaseUrl: "",
     betterAuthSecret: "",
     betterAuthUrl: "",
@@ -148,10 +144,17 @@ export default defineNuxtConfig({
     },
   },
 
-  // Geen `nitro.compressPublicAssets` meer: dat was nodig omdat Traefik op de
-  // Dokploy-VPS niets comprimeerde. Vercel's CDN comprimeert statische assets
-  // én de SSR-HTML zelf met brotli, dus de build-tijd-compressie leverde daar
-  // enkel dubbel werk en een tragere build op.
+  nitro: {
+    // Comprimeert alles onder .output/public (JS, CSS, fonts) tijdens de build
+    // en serveert de .br/.gz-variant op basis van Accept-Encoding. Dat is de
+    // helft van het compressieverhaal die zónder proxy-wijziging kan: brotli
+    // op maximale kwaliteit, één keer betaald bij het bouwen in plaats van
+    // bij elke request.
+    //
+    // De SSR-HTML valt hier NIET onder — die wordt per request gerenderd en
+    // kan enkel door Traefik gecomprimeerd worden (zie README/Dokploy).
+    compressPublicAssets: { gzip: true, brotli: true },
+  },
 
   vite: {
     plugins: [tailwindcss()],

@@ -8,43 +8,27 @@ import { db, schema } from "../database/client";
  * maar we importeren hem expliciet voor duidelijke types.
  */
 export const auth = betterAuth({
-  /**
-   * Op Vercel heeft elke preview-deploy een eigen, onvoorspelbare hostname.
-   * BETTER_AUTH_URL blijft de bron van waarheid voor productie; valt die weg
-   * (preview/branch-deploy) dan gebruiken we de door Vercel geinjecteerde
-   * VERCEL_URL zodat callbacks en cookies op de juiste host landen.
-   */
-  baseURL:
-    process.env.BETTER_AUTH_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined),
+  baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
 
   /**
    * Better Auth weigert requests van een onbekende origin (CSRF-bescherming).
-   * De productie-hostnames staan altijd toegestaan; preview- en dev-origins
-   * komen er alleen bij in die omgevingen zelf. Patronen mogen enkel Better
-   * Auth's eigen wildcards gebruiken (`string[]`, geen RegExp) — vandaar de
-   * `*` voor de wisselende dev-poort en de preview-subdomeinen.
+   * In productie is dat strikt BETTER_AUTH_URL; lokaal wisselt de dev-server
+   * van poort zodra 3000 bezet is, wat anders "Invalid origin" oplevert bij
+   * elke login. Daarom is localhost tijdens ontwikkeling poort-onafhankelijk
+   * via Better Auth's eigen wildcard-patronen (enkel `string[]` toegestaan,
+   * geen RegExp — vandaar de `*` i.p.v. de vroegere regex-poort-match).
    */
-  trustedOrigins: [
-    "https://vleeswarenvermeir.be",
-    "https://www.vleeswarenvermeir.be",
-
-    // Preview-deploys draaien op een willekeurige *.vercel.app-hostname.
-    // Alleen daar toestaan: op de productie-deploy blijft de lijst strikt.
-    ...(process.env.VERCEL_ENV === "preview" ? ["https://*.vercel.app"] : []),
-
-    // Lokaal wisselt de dev-server van poort zodra 3000 bezet is, wat anders
-    // "Invalid origin" oplevert bij elke login.
-    ...(process.env.NODE_ENV === "production"
-      ? []
+  trustedOrigins:
+    process.env.NODE_ENV === "production"
+      ? ["https://vleeswarenvermeir.be"]
       : [
           "http://localhost:*",
           "https://localhost:*",
           "http://127.0.0.1:*",
           "https://127.0.0.1:*",
-        ]),
-  ],
+          "https://vleeswarenvermeir.be",
+        ],
   database: drizzleAdapter(db, {
     provider: "pg",
     // De sleutels hier moeten matchen met de modelnamen van Better Auth.
@@ -90,16 +74,15 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    // Verplicht achter de reverse proxy van Vercel op https.
+    // Verplicht achter de reverse proxy van Dokploy (Traefik) op https.
     useSecureCookies: process.env.NODE_ENV === "production",
   },
 
   /**
-   * Ingebouwde regels beperken /sign-in en /sign-up tot 3 pogingen per 10s
-   * per IP. Let op: de default storage is in-memory, dus op Vercel telt elke
-   * warme instance zijn eigen teller — de effectieve limiet ligt hoger dan
-   * op de single-container setup. Wil je een harde limiet, dan moet dit naar
-   * `storage: "database"` (vergt een extra `rateLimit`-tabel + migratie).
+   * Better Auth's default (`enabled: isProduction`) hangt af van hoe Dokploy
+   * NODE_ENV precies zet — expliciet aanzetten maakt dat onafhankelijk
+   * daarvan. Ingebouwde regels beperken /sign-in en /sign-up al streng tot
+   * 3 pogingen per 10s per IP; dat volstaat hier zonder extra storage.
    */
   rateLimit: {
     enabled: true,

@@ -1,4 +1,5 @@
-import { put } from "@vercel/blob";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
@@ -7,16 +8,13 @@ import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * POST /api/admin/products/:id/pdf — upload/vervang de productfiche.
- *
- * Ligt in Vercel Blob onder docs/products/<articleNr>.pdf: het filesystem
- * van een Vercel-functie is read-only, dus wegschrijven naar public/ (zoals
- * de oude Dokploy-versie deed) is daar geen optie. `infoPdf` bewaart sinds
- * die overstap de volledige blob-URL i.p.v. een pad — de frontend gebruikt
- * de waarde rechtstreeks als href, dus dat werkt ongewijzigd.
+ * Slaat lokaal op onder public/docs/products/<articleNr>.pdf — zelfde
+ * conventie als de legacy-import (server/database/import-legacy.ts).
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
 const MAX_SIZE = 15 * 1024 * 1024; // 15MB
+const DOCS_DIR = () => join(process.cwd(), "public", "docs", "products");
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
@@ -55,7 +53,7 @@ export default defineEventHandler(async (event) => {
   }
   // Content-Type komt van de client en is te vervalsen; de echte PDF-magic
   // bytes controleren voorkomt dat een ander bestandstype als .pdf onder
-  // docs/products/ terechtkomt en publiek geserveerd wordt.
+  // /docs/products/ terechtkomt en publiek geserveerd wordt.
   if (file.data.subarray(0, 5).toString("latin1") !== "%PDF-") {
     throw createError({
       statusCode: 400,
@@ -63,19 +61,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const blob = await put(`docs/products/${product.articleNr}.pdf`, file.data, {
-    access: "public",
-    contentType: "application/pdf",
-    // Vaste naam per artikelnummer: zonder deze twee vlaggen plakt Blob er
-    // een random suffix achter en weigert het een bestaande sleutel, wat
-    // "fiche vervangen" onmogelijk maakt en oude bestanden laat rondslingeren.
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  mkdirSync(DOCS_DIR(), { recursive: true });
+  const fileName = `${product.articleNr}.pdf`;
+  writeFileSync(join(DOCS_DIR(), fileName), file.data);
 
+  const infoPdf = `/docs/products/${fileName}`;
   const [updated] = await db
     .update(products)
-    .set({ infoPdf: blob.url })
+    .set({ infoPdf })
     .where(eq(products.id, id))
     .returning();
 

@@ -22,17 +22,8 @@ const globalForDb = globalThis as unknown as {
 const sql =
   globalForDb.__sql ??
   postgres(connectionString, {
-    // Neon's pooler is PgBouncer in transaction mode: de serverconnectie gaat
-    // na elke transactie terug in de pool, dus een named prepared statement
-    // van de vorige request bestaat er niet meer ("prepared statement s1
-    // already exists" / "does not exist"). Uitzetten kost wat planning-tijd
-    // maar is de enige veilige stand achter een transaction pooler.
-    prepare: false,
-    // Vercel houdt met Fluid compute instances warm, dus de pool wordt wél
-    // hergebruikt — maar er draaien er veel naast elkaar. Klein houden en de
-    // pooler het multiplexen laten doen; 1 zou de concurrency binnen één
-    // instance onnodig serialiseren.
-    max: 5,
+    // Serverless/edge kent geen langlevende pool; een Node-container wel.
+    max: 10,
     idle_timeout: 20,
     connect_timeout: 10,
   });
