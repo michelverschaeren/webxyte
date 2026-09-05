@@ -3,7 +3,14 @@
     <!-- Page header -->
     <div
       class="relative pt-46.5 pb-20 px-4 overflow-hidden"
-      style="background: radial-gradient(ellipse at 50% 40%, var(--gradient-banner-1) 0%, var(--gradient-banner-2) 45%, var(--gradient-banner-3) 100%)"
+      style="
+        background: radial-gradient(
+          ellipse at 50% 40%,
+          var(--gradient-banner-1) 0%,
+          var(--gradient-banner-2) 45%,
+          var(--gradient-banner-3) 100%
+        );
+      "
     >
       <div class="relative z-1 max-w-300 mx-auto text-center">
         <h1
@@ -44,8 +51,13 @@
                   >
                     {{ info.label }}
                   </p>
-                  <p class="text-(--color-text) font-medium">{{ info.value }}</p>
-                  <p v-if="info.sub" class="text-(--color-text-muted) text-sm mt-0.5">
+                  <p class="text-(--color-text) font-medium">
+                    {{ info.value }}
+                  </p>
+                  <p
+                    v-if="info.sub"
+                    class="text-(--color-text-muted) text-sm mt-0.5"
+                  >
                     {{ info.sub }}
                   </p>
                 </div>
@@ -62,7 +74,10 @@
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2499.01!2d4.462458!3d50.981381!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTDCsDU4JzUzLjAiTiA0wrAyNyc0NC44IkU!5e0!3m2!1snl!2sbe!4v1000000000000"
               width="100%"
               height="300"
-              style="border: 0; filter: grayscale(0.6) brightness(0.7) contrast(1.2)"
+              style="
+                border: 0;
+                filter: grayscale(0.6) brightness(0.7) contrast(1.2);
+              "
               allowfullscreen
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
@@ -72,7 +87,9 @@
         </div>
 
         <!-- Right: contact form -->
-        <div class="bg-(--color-surface) border border-(--color-border) rounded-xl p-8">
+        <div
+          class="bg-(--color-surface) border border-(--color-border) rounded-xl p-8"
+        >
           <p
             class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-2"
           >
@@ -81,7 +98,7 @@
           <h2
             class="font-['Playfair_Display',Georgia,serif] text-[2rem] font-bold text-(--color-text-strong) mb-8 leading-[1.1]"
           >
-            Wij antwoorden<br >
+            Wij antwoorden<br />
             <span
               class="font-['Dancing_Script',cursive] text-[#b8252a] font-normal text-[1.1em]"
               >zo snel mogelijk</span
@@ -101,7 +118,7 @@
                   placeholder="Uw naam"
                   required
                   class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-                >
+                />
               </div>
               <div>
                 <label
@@ -113,7 +130,7 @@
                   type="text"
                   placeholder="Bedrijfsnaam (optioneel)"
                   class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-                >
+                />
               </div>
             </div>
 
@@ -128,7 +145,7 @@
                 placeholder="uw@email.be"
                 required
                 class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-              >
+              />
             </div>
 
             <div>
@@ -141,7 +158,7 @@
                 type="tel"
                 placeholder="0495 123 456"
                 class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-              >
+              />
             </div>
 
             <div>
@@ -229,7 +246,14 @@ const contactInfo = [
     ),
     label: "Telefoon",
     value: "015 / 61 15 39",
-    sub: "Fax: 015 / 61 25 39",
+  },
+  {
+    icon: svgIcon(
+      "M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3",
+    ),
+    label: "GSM",
+    value: "0475 97 13 70",
+    sub: undefined,
   },
   {
     icon: svgIcon(

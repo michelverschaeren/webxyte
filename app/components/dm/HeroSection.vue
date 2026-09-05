@@ -2,7 +2,7 @@
   <div>
     <section
       ref="heroRef"
-      class="relative -mt-26.5 flex min-h-screen flex-col overflow-hidden pt-26.5"
+      class="relative -mt-26.5 flex min-h-[55vh] flex-col overflow-hidden pt-26.5"
     >
       <div
         class="hero-bg absolute inset-0 z-0"
@@ -66,8 +66,10 @@
         </svg>
       </span>
 
-      <!-- Hero text + image -->
-      <div class="relative z-2 flex flex-1 flex-col items-center px-4 pt-62">
+      <!-- Hero image -->
+      <div
+        class="relative z-2 flex flex-1 flex-col items-center justify-center px-4 pt-26 pb-10 md:pt-0 md:pb-0"
+      >
         <div
           class="relative z-2 mx-auto flex w-full max-w-205 justify-center"
           :style="{ opacity: bgOpacity }"
@@ -78,16 +80,15 @@
                Let op: een vw-waarde heeft een breakpoint-prefix nodig, anders
                kent de module de schermbreedte niet en genereert ze varianten
                van 1 en 2 pixel breed. `sm:` is daarbij de kleinste die telt —
-               een `xs:`-prefix wordt genegeerd. De drop-shadow eronder
-               verbergt compressieruis, vandaar q70. -->
+               een `xs:`-prefix wordt genegeerd. -->
           <NuxtImg
-            class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_30px_60px_rgba(0,0,0,0.7))]"
-            src="/images/hero6.png"
-            alt="Verse vleeswaren Vermeir"
-            width="1386"
-            height="1386"
+            class="block h-auto w-full max-w-205 object-contain filter-[drop-shadow(0_20px_40px_rgba(0,0,0,0.5))]"
+            src="/images/herobanner-big.png"
+            alt="Vleeswaren Vermeir"
+            width="1200"
+            height="306"
             format="webp"
-            quality="70"
+            quality="90"
             sizes="sm:100vw md:820px"
             preload
           />
@@ -95,47 +96,25 @@
       </div>
     </section>
 
-    <!-- Fixed title overlay — stays centered on viewport while background scrolls/fades -->
-    <div
-      class="pointer-events-none fixed inset-0 z-5 flex flex-col items-center justify-center px-4"
-      :style="{
-        opacity: textOpacity,
-        visibility: textOpacity <= 0.01 ? 'hidden' : 'visible',
-      }"
-    >
-      <div class="w-full text-center leading-none">
-        <span
-          class="inline-block font-['Playfair_Display',Georgia,serif] text-[clamp(3.5rem,11vw,9rem)] leading-none font-black tracking-[0.04em] text-white uppercase [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
-          >VLEESWAREN</span
-        >
-      </div>
-      <div class="mt-[0.1em] w-full text-center leading-none">
-        <span
-          class="inline-block font-['Dancing_Script',cursive] text-[clamp(3rem,9vw,7rem)] leading-[1.1] font-bold text-(--color-accent) [text-shadow:0_2px_4px_rgba(0,0,0,0.95),0_6px_30px_rgba(0,0,0,0.85),0_12px_60px_rgba(0,0,0,0.7)]"
-          >Vermeir</span
-        >
-      </div>
-    </div>
-
     <!-- Feature strip -->
-    <div class="relative z-10 -mt-16">
+    <div class="relative z-10 -mt-6 md:-mt-16">
       <div
         class="feature-strip-gradient mx-auto grid max-w-275 grid-cols-2 gap-px md:grid-cols-4"
       >
         <div
           v-for="feat in features"
           :key="feat.label"
-          class="group relative flex items-center gap-3 border-r border-white/10 px-3 py-5 text-white transition-colors duration-300 last:border-r-0 even:border-r-0 hover:bg-black/20 md:gap-5 md:px-6 md:py-7 md:even:border-r"
+          class="group relative flex items-center gap-2 border-r border-white/10 px-2 py-2.5 text-white transition-colors duration-300 last:border-r-0 even:border-r-0 hover:bg-black/20 md:gap-4 md:px-5 md:py-5 md:even:border-r"
         >
           <div
-            class="h-9.5 w-9.5 shrink-0 text-(--color-accent) [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current"
+            class="h-6 w-6 shrink-0 text-(--color-accent) [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current md:h-8 md:w-8"
             v-html="feat.icon"
           />
           <p
-            class="m-0 text-[0.72rem] leading-[1.4] tracking-[0.06em] wrap-break-word uppercase md:text-[0.82rem]"
+            class="m-0 text-[0.58rem] leading-[1.3] tracking-[0.06em] wrap-break-word uppercase md:text-[0.78rem]"
           >
             {{ feat.sub
-            }}<strong class="block text-[0.9rem] font-bold text-white">{{
+            }}<strong class="block text-[0.72rem] font-bold text-white md:text-[0.85rem]">{{
               feat.label
             }}</strong>
           </p>
@@ -173,15 +152,10 @@ onBeforeUnmount(() => {
   window.removeEventListener("resize", updateHeroHeight);
 });
 
-// Background (gradient + product image) fades out faster
+// Background (gradient + hero image) fades out faster
 const bgOpacity = computed(() => {
   const h = heroHeight.value || 1;
   return Math.max(0, Math.min(1, 1 - scrollY.value / (h * 0.55)));
-});
-// Title text holds longer, then fades out before next section fully covers it
-const textOpacity = computed(() => {
-  const h = heroHeight.value || 1;
-  return Math.max(0, Math.min(1, 1 - scrollY.value / (h * 0.85)));
 });
 
 const features = [
@@ -226,6 +200,12 @@ const features = [
     color-mix(in srgb, var(--color-bg) 90%, transparent) 0%,
     transparent 55%
   );
+}
+/* In licht thema is --color-bg crème/wit, waardoor deze fade als een witte
+   gloed over de rode banner lag. Alleen in donker thema is de kleur donker
+   genoeg om als vloeiende overgang naar de pagina-achtergrond te werken. */
+:root[data-theme="light"] .hero-bg::after {
+  background: none;
 }
 .hero-leaf {
   position: absolute;

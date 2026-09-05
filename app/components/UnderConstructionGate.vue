@@ -28,6 +28,17 @@
             </svg>
             015 / 61 15 39
           </a>
+          <a href="tel:0475971370" class="uc-contact-item">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M7.5 3.375c0-.621.504-1.125 1.125-1.125h6.75c.621 0 1.125.504 1.125 1.125v17.25c0 .621-.504 1.125-1.125 1.125h-6.75A1.125 1.125 0 017.5 20.625V3.375zM8.625.75A2.625 2.625 0 006 3.375v17.25A2.625 2.625 0 008.625 23.25h6.75A2.625 2.625 0 0018 20.625V3.375A2.625 2.625 0 0015.375.75h-6.75z"
+                clip-rule="evenodd"
+              />
+              <path d="M10.5 18.75a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" />
+            </svg>
+            0475 97 13 70
+          </a>
           <a href="mailto:vleeswarenvermeir@telenet.be" class="uc-contact-item">
             <svg viewBox="0 0 20 20" fill="currentColor">
               <path
