@@ -26,9 +26,7 @@ Twee dingen die wél moeten kloppen:
 | `eigenaars.jpg` | [AboutSection](../../../app/components/dm/AboutSection.vue) | 4:5 staand | 1536 px |
 | `premium-vlees.jpg` | [QualitySection](../../../app/components/dm/QualitySection.vue) | vrij (eigen verhouding) | 1536 px |
 | `chauffeur.jpg` | [DeliverySection](../../../app/components/dm/DeliverySection.vue) | staand, bijgesneden tot een liggend kader | 1536 px |
-| `verse-steak.jpg` | [SplitSection](../../../app/components/dm/SplitSection.vue) — grote tegel | ~1:1 | 968 px |
-| `gegrilde-steak.jpg` | SplitSection kleine tegel **én** StepsSection stap 01 | ~1:1 en 4:3 | 1280 px |
-| `vlees-product.jpg` | SplitSection — kleine tegel | ~1:1 | 476 px |
+| `gegrilde-steak.jpg` | [StepsSection](../../../app/components/dm/StepsSection.vue) — stap 01 | 4:3 | 1280 px |
 | `verwerken.jpg` | [StepsSection](../../../app/components/dm/StepsSection.vue) — stap 02 | 4:3 liggend | 1280 px |
 | `levering.jpg` | StepsSection — stap 03 | 4:3 liggend | 1280 px |
 | `nalevering.jpg` | StepsSection — stap 04 | 4:3 liggend | 1280 px |

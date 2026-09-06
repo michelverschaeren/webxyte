@@ -5,7 +5,6 @@
     <DmHeroSection />
     <div class="relative z-10 bg-(--color-bg)">
       <DmAboutSection />
-      <DmSplitSection />
       <DmQualitySection />
       <DmDeliverySection />
       <DmProductsSection />
