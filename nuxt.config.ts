@@ -152,7 +152,7 @@ export default defineNuxtConfig({
         {
           // Panel-analytics: telt pageviews via een dagelijks roterende hash,
           // geen cookie of client-side id — bewust vóór </body>, niet blokkerend.
-          src: "https://dashboardv2.xyte.be/beacon.js",
+          src: "https://dashboard.xyte.be/beacon.js",
           defer: true,
           "data-key": process.env.PANEL_ANALYTICS_KEY,
           tagPosition: "bodyClose",
