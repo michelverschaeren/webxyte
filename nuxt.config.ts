@@ -4,7 +4,13 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/image", "@nuxt/eslint", "@nuxt/fonts", "@nuxtjs/seo"],
+  modules: [
+    "@nuxt/image",
+    "@nuxt/eslint",
+    "@nuxt/fonts",
+    "@nuxtjs/seo",
+    "@sentry/nuxt/module",
+  ],
 
   // Zelf-gehoste fonts i.p.v. de render-blokkerende stylesheet van Google:
   // die kostte twee extra origins (preconnect naar fonts.googleapis.com én
@@ -101,6 +107,9 @@ export default defineNuxtConfig({
       // Wachtwoord voor de "website in aanbouw"-toegangspoort.
       // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
       sitePassword: "vermeir2026",
+
+      // DSN voor foutmeldingen naar Panel's ingest-endpoint (Sentry-compatibel).
+      sentryDsn: process.env.SENTRY_DSN,
     },
   },
 
@@ -139,6 +148,14 @@ export default defineNuxtConfig({
           innerHTML:
             "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){}",
           tagPosition: "head",
+        },
+        {
+          // Panel-analytics: telt pageviews via een dagelijks roterende hash,
+          // geen cookie of client-side id — bewust vóór </body>, niet blokkerend.
+          src: "https://dashboardv2.xyte.be/beacon.js",
+          defer: true,
+          "data-key": process.env.PANEL_ANALYTICS_KEY,
+          tagPosition: "bodyClose",
         },
       ],
     },
