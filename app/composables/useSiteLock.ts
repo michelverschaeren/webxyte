@@ -8,13 +8,17 @@ export function useSiteLock() {
 
   const locked = computed(() => !unlocked.value);
 
+  function unlock(): void {
+    unlocked.value = true;
+  }
+
   function tryUnlock(password: string): boolean {
     if (password.length > 0 && password === config.public.sitePassword) {
-      unlocked.value = true;
+      unlock();
       return true;
     }
     return false;
   }
 
-  return { locked, tryUnlock };
+  return { locked, unlock, tryUnlock };
 }

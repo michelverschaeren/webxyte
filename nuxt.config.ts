@@ -74,7 +74,7 @@ export default defineNuxtConfig({
   // Klanten- en beheerpagina's zijn achter login/rol beveiligd — ze horen
   // niet in de sitemap, robots.txt-indexering of llms.txt te staan.
   robots: {
-    disallow: ["/account", "/account/**", "/admin", "/admin/**"],
+    disallow: ["/account", "/account/**", "/admin", "/admin/**", "/toegang/**"],
   },
 
   // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf
@@ -107,6 +107,12 @@ export default defineNuxtConfig({
       // Wachtwoord voor de "website in aanbouw"-toegangspoort.
       // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
       sitePassword: "vermeir2026",
+
+      // Eenmalige toegangslink voor een specifieke klant: /toegang/<token>
+      // omzeilt de site-lock zonder het algemene wachtwoord te delen. Leeg
+      // laten = link staat uit. Zet via .env met
+      // NUXT_PUBLIC_CUSTOMER_ACCESS_TOKEN=een-lang-willekeurig-token
+      customerAccessToken: "",
 
       // DSN voor foutmeldingen naar Panel's ingest-endpoint (Sentry-compatibel).
       sentryDsn: process.env.SENTRY_DSN,

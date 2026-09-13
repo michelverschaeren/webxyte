@@ -47,6 +47,7 @@ die wél gecommit wordt — voeg daar elke nieuwe variabele aan toe (zonder waar
 | `BETTER_AUTH_SECRET`         | Ondertekent sessies. 32 random bytes, base64.         |
 | `BETTER_AUTH_URL`            | Publieke basis-URL van de app                         |
 | `NUXT_PUBLIC_SITE_PASSWORD`  | Wachtwoord van de site-lock (bestaande functie)       |
+| `NUXT_PUBLIC_CUSTOMER_ACCESS_TOKEN` | Token voor `/toegang/<token>`: eenmalige klantlink die de site-lock omzeilt |
 
 ### DATABASE_URL: twee verschillende waarden
 
