@@ -1,6 +1,6 @@
 import { desc, eq, sql as raw } from "drizzle-orm";
 import { db } from "~~/server/database/client";
-import { orderItems, orders, products, user } from "~~/server/database/schema";
+import { customers, orderItems, orders, products } from "~~/server/database/schema";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
@@ -21,10 +21,7 @@ export default defineEventHandler(async (event) => {
         })
         .from(products),
 
-      db
-        .select({ value: raw<number>`count(*)::int` })
-        .from(user)
-        .where(eq(user.role, "customer")),
+      db.select({ value: raw<number>`count(*)::int` }).from(customers),
 
       db
         .select({

@@ -49,8 +49,12 @@
             <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
               <p class="font-semibold text-(--color-text-strong)">{{ order.customer.name }}</p>
               <p class="text-(--color-text-muted)">{{ order.customer.email }}</p>
+              <p v-if="order.customer.customerNr" class="text-xs text-(--color-text-muted)">
+                Klantnr. {{ order.customer.customerNr }}
+              </p>
               <NuxtLink
-                :to="`/admin/klanten/${order.customer.id}`"
+                v-if="order.customer.customerId"
+                :to="`/admin/klanten/${order.customer.customerId}`"
                 class="mt-3 inline-block text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Klantprofiel bekijken →
@@ -87,7 +91,13 @@ definePageMeta({ layout: "main", middleware: "admin" });
 interface OrderDetail {
   id: string;
   createdAt: string;
-  customer: { id: string; name: string; email: string };
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    customerId: string | null;
+    customerNr: string | null;
+  };
   billing: {
     companyName: string;
     vatNumber: string | null;

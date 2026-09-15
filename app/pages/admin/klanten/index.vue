@@ -1,10 +1,10 @@
 <template>
-  <AdminShell title="Klanten" subtitle="Alle geregistreerde klantaccounts.">
+  <AdminShell title="Klanten" subtitle="Klanten uit het CRM, met hun aankoophistoriek.">
     <div class="mb-6 flex flex-wrap items-center gap-3">
       <input
         v-model="search"
         type="text"
-        placeholder="Zoek op naam, e-mail of bedrijf…"
+        placeholder="Zoek op klantnr, naam of e-mail…"
         class="adm-input max-w-sm flex-1"
       >
     </div>
@@ -25,15 +25,15 @@
           class="flex flex-col gap-2 px-4 py-3"
         >
           <div class="min-w-0">
+            <p class="text-xs text-(--color-text-muted)">{{ c.customerNr }}</p>
             <p class="font-semibold text-(--color-text-strong)">{{ c.name }}</p>
-            <p class="truncate text-xs text-(--color-text-muted)">{{ c.email }}</p>
-            <p v-if="c.companyName" class="truncate text-xs text-(--color-text-muted)">
-              {{ c.companyName }}
+            <p v-if="c.contactEmail" class="truncate text-xs text-(--color-text-muted)">
+              {{ c.contactEmail }}
             </p>
           </div>
           <div class="flex items-center justify-between gap-3 text-xs text-(--color-text-muted)">
-            <span>{{ c.orderCount }} bestelling{{ c.orderCount !== 1 ? "en" : "" }}</span>
-            <span>{{ c.lastOrderAt ? formatDate(c.lastOrderAt) : "Nog geen bestelling" }}</span>
+            <span>{{ c.productCount }} product{{ c.productCount !== 1 ? "en" : "" }}</span>
+            <span>{{ c.accountEmail ? "Account gekoppeld" : "Geen account" }}</span>
           </div>
         </NuxtLink>
       </li>
@@ -53,19 +53,17 @@
           <tr
             class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
           >
+            <th class="px-4 py-3 text-left font-semibold">Klantnr.</th>
             <th class="px-4 py-3 text-left font-semibold">Naam</th>
-            <th class="hidden px-4 py-3 text-left font-semibold sm:table-cell">
-              E-mail
-            </th>
             <th class="hidden px-4 py-3 text-left font-semibold md:table-cell">
-              Bedrijf
-            </th>
-            <th class="px-4 py-3 text-right font-semibold">Bestellingen</th>
-            <th class="hidden px-4 py-3 text-right font-semibold lg:table-cell">
-              Stuks besteld
+              Contact
             </th>
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
-              Laatste bestelling
+              Account
+            </th>
+            <th class="px-4 py-3 text-right font-semibold">Producten</th>
+            <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
+              Laatste aankoop
             </th>
             <th class="px-4 py-3"/>
           </tr>
@@ -76,21 +74,19 @@
             :key="c.id"
             class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
           >
+            <td class="px-4 py-2.5 font-mono text-xs text-(--color-text-muted)">{{ c.customerNr }}</td>
             <td class="px-4 py-2.5 text-(--color-text-strong)">{{ c.name }}</td>
-            <td class="hidden px-4 py-2.5 text-(--color-text-muted) sm:table-cell">
-              {{ c.email }}
-            </td>
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) md:table-cell">
-              {{ c.companyName ?? "—" }}
-            </td>
-            <td class="px-4 py-2.5 text-right text-(--color-text-strong)">
-              {{ c.orderCount }}
-            </td>
-            <td class="hidden px-4 py-2.5 text-right text-(--color-text-muted) lg:table-cell">
-              {{ c.totalQuantity }}
+              {{ c.contactEmail ?? "—" }}
             </td>
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) lg:table-cell">
-              {{ c.lastOrderAt ? formatDate(c.lastOrderAt) : "—" }}
+              {{ c.accountEmail ?? "—" }}
+            </td>
+            <td class="px-4 py-2.5 text-right text-(--color-text-strong)">
+              {{ c.productCount }}
+            </td>
+            <td class="hidden px-4 py-2.5 text-(--color-text-muted) lg:table-cell">
+              {{ c.lastPurchasedAt ? formatDate(c.lastPurchasedAt) : "—" }}
             </td>
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
@@ -144,12 +140,13 @@ useHead({ title: "Klanten — Vleeswaren Vermeir" });
 
 interface CustomerDto {
   id: string;
+  customerNr: string;
   name: string;
-  email: string;
-  companyName: string | null;
-  orderCount: number;
-  totalQuantity: number;
-  lastOrderAt: string | null;
+  contactEmail: string | null;
+  phone: string | null;
+  accountEmail: string | null;
+  productCount: number;
+  lastPurchasedAt: string | null;
 }
 
 interface CustomersResponse {

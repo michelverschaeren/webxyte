@@ -1,7 +1,14 @@
 import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { categories, orderItems, orders, products } from "~~/server/database/schema";
+import {
+  categories,
+  customerPurchaseHistory,
+  customers,
+  orderItems,
+  orders,
+  products,
+} from "~~/server/database/schema";
 import { getAuthSession } from "~~/server/utils/session";
 
 /**
@@ -54,13 +61,25 @@ export default defineEventHandler(async (event) => {
     const session = await getAuthSession(event);
     if (!session) return emptyResult();
 
-    const rows = await db
-      .selectDistinct({ articleNr: orderItems.articleNr })
-      .from(orderItems)
-      .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(eq(orders.userId, session.user.id));
+    // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
+    // van de klant(en) die aan deze login gekoppeld zijn.
+    const [orderRows, crmRows] = await Promise.all([
+      db
+        .selectDistinct({ articleNr: orderItems.articleNr })
+        .from(orderItems)
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .where(eq(orders.userId, session.user.id)),
+      db
+        .selectDistinct({ articleNr: products.articleNr })
+        .from(customerPurchaseHistory)
+        .innerJoin(customers, eq(customerPurchaseHistory.customerId, customers.id))
+        .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
+        .where(eq(customers.userId, session.user.id)),
+    ]);
 
-    purchasedArticleNrs = rows.map((r) => r.articleNr);
+    purchasedArticleNrs = [
+      ...new Set([...orderRows, ...crmRows].map((r) => r.articleNr)),
+    ];
     if (purchasedArticleNrs.length === 0) return emptyResult();
   }
 

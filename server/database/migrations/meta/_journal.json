@@ -57,6 +57,13 @@
       "when": 1786454951489,
       "tag": "0007_yielding_nightmare",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789500734133,
+      "tag": "0008_customers",
+      "breakpoints": true
     }
   ]
 }

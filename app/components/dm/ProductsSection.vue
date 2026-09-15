@@ -60,7 +60,7 @@
                 loading="lazy"
                 format="webp"
                 :sizes="
-                  category.photo === 'framed'
+                  category.photo === 'framed' || category.photo === 'tile'
                     ? '105px sm:160px'
                     : '110px sm:220px'
                 "
@@ -69,8 +69,14 @@
                   'sketch-img h-full w-full object-contain': !category.photo,
                   'photo-img h-full w-full object-contain':
                     category.photo === 'cutout',
-                  'photo-framed aspect-square h-auto w-full max-w-32 rounded-full object-cover sm:max-w-40':
+                  'photo-framed aspect-square h-auto w-full max-w-32 object-cover sm:max-w-40':
                     category.photo === 'framed',
+                  'rounded-full':
+                    category.photo === 'framed' && !category.squircle,
+                  'rounded-3xl':
+                    category.photo === 'framed' && category.squircle,
+                  'photo-tile aspect-square h-auto w-full max-w-32 rounded-2xl object-contain p-3 sm:max-w-40 sm:p-4':
+                    category.photo === 'tile',
                 }"
               />
             </div>
@@ -106,8 +112,13 @@ type Category = {
    * "cutout" = foto op transparantie: zweeft vrij, met een gloed eromheen.
    * "framed" = foto met eigen achtergrond: rond bijgesneden tot medaillon,
    *   want een slagschaduw zou hier de rechthoek natrekken i.p.v. het product.
+   * "tile" = vierkant met afgeronde hoeken op een egale themavlak; de foto
+   *   staat binnen de tegel (contain), zodat uitsneden niet tegen de rand
+   *   lopen.
    */
-  photo?: "cutout" | "framed";
+  photo?: "cutout" | "framed" | "tile";
+  /** Alleen bij "framed": afgerond vierkant i.p.v. cirkel (layout-test). */
+  squircle?: boolean;
 };
 
 // Eén array per rij; het raster hangt aan de buitenste v-for.
@@ -130,6 +141,7 @@ const categoryRows: Category[][] = [
       img: "/images/categorie/salamis.png",
       slug: "kazen",
       photo: "framed",
+      squircle: true,
     },
     {
       name: "Salades",
@@ -174,6 +186,29 @@ const categoryRows: Category[][] = [
       img: "/images/categorie/new/pate.png",
       slug: "pates",
       photo: "framed",
+    },
+  ],
+  // Derde rij: layout-variant om te vergelijken — dezelfde foto's als hierboven,
+  // maar als vierkante tegel op een egaal vlak. Bewust maar drie kaarten, de
+  // twee resterende kolommen blijven leeg.
+  [
+    {
+      name: "Salami",
+      img: "/images/categorie/Worstwaren_foto.png",
+      slug: "salamis",
+      photo: "tile",
+    },
+    {
+      name: "Ham",
+      img: "/images/categorie/Gevogelte_foto.png",
+      slug: "hespen",
+      photo: "tile",
+    },
+    {
+      name: "Paté",
+      img: "/images/categorie/new/pate.png",
+      slug: "pates",
+      photo: "tile",
     },
   ],
 ];
@@ -244,6 +279,36 @@ const categoryRows: Category[][] = [
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent),
     0 12px 16px rgb(0 0 0 / 0.22);
+}
+
+/* Vierkante tegel met afgeronde hoeken op een egaal vlak: donker thema krijgt
+   --color-surface (#1a1414), licht thema wit — beide via dezelfde variabele.
+   Geen gloed hier: de tegel zelf is al de achtergrond, een halo eromheen zou
+   de rechthoek natrekken. Alleen een zachte diepteschaduw plus een subtiele
+   rand, zodat de tegel in het lichte thema niet in de crème wegvalt. */
+.photo-tile {
+  background: var(--color-surface);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 10px 20px rgb(0 0 0 / 0.28);
+  transition:
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+.group:hover .photo-tile {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 55%, transparent),
+    0 14px 26px rgb(0 0 0 / 0.36);
+}
+:root[data-theme="light"] .photo-tile {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 22%, transparent),
+    0 8px 18px rgb(0 0 0 / 0.12);
+}
+:root[data-theme="light"] .group:hover .photo-tile {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 55%, transparent),
+    0 12px 24px rgb(0 0 0 / 0.18);
 }
 
 /* Lichtplek achter de foto: vangt de kleurstap op t.o.v. de monochrome

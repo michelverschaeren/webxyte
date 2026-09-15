@@ -1,20 +1,23 @@
-import { eq, desc, sql as raw } from "drizzle-orm";
+import { desc, eq, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
   billingDetails,
+  customerPurchaseHistory,
+  customers,
   orderItems,
   orders,
+  products,
   user,
 } from "~~/server/database/schema";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
- * GET /api/admin/customers/:id — klantgegevens + volledige bestelhistoriek,
- * admin-only. Zelfde samenvatting per bestelling als /api/account/orders,
- * maar dan voor een opgegeven klant i.p.v. de ingelogde gebruiker.
+ * GET /api/admin/customers/:id — één CRM-klant, admin-only: contactgegevens,
+ * aankoophistoriek uit het CRM en — als er een account gekoppeld is — diens
+ * facturatiegegevens en webshopbestellingen.
  */
-const paramsSchema = z.object({ id: z.string().min(1) });
+const paramsSchema = z.object({ id: z.uuid() });
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
@@ -24,42 +27,81 @@ export default defineEventHandler(async (event) => {
   );
 
   const [customer] = await db
-    .select({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-    })
-    .from(user)
-    .where(eq(user.id, id))
+    .select()
+    .from(customers)
+    .where(eq(customers.id, id))
     .limit(1);
 
   if (!customer) {
     throw createError({ statusCode: 404, statusMessage: "Klant niet gevonden." });
   }
 
-  const [billing] = await db
-    .select()
-    .from(billingDetails)
-    .where(eq(billingDetails.userId, id))
-    .limit(1);
-
-  const customerOrders = await db
+  const purchaseHistory = await db
     .select({
-      id: orders.id,
-      createdAt: orders.createdAt,
-      lineCount: raw<number>`count(${orderItems.id})::int`,
-      totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
+      productId: products.id,
+      articleNr: products.articleNr,
+      name: products.name,
+      supplier: products.supplier,
+      unit: products.unit,
+      isActive: products.isActive,
+      lastPurchasedAt: raw<string>`${customerPurchaseHistory.lastPurchasedAt}::text`,
     })
-    .from(orders)
-    .leftJoin(orderItems, eq(orderItems.orderId, orders.id))
-    .where(eq(orders.userId, id))
-    .groupBy(orders.id)
-    .orderBy(desc(orders.createdAt));
+    .from(customerPurchaseHistory)
+    .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
+    .where(eq(customerPurchaseHistory.customerId, id))
+    .orderBy(desc(customerPurchaseHistory.lastPurchasedAt), products.articleNr);
+
+  let account = null;
+  let billing = null;
+  let accountOrders: {
+    id: string;
+    createdAt: Date;
+    lineCount: number;
+    totalQuantity: number;
+  }[] = [];
+
+  if (customer.userId) {
+    const userId = customer.userId;
+    const [linkedUser, [linkedBilling], linkedOrders] = await Promise.all([
+      db
+        .select({ id: user.id, name: user.name, email: user.email })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1),
+      db.select().from(billingDetails).where(eq(billingDetails.userId, userId)).limit(1),
+      db
+        .select({
+          id: orders.id,
+          createdAt: orders.createdAt,
+          lineCount: raw<number>`count(${orderItems.id})::int`,
+          totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
+        })
+        .from(orders)
+        .leftJoin(orderItems, eq(orderItems.orderId, orders.id))
+        .where(eq(orders.userId, userId))
+        .groupBy(orders.id)
+        .orderBy(desc(orders.createdAt)),
+    ]);
+    account = linkedUser[0] ?? null;
+    billing = linkedBilling ?? null;
+    accountOrders = linkedOrders;
+  }
 
   return {
-    customer,
-    billing: billing ?? null,
-    orders: customerOrders,
+    customer: {
+      id: customer.id,
+      customerNr: customer.customerNr,
+      name: customer.name,
+      contactEmail: customer.contactEmail,
+      phone: customer.phone,
+      deliveryStreet: customer.deliveryStreet,
+      deliveryPostalCode: customer.deliveryPostalCode,
+      deliveryCity: customer.deliveryCity,
+      deliveryCountry: customer.deliveryCountry,
+    },
+    account,
+    billing,
+    orders: accountOrders,
+    purchaseHistory,
   };
 });

@@ -8,3 +8,4 @@ export * from "./billing";
 export * from "./orders";
 export * from "./lists";
 export * from "./cart";
+export * from "./customers";

@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { orderItems, orders, user } from "~~/server/database/schema";
+import { customers, orderItems, orders, user } from "~~/server/database/schema";
 import type { BillingDetails } from "~~/server/database/schema";
 import { requireAdmin } from "~~/server/utils/session";
 
@@ -36,11 +36,29 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const [customer] = await db
-    .select({ id: user.id, name: user.name, email: user.email })
-    .from(user)
-    .where(eq(user.id, order.userId))
-    .limit(1);
+  const [[account], [crmCustomer]] = await Promise.all([
+    db
+      .select({ id: user.id, name: user.name, email: user.email })
+      .from(user)
+      .where(eq(user.id, order.userId))
+      .limit(1),
+    // Eén login kan aan meerdere CRM-klanten hangen; voor de profiellink
+    // volstaat de eerste (laagste klantnummer).
+    db
+      .select({ id: customers.id, customerNr: customers.customerNr })
+      .from(customers)
+      .where(eq(customers.userId, order.userId))
+      .orderBy(asc(customers.customerNr))
+      .limit(1),
+  ]);
+
+  const customer = account
+    ? {
+        ...account,
+        customerId: crmCustomer?.id ?? null,
+        customerNr: crmCustomer?.customerNr ?? null,
+      }
+    : undefined;
 
   return {
     id: order.id,

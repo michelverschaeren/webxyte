@@ -15,7 +15,7 @@
       <NuxtLink to="/admin/klanten" class="adm-card">
         <span class="adm-card-value">{{ stats?.customerCount ?? "—" }}</span>
         <span class="adm-card-title">Klanten</span>
-        <span class="adm-card-hint">Geregistreerde klantaccounts</span>
+        <span class="adm-card-hint">Klanten uit het CRM</span>
       </NuxtLink>
 
       <div class="adm-card">

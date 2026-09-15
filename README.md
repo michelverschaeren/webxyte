@@ -281,3 +281,10 @@ hetzelfde als de rol met hoofdletters is aangemaakt.
 pnpm build
 pnpm preview
 ```
+# Voor extra klanten:
+'npx tsx server/database/test-customer-login.ts 100392 100497'
+
+Als je klaar bent, verwijder je alle testaccounts. De koppeling met de klant verdwijnt dan automatisch:
+
+
+npx tsx server/database/test-customer-login.ts --remove
