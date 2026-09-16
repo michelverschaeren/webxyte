@@ -14,25 +14,25 @@
     "playwright:install": "playwright install chromium"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.122",
+    "@iconify-json/lucide": "^1.2.132",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/image": "^2.1.0",
-    "@nuxt/ui": "^4.10.0",
+    "@nuxt/ui": "^4.11.1",
     "@vueuse/motion": "^3.0.3",
     "@vueuse/nuxt": "^14.4.0",
     "nuxt": "^4.5.2",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
     "@types/turndown": "^5.0.6",
     "cheerio": "^1.2.0",
-    "eslint": "^10.8.1",
-    "playwright": "^1.62.1",
+    "eslint": "^10.10.0",
+    "playwright": "^1.63.0",
     "turndown": "^7.2.4",
     "typescript": "^6.0.3",
-    "vue-tsc": "^3.3.9"
+    "vue-tsc": "^3.3.11"
   },
   "packageManager": "pnpm@11.20.0"
 }
