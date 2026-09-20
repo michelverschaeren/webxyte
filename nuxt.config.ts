@@ -43,6 +43,22 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
   devtools: { enabled: true },
 
+  // Source maps voor de browser- ÉN de servercode, maar zonder verwijzing
+  // ernaar in de gebouwde JS, zodat een bezoeker ze nooit opvraagt.
+  // scripts/upload-sourcemaps.mjs stuurt ze na de build naar Panel en
+  // verwijdert ze.
+  sourcemap: { client: "hidden", server: "hidden" },
+
+  // Er gaat niets naar Sentry (geen auth-token): de build-plugin stempelt
+  // enkel de release (de git-commit) in de bundels, en Panel leest hem daar
+  // uit. 'top-level-import' laadt de server-SDK vanuit de server-entry zelf,
+  // dus server-fouten worden gemeld zonder het start-commando te wijzigen.
+  sentry: {
+    telemetry: false,
+    silent: true,
+    autoInjectServerSentry: "top-level-import",
+  },
+
   modules: [
     "@nuxt/image",
     "@nuxt/eslint",

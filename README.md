@@ -253,6 +253,12 @@ draaien — de client regelt de tunnel zelf:
    met `DATABASE_URL` op de **interne** hostname en `BETTER_AUTH_URL` op het
    echte https-domein.
 3. Build: `pnpm build` · Start: `pnpm start` (draait `.output/server/index.mjs`).
+   De build uploadt de source maps naar Panel (`scripts/upload-sourcemaps.mjs`) en
+   verwijdert ze daarna uit `.output`. Zet daarvoor in de Environment `PANEL_URL` en
+   `PANEL_DEPLOY_KEY` (geheim, enkel tijdens de build). Zonder beide waarschuwt het
+   script en verwijdert het enkel de maps; met slechts één van de twee faalt de build.
+   `SENTRY_DSN` en `PANEL_ANALYTICS_KEY` zijn openbaar; de DSN is nodig tijdens build
+   én runtime, de analytics-sleutel enkel tijdens de build.
 4. Migraties draai je vanaf je eigen machine via de tunnel (hoofdstuk 6), vóór of
    vlak na de deploy.
 5. **Productfiches (PDF) in een volume.** Ze staan bewust niet in `public/`: dat kostte
