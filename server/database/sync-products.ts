@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { and, eq, inArray, notInArray } from "drizzle-orm";
+import { and, eq, notInArray } from "drizzle-orm";
 import { db, sql as connection } from "./client";
 import { categories, products } from "./schema";
 
@@ -24,7 +24,7 @@ const NON_PRODUCT_GROUPS = new Set(["LG"]);
 type CsvRow = { articleNr: string; name: string; supplier: string; groupCode: string };
 
 function parseCsv(): CsvRow[] {
-  const text = readFileSync(CSV_PATH, "utf8").replace(/^﻿/, "");
+  const text = readFileSync(CSV_PATH, "utf8").replace(/^\uFEFF/, "");
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
   const rows: CsvRow[] = [];
   for (const line of lines.slice(1)) {
