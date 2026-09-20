@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
 /* ── Design tokens ───────────────────────────────────────────────
  * Neutrals (bg/surface/text/border) flip between the two themes.
  * Brand (rood/goud) en statuskleuren blijven in beide thema's gelijk.

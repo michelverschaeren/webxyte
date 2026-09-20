@@ -98,7 +98,7 @@
           <h2
             class="font-['Playfair_Display',Georgia,serif] text-[2rem] font-bold text-(--color-text-strong) mb-8 leading-[1.1]"
           >
-            Wij antwoorden<br />
+            Wij antwoorden<br>
             <span
               class="font-['Dancing_Script',cursive] text-[#b8252a] font-normal text-[1.1em]"
               >zo snel mogelijk</span
@@ -118,7 +118,7 @@
                   placeholder="Uw naam"
                   required
                   class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-                />
+                >
               </div>
               <div>
                 <label
@@ -130,7 +130,7 @@
                   type="text"
                   placeholder="Bedrijfsnaam (optioneel)"
                   class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-                />
+                >
               </div>
             </div>
 
@@ -145,7 +145,7 @@
                 placeholder="uw@email.be"
                 required
                 class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-              />
+              >
             </div>
 
             <div>
@@ -158,7 +158,7 @@
                 type="tel"
                 placeholder="0495 123 456"
                 class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
-              />
+              >
             </div>
 
             <div>
