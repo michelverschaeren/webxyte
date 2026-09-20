@@ -7,13 +7,31 @@
         placeholder="Zoek op naam, artikelnr of leverancier…"
         class="adm-input max-w-sm flex-1"
       >
-      <select v-model="categorySlug" class="adm-input w-auto">
+      <!-- Mobiel: modal i.p.v. native select -->
+      <SelectMenu
+        v-model="categorySlug"
+        class="sm:hidden"
+        :options="categoryOptions"
+        :trigger-class="menuTriggerClass"
+        title="Kies een categorie"
+        eyebrow="Categorieën"
+      />
+      <SelectMenu
+        class="sm:hidden"
+        :model-value="status"
+        :options="statusOptions"
+        :trigger-class="menuTriggerClass"
+        title="Filter op status"
+        eyebrow="Status"
+        @update:model-value="setStatus"
+      />
+      <select v-model="categorySlug" class="adm-input hidden w-auto sm:block">
         <option :value="null">Alle categorieën</option>
         <option v-for="cat in categories" :key="cat.id" :value="cat.slug">
           {{ cat.name }}
         </option>
       </select>
-      <select v-model="status" class="adm-input w-auto">
+      <select v-model="status" class="adm-input hidden w-auto sm:block">
         <option :value="null">Actief + inactief</option>
         <option value="active">Enkel actief</option>
         <option value="inactive">Enkel inactief</option>
@@ -28,6 +46,9 @@
 
     <p class="mb-3 text-xs text-(--color-text-muted)">
       {{ pagination?.total ?? 0 }} producten
+    </p>
+    <p v-if="toggleError" class="mb-3 text-sm text-[#e06a6a]">
+      {{ toggleError }}
     </p>
 
     <div class="rounded-xl border border-(--color-border) overflow-hidden">
@@ -104,16 +125,21 @@
               {{ p.soldQuantity }}
             </td>
             <td class="px-4 py-2.5">
-              <span
-                class="rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em]"
+              <button
+                type="button"
+                :disabled="togglingIds.has(p.id)"
+                :title="p.isActive ? 'Klik om inactief te maken' : 'Klik om actief te maken'"
+                :aria-label="`${p.name}: ${p.isActive ? 'actief' : 'inactief'}, klik om te wisselen`"
+                class="cursor-pointer rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-wait disabled:opacity-50"
                 :class="
                   p.isActive
-                    ? 'text-[#8fc98f] border border-[#8fc98f]/40'
-                    : 'text-(--color-text-muted) border border-(--color-border-strong)'
+                    ? 'text-[#8fc98f] border border-[#8fc98f]/40 hover:bg-[#8fc98f]/10'
+                    : 'text-(--color-text-muted) border border-(--color-border-strong) hover:bg-(--color-hover) hover:text-(--color-text)'
                 "
+                @click="toggleActive(p)"
               >
                 {{ p.isActive ? "Actief" : "Inactief" }}
-              </span>
+              </button>
             </td>
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
@@ -162,6 +188,8 @@
 </template>
 
 <script setup lang="ts">
+import type { SelectMenuOption } from "~/components/SelectMenu.vue";
+
 definePageMeta({ layout: "main", middleware: "admin" });
 useHead({ title: "Producten beheren — Vleeswaren Vermeir" });
 
@@ -205,6 +233,24 @@ watch(search, (value) => {
 
 const categorySlug = ref<string | null>(null);
 const status = ref<"active" | "inactive" | null>(null);
+
+// Op mobiel vervangt een modal (SelectMenu) de native selects; de opties staan
+// hier zodat beide varianten dezelfde lijst tonen.
+const categoryOptions = computed<SelectMenuOption[]>(() => [
+  { value: null, label: "Alle categorieën" },
+  ...categories.value.map((c) => ({ value: c.slug, label: c.name })),
+]);
+const statusOptions: SelectMenuOption[] = [
+  { value: null, label: "Actief + inactief" },
+  { value: "active", label: "Enkel actief" },
+  { value: "inactive", label: "Enkel inactief" },
+];
+function setStatus(value: string | null) {
+  status.value = value as typeof status.value;
+}
+const menuTriggerClass =
+  "justify-between rounded-lg border border-(--color-border-strong) bg-(--color-surface-2) px-3.5 py-2.5 text-[0.85rem] text-(--color-text-strong) focus:outline-none focus:border-[#c89868]";
+
 const page = ref(1);
 const PAGE_SIZE = 25;
 
@@ -240,12 +286,44 @@ const query = computed(() => ({
   perPage: PAGE_SIZE,
 }));
 
-const { data } = await useFetch<ProductsResponse>("/api/admin/products", {
-  query,
-});
+const { data, refresh } = await useFetch<ProductsResponse>(
+  "/api/admin/products",
+  { query },
+);
 
 const items = computed(() => data.value?.items ?? []);
 const pagination = computed(() => data.value?.pagination);
+
+// Eén klik op het statuslabel wisselt actief/inactief. De rij wordt pas na
+// het antwoord van de server aangepast; staat er een statusfilter aan, dan
+// herladen we de lijst zodat het product er meteen uit verdwijnt.
+const togglingIds = ref(new Set<string>());
+const toggleError = ref("");
+
+async function toggleActive(product: AdminProductDto) {
+  if (togglingIds.value.has(product.id)) return;
+  togglingIds.value = new Set(togglingIds.value).add(product.id);
+  toggleError.value = "";
+  try {
+    await $fetch(`/api/admin/products/${product.id}`, {
+      method: "PATCH",
+      body: { isActive: !product.isActive },
+    });
+    if (status.value) {
+      await refresh();
+    } else {
+      product.isActive = !product.isActive;
+    }
+  } catch (err) {
+    toggleError.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      `Status van "${product.name}" wijzigen mislukt.`;
+  } finally {
+    const next = new Set(togglingIds.value);
+    next.delete(product.id);
+    togglingIds.value = next;
+  }
+}
 </script>
 
 <style scoped>

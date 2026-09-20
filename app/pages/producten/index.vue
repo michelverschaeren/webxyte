@@ -2,7 +2,7 @@
   <div class="bg-(--color-bg) text-(--color-text) min-h-screen">
     <!-- Page header -->
     <div
-      class="relative pt-46.5 pb-20 px-4 overflow-hidden"
+      class="relative pt-32 pb-10 sm:pt-46.5 sm:pb-20 px-4 overflow-hidden"
       style="background: radial-gradient(ellipse at 50% 40%, var(--gradient-banner-1) 0%, var(--gradient-banner-2) 45%, var(--gradient-banner-3) 100%)"
     >
       <div class="relative z-1 max-w-300 mx-auto text-center">
@@ -111,13 +111,18 @@
               >
               <div class="flex-1 h-px bg-(--color-border)" />
             </div>
-            <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Mobiel: één horizontaal scrollbare rij die tot aan de schermrand
+                 loopt (de afgesneden chip verraadt dat er meer is); vanaf sm
+                 gewoon wrappen zoals voorheen. -->
+            <div
+              class="-mx-4 flex flex-nowrap items-center gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-2.5 sm:overflow-visible sm:px-0 sm:pb-0"
+            >
               <!-- Winkelmandje -->
               <button
                 type="button"
                 role="switch"
                 :aria-checked="cart.showCartOnly.value"
-                class="inline-flex items-center gap-2 pl-4 pr-3.5 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-xs"
                 :class="
                   cart.showCartOnly.value
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -126,7 +131,7 @@
                 @click="toggleCartOnly()"
               >
                 <svg
-                  class="w-3.5 h-3.5 shrink-0"
+                  class="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -138,10 +143,11 @@
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                Mijn winkelmandje
+                <span class="sm:hidden">Mandje</span>
+                <span class="hidden sm:inline">Mijn winkelmandje</span>
                 <span
                   v-if="cart.totalItems.value > 0"
-                  class="inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 rounded-full text-[0.65rem] font-bold"
+                  class="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[0.6rem] font-bold sm:min-w-4.5 sm:h-4.5 sm:text-[0.65rem]"
                   :class="cart.showCartOnly.value ? 'bg-white/25' : 'bg-[#b8252a] text-white'"
                   >{{ cart.totalItems.value > 99 ? "99+" : cart.totalItems.value }}</span
                 >
@@ -152,7 +158,7 @@
                 type="button"
                 role="switch"
                 :aria-checked="purchasedOnly"
-                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
                 :class="
                   purchasedOnly
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -160,56 +166,46 @@
                 "
                 @click="togglePurchasedOnly()"
               >
-                Eerder afgenomen producten
+                <span class="sm:hidden">Eerder afgenomen</span>
+                <span class="hidden sm:inline">Eerder afgenomen producten</span>
               </button>
 
               <!-- Vorige bestelling -->
               <button
                 v-if="!auth.isLoggedIn.value"
                 type="button"
-                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover) text-xs font-semibold uppercase tracking-[0.08em] transition-colors"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover) text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
                 @click="authModal.open()"
               >
-                Vorige bestelling
+                Bestellingen &amp; lijstjes
               </button>
-              <select
+              <SelectMenu
                 v-else
-                :value="selectedOrderId"
+                class="shrink-0"
+                :model-value="selectedOrderId || null"
+                :options="orderSourceOptions"
+                placeholder="Bestellingen & lijstjes"
                 :disabled="loadingOrderFilter"
-                class="pl-4 pr-8 py-2.5 rounded-full border text-xs font-semibold uppercase tracking-[0.08em] transition-colors cursor-pointer focus:outline-none bg-(--color-surface) disabled:opacity-60 disabled:cursor-wait"
-                :class="
-                  selectedOrderId
-                    ? 'border-[#b8252a] text-(--color-text)'
-                    : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text)'
-                "
-                @focus="ensurePreviousOrdersLoaded()"
-                @change="selectPreviousOrder(($event.target as HTMLSelectElement).value)"
-              >
-                <option value="">Vorige bestelling…</option>
-                <option v-for="o in previousOrders" :key="o.id" :value="o.id">
-                  {{ o.name || "Bestelling" }} — {{ formatOrderDate(o.createdAt) }}
-                </option>
-              </select>
+                :loading="loadingOrderSources"
+                :trigger-class="previousOrderTriggerClass"
+                title="Kies een bestelling of lijstje"
+                eyebrow="Snel bestellen"
+                empty-label="Nog geen bestellingen of lijstjes gevonden."
+                @open="loadOrdersAndLists()"
+                @update:model-value="selectPreviousOrder($event ?? '')"
+              />
             </div>
           </div>
 
           <!-- Mobile category select -->
           <div class="lg:hidden mb-5">
-            <select
+            <SelectMenu
               v-model="selectedCategorySlug"
-              class="w-full px-4 py-3 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) text-sm focus:outline-none focus:border-[#c89868]"
-            >
-              <option :value="null">
-                Alle categorieën ({{ totalActiveCount }})
-              </option>
-              <option
-                v-for="cat in categories"
-                :key="cat.id"
-                :value="cat.slug"
-              >
-                {{ cat.emoji }} {{ cat.name }}
-              </option>
-            </select>
+              :options="categoryOptions"
+              trigger-class="w-full justify-between px-4 py-3 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) text-sm focus:outline-none focus:border-[#c89868]"
+              title="Kies een categorie"
+              eyebrow="Categorieën"
+            />
           </div>
 
           <!-- Active filter chips -->
@@ -226,7 +222,7 @@
           >
             <span
               v-if="purchasedOnly"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
               Eerder afgenomen
               <button
@@ -238,7 +234,7 @@
             </span>
             <span
               v-if="cart.showCartOnly.value"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               Enkel winkelmandje
               <button
@@ -250,7 +246,7 @@
             </span>
             <span
               v-if="selectedOrderId"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               {{ selectedOrderLabel }}
               <button
@@ -262,7 +258,7 @@
             </span>
             <span
               v-if="selectedCategorySlug"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
               {{ activeCategoryName }}
               <button
@@ -274,7 +270,7 @@
             </span>
             <span
               v-if="selectedSupplier"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               {{ selectedSupplier }}
               <button
@@ -286,7 +282,7 @@
             </span>
             <span
               v-if="search"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-(--color-hover) text-(--color-text-muted) border border-(--color-border)"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-(--color-hover) text-(--color-text-muted) border border-(--color-border)"
             >
               "{{ search }}"
               <button
@@ -628,38 +624,40 @@
       class="sticky bottom-0 z-40 mt-10 border-t border-(--color-border) bg-(--color-surface-strong)/95 backdrop-blur-md"
     >
       <div
-        class="max-w-325 mx-auto flex flex-wrap items-center gap-4 px-4 py-4 sm:px-6 lg:px-8"
+        class="max-w-325 mx-auto flex items-center gap-2 px-3 py-2.5 sm:flex-wrap sm:gap-4 sm:px-6 sm:py-4 lg:px-8"
       >
-        <div class="text-sm">
+        <div class="text-xs shrink-0 sm:text-sm">
           <span class="text-(--color-text-muted)">In winkelmandje</span>
-          <span class="ml-2 font-bold text-(--color-text-strong)">{{
+          <span class="ml-1 font-bold text-(--color-text-strong) sm:ml-2">{{
             cart.totalItems.value
           }}</span>
-          <span class="text-(--color-text-muted)"
+          <span class="hidden text-(--color-text-muted) sm:inline"
             >&nbsp;stuk{{ cart.totalItems.value !== 1 ? "s" : "" }}</span
           >
         </div>
-        <div class="ml-auto flex flex-wrap items-center gap-2">
+        <div class="ml-auto flex items-center gap-1.5 sm:flex-wrap sm:gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-2.5 text-[0.7rem] font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong)"
+            class="rounded-lg px-2 py-2 text-[0.7rem] font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong) sm:px-3 sm:py-2.5"
             @click="checkout.openClearConfirm()"
           >
             Wissen
           </button>
           <button
             type="button"
-            class="rounded-lg border border-[#c89868] px-4 py-2.5 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+            class="rounded-lg border border-[#c89868] px-2.5 py-2 text-[0.65rem] font-semibold whitespace-nowrap tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] sm:px-4 sm:py-2.5 sm:text-[0.7rem]"
             @click="checkout.openSaveModal()"
           >
-            Lijst opslaan
+            <span class="sm:hidden">Lijst</span>
+            <span class="hidden sm:inline">Lijst opslaan</span>
           </button>
           <button
             type="button"
-            class="rounded-lg bg-[#b8252a] px-6 py-2.5 text-[0.75rem] font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold whitespace-nowrap tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] sm:px-6 sm:py-2.5 sm:text-[0.75rem]"
             @click="checkout.openOrderModal()"
           >
-            Bestelling plaatsen
+            <span class="sm:hidden">Bestellen</span>
+            <span class="hidden sm:inline">Bestelling plaatsen</span>
           </button>
         </div>
       </div>
@@ -679,6 +677,8 @@
 </template>
 
 <script setup lang="ts">
+import type { SelectMenuOption } from "~/components/SelectMenu.vue";
+
 definePageMeta({ layout: "main" });
 
 useSeoMeta({
@@ -689,6 +689,7 @@ useSeoMeta({
 
 const cart = useCart();
 const checkout = useCartCheckout();
+const orderLists = useOrderLists();
 const auth = useAuth();
 const authModal = useAuthModal();
 const route = useRoute();
@@ -729,6 +730,10 @@ const categories = computed(() => categoriesData.value ?? []);
 const totalActiveCount = computed(() =>
   categories.value.reduce((sum, c) => sum + c.productCount, 0),
 );
+const categoryOptions = computed<SelectMenuOption[]>(() => [
+  { value: null, label: `Alle categorieën (${totalActiveCount.value})` },
+  ...categories.value.map((c) => ({ value: c.slug, label: c.name })),
+]);
 
 const search = ref("");
 const debouncedSearch = ref("");
@@ -752,14 +757,22 @@ function togglePurchasedOnly() {
     return;
   }
   purchasedOnly.value = !purchasedOnly.value;
+  if (purchasedOnly.value) {
+    cart.showCartOnly.value = false;
+    selectPreviousOrder("");
+  }
 }
 
-// "Enkel winkelmandje" en "Vorige bestelling" beperken de lijst allebei tot
-// een vaste set artikelnummers — samen zetten zou geen zinnig resultaat
-// geven, dus ze sluiten elkaar uit.
+// "Enkel winkelmandje", "Eerder afgenomen" en "Vorige bestelling" beperken de
+// lijst alle drie tot een vaste set artikelnummers — samen zetten zou geen
+// zinnig resultaat geven, dus ze sluiten elkaar uit. De categoriefilter valt
+// hier bewust buiten: die mag altijd gecombineerd blijven.
 function toggleCartOnly() {
   cart.showCartOnly.value = !cart.showCartOnly.value;
-  if (cart.showCartOnly.value) selectPreviousOrder("");
+  if (cart.showCartOnly.value) {
+    selectPreviousOrder("");
+    purchasedOnly.value = false;
+  }
 }
 
 interface OrderSummaryDto {
@@ -770,16 +783,59 @@ interface OrderSummaryDto {
 
 const previousOrders = ref<OrderSummaryDto[]>([]);
 const previousOrdersLoaded = ref(false);
+const loadingPreviousOrders = ref(false);
 async function ensurePreviousOrdersLoaded() {
   if (previousOrdersLoaded.value || !auth.isLoggedIn.value) return;
   previousOrdersLoaded.value = true;
-  const res = await $fetch<{ items: OrderSummaryDto[] }>("/api/account/orders", {
-    query: { perPage: 50 },
-  });
-  previousOrders.value = res.items;
+  loadingPreviousOrders.value = true;
+  try {
+    const res = await $fetch<{ items: OrderSummaryDto[] }>(
+      "/api/account/orders",
+      { query: { perPage: 50 } },
+    );
+    previousOrders.value = res.items;
+  } finally {
+    loadingPreviousOrders.value = false;
+  }
 }
 
+function loadOrdersAndLists() {
+  ensurePreviousOrdersLoaded();
+  orderLists.ensureLoaded();
+}
+
+// Eén filter voor twee bronnen: vorige bestellingen en zelfgemaakte lijstjes.
+// De waarde is voorzien van een prefix ("order:" / "list:") zodat we weten
+// welke bron erbij hoort. Geen "geen selectie"-optie: de trigger toont de
+// placeholder zolang er niets gekozen is, en wissen kan via het filterlabel
+// met ✕ eronder.
+const ORDER_PREFIX = "order:";
+const LIST_PREFIX = "list:";
+
+const orderSourceOptions = computed<SelectMenuOption[]>(() => [
+  ...previousOrders.value.map((o) => ({
+    value: `${ORDER_PREFIX}${o.id}`,
+    label: `${o.name || "Bestelling"} — ${formatOrderDate(o.createdAt)}`,
+    group: "Vorige bestellingen",
+  })),
+  ...orderLists.lists.value.map((l) => ({
+    value: `${LIST_PREFIX}${l.id}`,
+    label: `${l.name} (${l.items.length})`,
+    group: "Mijn lijstjes",
+  })),
+]);
+const loadingOrderSources = computed(
+  () => loadingPreviousOrders.value || orderLists.loading.value,
+);
+
 const selectedOrderId = ref("");
+const previousOrderTriggerClass = computed(
+  () =>
+    "max-w-[60vw] justify-between px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] bg-(--color-surface) focus:outline-none disabled:opacity-60 disabled:cursor-wait sm:max-w-50 sm:px-4 sm:py-2.5 sm:text-xs " +
+    (selectedOrderId.value
+      ? "border-[#b8252a] text-(--color-text)"
+      : "border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text)"),
+);
 // Losstaand van `selectedOrderId` zodat de query pas herlaadt zodra de
 // artikelnummers van de bestelling ook echt binnen zijn — anders flitst de
 // lijst even leeg terwijl de bestelling nog opgehaald wordt.
@@ -793,12 +849,20 @@ async function selectPreviousOrder(id: string) {
     return;
   }
   cart.showCartOnly.value = false;
+  purchasedOnly.value = false;
   loadingOrderFilter.value = true;
   try {
-    const order = await $fetch<{ items: { articleNr: string }[] }>(
-      `/api/account/orders/${id}`,
-    );
-    selectedOrderArticleNrs.value = order.items.map((i) => i.articleNr);
+    if (id.startsWith(LIST_PREFIX)) {
+      const list = orderLists.getList(id.slice(LIST_PREFIX.length));
+      selectedOrderArticleNrs.value = (list?.items ?? []).map(
+        (i) => i.articleNr,
+      );
+    } else {
+      const order = await $fetch<{ items: { articleNr: string }[] }>(
+        `/api/account/orders/${id.slice(ORDER_PREFIX.length)}`,
+      );
+      selectedOrderArticleNrs.value = order.items.map((i) => i.articleNr);
+    }
   } finally {
     loadingOrderFilter.value = false;
   }
@@ -809,13 +873,24 @@ async function selectPreviousOrder(id: string) {
 watch(
   () => cart.showCartOnly.value,
   (on) => {
-    if (on && selectedOrderId.value) selectPreviousOrder("");
+    if (!on) return;
+    if (selectedOrderId.value) selectPreviousOrder("");
+    purchasedOnly.value = false;
   },
 );
 
 const selectedOrderLabel = computed(() => {
-  const order = previousOrders.value.find((o) => o.id === selectedOrderId.value);
-  return order ? order.name || "Bestelling" : "Vorige bestelling";
+  const key = selectedOrderId.value;
+  if (key.startsWith(LIST_PREFIX)) {
+    const list = orderLists.getList(key.slice(LIST_PREFIX.length));
+    return `Lijst: ${list?.name ?? "onbekend"}`;
+  }
+  const order = previousOrders.value.find(
+    (o) => `${ORDER_PREFIX}${o.id}` === key,
+  );
+  if (!order) return "Vorige bestelling";
+  const name = order.name || `Bestelling van ${formatOrderDate(order.createdAt)}`;
+  return `Vorige bestelling: ${name}`;
 });
 
 function formatOrderDate(value: string): string {

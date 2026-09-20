@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-(--color-bg) text-(--color-text)">
     <!-- Page header -->
     <div
-      class="relative overflow-hidden px-4 py-14 sm:py-20"
+      class="relative overflow-hidden px-4 pt-14 pb-8 sm:py-20"
       style="background: radial-gradient(ellipse at 50% 40%, var(--gradient-banner-1) 0%, var(--gradient-banner-2) 45%, var(--gradient-banner-3) 100%)"
     >
       <div class="relative z-1 mx-auto max-w-300 pt-12 text-center">

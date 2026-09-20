@@ -2,7 +2,7 @@
   <div class="bg-(--color-bg) text-(--color-text) min-h-screen">
     <!-- Page header -->
     <div
-      class="relative pt-46.5 pb-20 px-4 overflow-hidden"
+      class="relative pt-32 pb-10 sm:pt-46.5 sm:pb-20 px-4 overflow-hidden"
       style="
         background: radial-gradient(
           ellipse at 50% 40%,
