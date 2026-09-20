@@ -682,7 +682,7 @@ import type { SelectMenuOption } from "~/components/SelectMenu.vue";
 definePageMeta({ layout: "main" });
 
 useSeoMeta({
-  title: "Producten & Bestellen — Vleeswaren Vermeir",
+  title: "Producten & Bestellen",
   description:
     "Doorzoek meer dan 5000 vleeswaren producten en voeg ze toe aan uw bestellijst.",
 });

@@ -12,7 +12,9 @@
           </svg>
         </div>
 
-        <h1 id="uc-title" class="uc-title">Website in aanbouw</h1>
+        <!-- Geen h1: de pagina erachter heeft de echte h1, en tijdens de
+             bouwfase staat deze overlay in de HTML van élke pagina. -->
+        <h2 id="uc-title" class="uc-title">Website in aanbouw</h2>
         <p class="uc-text">
           We werken hard aan een gloednieuwe website voor Vleeswaren Vermeir.
           Binnenkort zijn we weer online.

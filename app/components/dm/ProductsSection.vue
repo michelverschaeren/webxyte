@@ -37,7 +37,7 @@
           <NuxtLink
             v-for="category in row"
             :key="category.name"
-            :to="`/producten?category=${category.slug}`"
+            :to="`/assortiment/${category.slug}`"
             class="group cursor-pointer text-center text-(--color-text-muted) transition-transform duration-300 hover:-translate-y-2"
           >
             <div

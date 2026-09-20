@@ -201,7 +201,7 @@ import { defineComponent, h } from "vue";
 definePageMeta({ layout: "main" });
 
 useSeoMeta({
-  title: "Contact — Vleeswaren Vermeir",
+  title: "Contact",
   description:
     "Contacteer Vleeswaren Vermeir in Zemst. Tel: 015/61 15 39 · vleeswarenvermeir@telenet.be",
 });

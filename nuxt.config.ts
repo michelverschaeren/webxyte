@@ -1,4 +1,43 @@
 import tailwindcss from "@tailwindcss/vite";
+import { COMPANY } from "./shared/company";
+
+// Wat crawlers niet mogen ophalen en dus ook niet in de sitemap of llms.txt
+// hoort. Naast de klanten- en beheerpagina's (achter login/rol) gaat het om
+// de bestelomgeving en de product-API: daar staat per product de fabrikant
+// bij, en wie welk product levert is bedrijfsgevoelig. De publieke
+// categoriepagina's staan daarom onder /assortiment, buiten /producten.
+//
+// Let op: dit houdt alleen zoekmachines en AI-bots uit die robots.txt
+// respecteren. Het is geen toegangsbeveiliging — zie /api/products.
+const BLOCKED_PATHS = [
+  "/account",
+  "/account/**",
+  "/admin",
+  "/admin/**",
+  "/toegang/**",
+  "/producten",
+  "/producten/**",
+  "/api/**",
+  // Productfiches (PDF) van de fabrikanten, per artikelnummer.
+  "/docs/**",
+];
+
+// Crawlers van AI-zoekmachines en -assistenten. Zonder eigen groep vallen ze
+// onder `User-agent: *`, dus wie hier staat is toegelaten; de groep maakt dat
+// expliciet. Een bot met een eigen groep negeert `*` volledig — de geblokkeerde
+// paden moeten hier dus opnieuw in.
+const AI_CRAWLERS = [
+  "GPTBot",
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "ClaudeBot",
+  "Claude-SearchBot",
+  "Claude-User",
+  "PerplexityBot",
+  "Perplexity-User",
+  "Google-Extended",
+  "Applebot-Extended",
+];
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
@@ -50,31 +89,76 @@ export default defineNuxtConfig({
     description:
       "Vleeswaren Vermeir levert meer dan 5000 vleeswaren aan handelaars in België. Familiebedrijf in Zemst met persoonlijke service en breed gamma.",
     defaultLocale: "nl-BE",
+
+    // ── ZET DIT OP `true` (OF VERWIJDER DE REGEL) BIJ LIVEGANG ──────────────
+    // Zolang de "website in aanbouw"-poort aan staat, blokkeert dit de hele
+    // site voor zoekmachines en AI-bots: robots.txt wordt "Disallow: /", elke
+    // pagina krijgt `noindex` (meta + X-Robots-Tag) en /llms.txt geeft 404.
+    // Zonder deze regel zou de productiesite wél geïndexeerd worden.
+    // Zonder rebuild kan het ook via de env-var NUXT_SITE_INDEXABLE=true.
+    indexable: false,
   },
 
   // Zet het bedrijf als Schema.org LocalBusiness — voedt Google's
   // Knowledge Panel / lokale zoekresultaten met adres, telefoon en logo
-  // (dezelfde gegevens als op de contactpagina).
+  // (dezelfde gegevens als op de contactpagina), en geeft AI-engines een
+  // eenduidig antwoord op "wie is dit bedrijf en waar zit het".
   schemaOrg: {
     identity: {
       "@type": ["Organization", "LocalBusiness"],
-      name: "Vleeswaren Vermeir",
+      name: COMPANY.name,
+      legalName: COMPANY.legalName,
+      description:
+        "Familiebedrijf in Zemst dat meer dan 5000 vleeswaren en aanverwante producten levert aan handelaars in België.",
+      foundingDate: String(COMPANY.foundingYear),
       logo: "/images/logo-light.png",
-      telephone: "+32 15 61 15 39",
-      email: "vleeswarenvermeir@telenet.be",
+      telephone: COMPANY.phoneIntl,
+      email: COMPANY.email,
       address: {
-        streetAddress: "Schoolstraat 51",
-        postalCode: "1980",
-        addressLocality: "Zemst",
-        addressCountry: "BE",
+        streetAddress: COMPANY.street,
+        postalCode: COMPANY.postalCode,
+        addressLocality: COMPANY.city,
+        addressCountry: COMPANY.country,
       },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: COMPANY.geo.latitude,
+        longitude: COMPANY.geo.longitude,
+      },
+      areaServed: { "@type": "Country", name: "België" },
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "customer service",
+          telephone: COMPANY.phoneIntl,
+          email: COMPANY.email,
+          areaServed: "BE",
+          availableLanguage: "nl",
+        },
+        {
+          "@type": "ContactPoint",
+          contactType: "sales",
+          telephone: COMPANY.mobileIntl,
+          areaServed: "BE",
+          availableLanguage: "nl",
+        },
+      ],
     },
   },
 
-  // Klanten- en beheerpagina's zijn achter login/rol beveiligd — ze horen
-  // niet in de sitemap, robots.txt-indexering of llms.txt te staan.
   robots: {
-    disallow: ["/account", "/account/**", "/admin", "/admin/**", "/toegang/**"],
+    disallow: BLOCKED_PATHS,
+    groups: [
+      { userAgent: AI_CRAWLERS, allow: ["/"], disallow: BLOCKED_PATHS },
+    ],
+  },
+
+  // De categoriepagina's (/assortiment/:slug) komen uit de database en bestaan
+  // dus niet als bestand; deze bron voegt ze toe aan /sitemap.xml. Producten
+  // staan er bewust niet in.
+  sitemap: {
+    exclude: BLOCKED_PATHS,
+    sources: ["/api/__sitemap__/urls"],
   },
 
   // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf

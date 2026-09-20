@@ -144,6 +144,7 @@
 const links = [
   { to: "/", label: "Home" },
   { to: "/producten", label: "Producten & Bestellen" },
+  { to: "/veelgestelde-vragen", label: "Veelgestelde vragen" },
   { to: "/contact", label: "Contact" },
 ];
 </script>
