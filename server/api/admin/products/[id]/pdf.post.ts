@@ -4,17 +4,17 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
+import { productDocsDir } from "~~/server/utils/docs-dir";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * POST /api/admin/products/:id/pdf — upload/vervang de productfiche.
- * Slaat lokaal op onder public/docs/products/<articleNr>.pdf — zelfde
- * conventie als de legacy-import (server/database/import-legacy.ts).
+ * Slaat op als <articleNr>.pdf in de docs-map (server/utils/docs-dir.ts) —
+ * zelfde conventie als de legacy-import (server/database/import-legacy.ts).
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
 const MAX_SIZE = 15 * 1024 * 1024; // 15MB
-const DOCS_DIR = () => join(process.cwd(), "public", "docs", "products");
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
@@ -61,9 +61,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  mkdirSync(DOCS_DIR(), { recursive: true });
+  const docsDir = productDocsDir();
+  mkdirSync(docsDir, { recursive: true });
   const fileName = `${product.articleNr}.pdf`;
-  writeFileSync(join(DOCS_DIR(), fileName), file.data);
+  writeFileSync(join(docsDir, fileName), file.data);
 
   const infoPdf = `/docs/products/${fileName}`;
   const [updated] = await db

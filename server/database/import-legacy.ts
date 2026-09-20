@@ -4,12 +4,13 @@ import { extname, join } from "node:path";
 import { sql as sqlOp } from "drizzle-orm";
 import { db, sql as connection } from "./client";
 import { categories, products } from "./schema";
+import { productDocsDir } from "../utils/docs-dir";
 
 /**
  * Eenmalige import van de oorspronkelijke productdata (voor de scrape) uit
  * old-data/. Bron: categories.sql en commerce_products.sql (WooCommerce
  * exports). Kopieert ook categoriefoto's en product-pdf's uit old-data/uploads
- * naar public/, en linkt ze in de DB.
+ * naar public/ (foto's) en de docs-map (pdf's, zie server/utils/docs-dir.ts), en linkt ze in de DB.
  *
  *   npx tsx server/database/import-legacy.ts
  */
@@ -18,7 +19,7 @@ const UPLOADS = join(OLD_DATA, "uploads");
 const IGNORED_UPLOAD_DIRS = new Set(["bfi_thumb", "mk_assets", "redux", "wp-file-manager-pro"]);
 
 const CATEGORY_IMAGES_DIR = join(process.cwd(), "public", "images", "categorie");
-const PRODUCT_DOCS_DIR = join(process.cwd(), "public", "docs", "products");
+const PRODUCT_DOCS_DIR = productDocsDir();
 
 // Slugs/emoji zijn niet aanwezig in de SQL-dump — hergebruik de bestaande
 // keuzes uit app/data/categories.ts en vul aan voor de 3 nieuwe codes.

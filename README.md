@@ -46,6 +46,7 @@ die wél gecommit wordt — voeg daar elke nieuwe variabele aan toe (zonder waar
 | `DATABASE_URL`               | Postgres-verbinding (verschilt lokaal vs. productie)  |
 | `BETTER_AUTH_SECRET`         | Ondertekent sessies. 32 random bytes, base64.         |
 | `BETTER_AUTH_URL`            | Publieke basis-URL van de app                         |
+| `DOCS_DIR`                   | Map met de productfiches (PDF); in productie het mountpad van het Dokploy-volume. Standaard `data/docs` |
 | `NUXT_PUBLIC_SITE_PASSWORD`  | Wachtwoord van de site-lock (bestaande functie)       |
 | `NUXT_PUBLIC_CUSTOMER_ACCESS_TOKEN` | Token voor `/toegang/<token>`: eenmalige klantlink die de site-lock omzeilt |
 
@@ -254,6 +255,14 @@ draaien — de client regelt de tunnel zelf:
 3. Build: `pnpm build` · Start: `pnpm start` (draait `.output/server/index.mjs`).
 4. Migraties draai je vanaf je eigen machine via de tunnel (hoofdstuk 6), vóór of
    vlak na de deploy.
+5. **Productfiches (PDF) in een volume.** Ze staan bewust niet in `public/`: dat kostte
+   ~8 minuten brotli-compressie per build, en uploads via het admin-scherm zouden bij
+   elke deploy verdwijnen. Ze worden geserveerd door
+   `server/routes/docs/products/[file].get.ts` onder `/docs/products/<artikelnr>.pdf`.
+   Eenmalig instellen: maak in Dokploy onder `Application → Advanced → Volumes` een
+   volume met mountpad `/data/docs`, zet `DOCS_DIR=/data/docs` in de Environment en
+   kopieer de map `data/docs/products/` erin. Zonder `DOCS_DIR` werkt alles nog, maar
+   dan uit de map in de container en gaan uploads bij de volgende deploy verloren.
 
 ---
 

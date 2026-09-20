@@ -1,9 +1,10 @@
 import { existsSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
+import { productDocsDir } from "~~/server/utils/docs-dir";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
@@ -29,8 +30,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Product niet gevonden." });
   }
 
-  if (product.infoPdf) {
-    const filePath = join(process.cwd(), "public", product.infoPdf);
+  // `infoPdf` kan ook een externe URL zijn; alleen onze eigen bestanden
+  // (/docs/products/<naam>.pdf) staan in de docs-map.
+  if (product.infoPdf?.startsWith("/docs/products/")) {
+    const filePath = join(productDocsDir(), basename(product.infoPdf));
     if (existsSync(filePath)) unlinkSync(filePath);
   }
 
