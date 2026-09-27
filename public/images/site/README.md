@@ -6,6 +6,19 @@ op `images.unsplash.com` omdat een externe origin een extra DNS- en
 TLS-handshake kostte op het kritieke pad, bovenop ~938 kB aan te grote
 afbeeldingen.
 
+## Placeholders (nog aan te leveren door de klant)
+
+Twee grote foto's staan tijdelijk als `<DmPhotoPlaceholder>` ("Foto volgt"):
+
+| Placeholder | Waar | Kader |
+|---|---|---|
+| Groepsfoto van het team | AboutSection | 4:5 staand |
+| Onze camion bij een levering | DeliverySection | liggend (mobiel) / staand (desktop) |
+
+Zodra de foto er is: zet hem in deze map en vervang de placeholder door een
+`<NuxtImg>` met dezelfde `class`. `eigenaars.jpg` en `chauffeur.jpg` worden daardoor momenteel niet gebruikt;
+`premium-vlees.jpg` is helemaal niet meer in gebruik.
+
 ## Een foto vervangen
 
 Zet het nieuwe bestand **onder dezelfde naam** in deze map. Meer is niet nodig:

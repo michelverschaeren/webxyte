@@ -170,8 +170,8 @@ const features = [
     icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 22l18-10 18 10v20l-18 10-18-10V22z"/><path d="M14 22l18 10 18-10M32 32v20"/></svg>`,
   },
   {
-    label: "bestelling & levering",
-    sub: "Flexibele ",
+    label: "online bestellen",
+    sub: "Vlot ",
     icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="14" width="40" height="36" rx="2"/><path d="M20 24h24M20 32h24M20 40h14"/><circle cx="48" cy="44" r="6"/><path d="M48 50v6M44 54l4-4 4 4"/></svg>`,
   },
   {

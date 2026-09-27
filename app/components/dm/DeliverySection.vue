@@ -23,10 +23,11 @@
           >
         </h2>
         <p class="mb-8 text-[1.05rem] leading-[1.7] text-(--color-text-muted)">
-          Uw bestelling wordt afgeleverd door één van onze eigen chauffeurs.
-          Indien u problemen heeft met uw bestelling, staan zij u bij in het
-          zoeken naar een oplossing op maat. Ontbreekt er een artikel? Wij
-          zorgen ervoor dat dit dezelfde week wordt nageleverd.
+          Uw bestelling wordt de dag nadien afgeleverd door één van onze eigen
+          chauffeurs — geen externe koerier, maar mensen van ons eigen team.
+          Is er een probleem met uw bestelling, dan zoeken zij samen met u
+          naar een oplossing op maat. Ontbreekt er een artikel? Dan wordt het
+          dezelfde week nageleverd.
         </p>
         <NuxtLink
           to="/producten"
@@ -40,14 +41,9 @@
         <div
           class="absolute bottom-[30%] left-0 hidden h-50 w-[60%] bg-[#b8252a] lg:block"
         />
-        <NuxtImg
-          src="/images/site/chauffeur.jpg"
-          alt="Onze chauffeur"
-          loading="lazy"
-          format="webp"
-          quality="70"
-          sizes="sm:100vw md:100vw lg:500px"
-          class="h-75 w-full rounded-lg object-cover grayscale-[.2] lg:absolute lg:top-0 lg:right-0 lg:z-1 lg:h-125 lg:w-9/10"
+        <DmPhotoPlaceholder
+          label="Onze camion bij een levering"
+          class="h-75 w-full rounded-lg lg:absolute lg:top-0 lg:right-0 lg:z-1 lg:h-125 lg:w-9/10"
         />
       </div>
     </div>

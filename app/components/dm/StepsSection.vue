@@ -85,9 +85,9 @@ const posts = [
     category: "Stap 01",
     day: "01",
     excerpt:
-      "Bij Vleeswaren Vermeir hechten wij veel belang aan flexibiliteit naar u als klant toe. U kan met uw bestelling altijd bij ons terecht voor een levering de dag nadien. Dit kan via mail, fax, telefoon of online.",
-    comments: "Flexibel",
-    views: "Online",
+      "Bestel online via uw klantenaccount, wanneer het u uitkomt. Liever persoonlijk? Geef uw bestelling dan door via telefoon, e-mail of WhatsApp. Zo kan u altijd bij ons terecht voor een levering de dag nadien.",
+    comments: "Online",
+    views: "Flexibel",
     image:
       "/images/site/gegrilde-steak.jpg",
   },
@@ -96,7 +96,7 @@ const posts = [
     category: "Stap 02",
     day: "02",
     excerpt:
-      "Heeft u reeds een bestelling geplaatst voor de huidige dag, dan kan u voor 8u nog producten toevoegen. Het wordt aangeraden dit per telefoon te melden zodat wij uw bestelling naar uw behoeven kunnen afleveren.",
+      "Al besteld voor vandaag? Tot 8 uur 's ochtends kan u nog producten toevoegen. Laat het ons dan even telefonisch weten, zodat wij uw bestelling helemaal naar uw behoeften kunnen afleveren.",
     comments: "Voor 8u",
     views: "Op maat",
     image:
@@ -107,7 +107,7 @@ const posts = [
     category: "Stap 03",
     day: "03",
     excerpt:
-      "Uw bestelling wordt afgeleverd door één van onze eigen in-huis chauffeurs. Bij problemen staan zij u bij in het zoeken naar een oplossing op maat van uw probleem.",
+      "Uw bestelling wordt afgeleverd door één van onze eigen in-huis chauffeurs. Bij problemen zoeken zij samen met u naar een oplossing op maat.",
     comments: "In-huis",
     views: "Persoonlijk",
     image:
@@ -118,7 +118,7 @@ const posts = [
     category: "Stap 04",
     day: "04",
     excerpt:
-      "Is uw bestelling niet volledig of ontbreken er artikels? Wij zorgen ervoor dat de ontbrekende artikels dezelfde week worden nageleverd om u als klant een zo goed mogelijke service te bieden.",
+      "Ontbreken er artikels in uw bestelling? Wij zorgen ervoor dat ze dezelfde week worden nageleverd.",
     comments: "Dezelfde week",
     views: "Volledig",
     image:

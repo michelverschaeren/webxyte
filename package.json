@@ -23,14 +23,14 @@
   "dependencies": {
     "@nuxt/image": "^2.1.0",
     "@nuxtjs/seo": "5.3.12",
-    "@sentry/nuxt": "^10.74.0",
-    "@takumi-rs/core": "^2.7.1",
-    "better-auth": "^1.6.26",
-    "drizzle-orm": "^0.45.2",
+    "@sentry/nuxt": "^10.75.3",
+    "@takumi-rs/core": "^2.14.0",
+    "better-auth": "^1.7.6",
+    "drizzle-orm": "^0.45.3",
     "nuxt": "4.5.2",
     "postgres": "^3.4.9",
-    "vue": "^3.5.41",
-    "zod": "^4.4.3"
+    "vue": "^3.5.43",
+    "zod": "^4.6.5"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -39,17 +39,17 @@
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/fonts": "^0.14.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.6.3",
     "dotenv": "^17.4.2",
-    "drizzle-kit": "^0.31.10",
-    "eslint": "^10.8.0",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^10.11.0",
     "eslint-plugin-tailwindcss": "^3.18.3",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
-    "tsx": "^4.23.8",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "^3.3.9"
+    "vue-tsc": "^3.3.11"
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
 }

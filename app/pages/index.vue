@@ -11,11 +11,13 @@
     <DmHeroSection />
     <div class="relative z-10 bg-(--color-bg)">
       <DmAboutSection />
-      <DmQualitySection />
-      <DmDeliverySection />
+      <!-- Secties wisselen af tussen pagina- en vlakachtergrond; Online
+           bestellen en Levering delen hetzelfde verloop en mogen dus niet
+           direct na elkaar staan. -->
+      <DmOnlineOrderSection />
       <DmProductsSection />
-      <DmStepsSection />
-      <DmNewsletterSection />
+      <DmDeliverySection />
+      <DmQualitySection />
     </div>
   </div>
 </template>

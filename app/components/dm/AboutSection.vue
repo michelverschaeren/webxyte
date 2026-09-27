@@ -4,22 +4,14 @@
       <div
         class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20"
       >
-        <!-- Photo of the owners -->
+        <!-- Groepsfoto van het team (volgt van de klant) -->
         <div class="relative">
           <div
             class="relative overflow-hidden rounded-lg shadow-2xl shadow-black/40"
           >
-            <NuxtImg
-              src="/images/site/eigenaars.jpg"
-              alt="De eigenaars van Vleeswaren Vermeir"
-              loading="lazy"
-              format="webp"
-              quality="70"
-              sizes="sm:100vw md:100vw lg:540px"
-              class="block aspect-4/5 h-full w-full object-cover"
-            />
-            <div
-              class="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0f0d0d]/60 via-transparent to-transparent"
+            <DmPhotoPlaceholder
+              label="Groepsfoto van het team van Vleeswaren Vermeir"
+              class="aspect-4/5 w-full rounded-lg"
             />
           </div>
           <!-- Decorative accent -->
@@ -38,7 +30,7 @@
             <p
               class="m-0 font-['Dancing_Script',cursive] text-lg text-(--color-accent)"
             >
-              familie Vermeir
+              het team van Vermeir
             </p>
           </div>
         </div>
@@ -62,10 +54,25 @@
           <p
             class="mt-6 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
           >
-            Van generatie op generatie is dit familiebedrijf altijd trouw
-            gebleven aan zijn waarden welke streven naar 100% klanttevredenheid.
-            Deze vormen dan ook de basis voor onze unieke en persoonlijke
-            service.
+            Sinds {{ COMPANY.foundingYear }} levert Vleeswaren Vermeir
+            vleeswaren aan handelaars in België. Vandaag staat de derde
+            generatie aan het roer, samen met een klein en hecht team.
+          </p>
+          <p
+            class="mt-4 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
+          >
+            Ons gamma telt meer dan {{ COMPANY.productCount }} producten: van
+            fijne vleeswaren, kaas en salades tot bereide gerechten, sauzen en
+            verpakkingsmateriaal. U bestelt, onze eigen chauffeurs leveren de
+            dag nadien — en voor elke vraag over onze producten kan u bij ons
+            terecht.
+          </p>
+          <p
+            class="mt-4 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
+          >
+            Van generatie op generatie bleven onze waarden dezelfde: streven
+            naar 100% klanttevredenheid, met een persoonlijke service als
+            basis.
           </p>
 
           <div
@@ -74,7 +81,7 @@
             <span
               class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
-              Sinds 1958
+              Sinds {{ COMPANY.foundingYear }}
             </span>
             <span
               class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
@@ -84,7 +91,7 @@
             <span
               class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
-              Ambachtelijk
+              {{ COMPANY.productCount }}+ producten
             </span>
           </div>
         </div>
@@ -93,4 +100,6 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { COMPANY } from "#shared/company";
+</script>
