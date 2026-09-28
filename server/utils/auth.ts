@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { magicLink } from "better-auth/plugins";
 import { db, schema } from "../database/client";
+import { sendAuthLinkMail } from "./mail";
 
 /**
  * De Better Auth server-instantie. Alles in server/utils wordt door Nitro
@@ -87,6 +89,33 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
   },
+
+  plugins: [
+    /**
+     * Inloggen via een link in de mail. Dient ook voor "wachtwoord vergeten":
+     * de client geeft dan `metadata.purpose = "reset"` mee (enkel voor de
+     * tekst van de mail) en een callbackURL met `?wachtwoord=nieuw`, waarna
+     * de popup om een nieuw wachtwoord vraagt (zie api/account/password).
+     *
+     * Onbekende adressen krijgen geen mail, maar wel hetzelfde antwoord —
+     * zo valt niet af te leiden welke e-mailadressen een account hebben.
+     */
+    magicLink({
+      disableSignUp: true,
+      expiresIn: 60 * 15, // 15 min: ruimte voor trage mailservers
+      storeToken: "hashed",
+      rateLimit: { window: 60, max: 3 },
+      async sendMagicLink({ email, url, metadata }, ctx) {
+        const found = await ctx?.context.internalAdapter.findUserByEmail(email);
+        if (!found) return;
+        await sendAuthLinkMail({
+          email,
+          url,
+          purpose: metadata?.purpose === "reset" ? "reset" : "login",
+        });
+      },
+    }),
+  ],
 });
 
 /** Het volledige, afgeleide sessietype — inclusief je eigen `role`. */
