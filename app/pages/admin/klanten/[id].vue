@@ -6,13 +6,116 @@
     <div v-if="data" class="space-y-10">
       <!-- Contact & levering -->
       <section>
-        <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
-        >
-          — Contact & levering —
-        </h2>
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2
+            class="text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          >
+            — Contact & levering —
+          </h2>
+          <button
+            v-if="!editing"
+            type="button"
+            class="text-xs font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-(--color-accent)"
+            @click="startEdit()"
+          >
+            Bewerken
+          </button>
+        </div>
 
-        <dl class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
+        <form
+          v-if="editing"
+          class="space-y-5 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5"
+          @submit.prevent="saveContact()"
+        >
+          <div class="grid gap-5 sm:grid-cols-2">
+            <label class="block">
+              <span class="adm-label">Contact-e-mail</span>
+              <input
+                v-model="form.contactEmail"
+                type="email"
+                maxlength="200"
+                placeholder="naam@bedrijf.be"
+                class="adm-input w-full"
+              >
+            </label>
+            <label class="block">
+              <span class="adm-label">Telefoon</span>
+              <input
+                v-model="form.phone"
+                type="tel"
+                maxlength="40"
+                placeholder="015 61 15 39"
+                class="adm-input w-full"
+              >
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="adm-label">Straat en nummer</span>
+            <input
+              v-model="form.deliveryStreet"
+              type="text"
+              maxlength="200"
+              placeholder="bv. Schoolstraat 51"
+              class="adm-input w-full"
+            >
+          </label>
+
+          <div class="grid gap-5 sm:grid-cols-[1fr_2fr_2fr]">
+            <label class="block">
+              <span class="adm-label">Postcode</span>
+              <input
+                v-model="form.deliveryPostalCode"
+                type="text"
+                maxlength="16"
+                placeholder="1980"
+                class="adm-input w-full"
+              >
+            </label>
+            <label class="block">
+              <span class="adm-label">Gemeente</span>
+              <input
+                v-model="form.deliveryCity"
+                type="text"
+                maxlength="120"
+                placeholder="Zemst"
+                class="adm-input w-full"
+              >
+            </label>
+            <label class="block">
+              <span class="adm-label">Land <span aria-hidden="true">*</span></span>
+              <input
+                v-model="form.deliveryCountry"
+                type="text"
+                required
+                maxlength="120"
+                class="adm-input w-full"
+              >
+            </label>
+          </div>
+
+          <p v-if="saveError" class="text-sm text-[#e06a6a]">{{ saveError }}</p>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              :disabled="saving"
+              class="rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {{ saving ? "Opslaan…" : "Wijzigingen opslaan" }}
+            </button>
+            <button
+              type="button"
+              :disabled="saving"
+              class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+              @click="editing = false"
+            >
+              Annuleren
+            </button>
+          </div>
+        </form>
+
+        <dl v-else class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
           <div>
             <dt class="text-xs text-(--color-text-muted)">Contact-e-mail</dt>
             <dd class="text-(--color-text-strong)">{{ data.customer.contactEmail ?? "—" }}</dd>
@@ -26,6 +129,9 @@
             <dd class="text-(--color-text-strong)">{{ deliveryAddress ?? "—" }}</dd>
           </div>
         </dl>
+        <p v-if="saved && !editing" class="mt-3 text-sm text-[#8fc98f]">
+          Wijzigingen opgeslagen.
+        </p>
       </section>
 
       <!-- Account -->
@@ -228,9 +334,65 @@ interface CustomerDetail {
   }[];
 }
 
-const { data } = await useFetch<CustomerDetail>(
+const { data, refresh } = await useFetch<CustomerDetail>(
   `/api/admin/customers/${route.params.id}`,
 );
+
+const editing = ref(false);
+const saving = ref(false);
+const saveError = ref("");
+const saved = ref(false);
+const form = reactive({
+  contactEmail: "",
+  phone: "",
+  deliveryStreet: "",
+  deliveryPostalCode: "",
+  deliveryCity: "",
+  deliveryCountry: "België",
+});
+
+function startEdit() {
+  const c = data.value?.customer;
+  if (!c) return;
+  form.contactEmail = c.contactEmail ?? "";
+  form.phone = c.phone ?? "";
+  form.deliveryStreet = c.deliveryStreet ?? "";
+  form.deliveryPostalCode = c.deliveryPostalCode ?? "";
+  form.deliveryCity = c.deliveryCity ?? "";
+  form.deliveryCountry = c.deliveryCountry;
+  saveError.value = "";
+  saved.value = false;
+  editing.value = true;
+}
+
+async function saveContact() {
+  if (saving.value || !data.value) return;
+  saving.value = true;
+  saveError.value = "";
+
+  try {
+    await $fetch(`/api/admin/customers/${data.value.customer.id}`, {
+      method: "PATCH",
+      body: {
+        contactEmail: form.contactEmail.trim(),
+        phone: form.phone.trim(),
+        deliveryStreet: form.deliveryStreet.trim(),
+        deliveryPostalCode: form.deliveryPostalCode.trim(),
+        deliveryCity: form.deliveryCity.trim(),
+        deliveryCountry: form.deliveryCountry.trim(),
+      },
+    });
+    await refresh();
+    editing.value = false;
+    saved.value = true;
+  } catch (err) {
+    saveError.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      "Opslaan mislukt. Controleer de ingevulde gegevens.";
+  } finally {
+    saving.value = false;
+  }
+}
 
 const deliveryAddress = computed(() => {
   const c = data.value?.customer;
@@ -262,6 +424,13 @@ function formatDate(value: string, withWeekday = false): string {
 </script>
 
 <style scoped>
+.adm-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
 .adm-input {
   border: 1px solid var(--color-border-strong);
   border-radius: 0.5rem;

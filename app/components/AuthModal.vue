@@ -80,6 +80,23 @@
               U bent ingelogd. Kies nu een nieuw wachtwoord.
             </p>
 
+            <!-- Gebruikersnaam voor wachtwoordmanagers: zonder dit veld weten
+                 ze niet bij welk account het nieuwe wachtwoord hoort. -->
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
+                >E-mailadres</span
+              >
+              <input
+                :value="auth.user.value?.email ?? ''"
+                type="email"
+                name="username"
+                autocomplete="username"
+                readonly
+                tabindex="-1"
+                :class="[inputClass, 'cursor-default opacity-70']"
+              >
+            </label>
+
             <label class="block">
               <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
                 >Nieuw wachtwoord</span
@@ -146,27 +163,32 @@
               >
             </label>
 
-            <label v-if="mode === 'login'" class="block">
-              <span class="mb-1.5 flex items-center justify-between text-xs font-medium text-(--color-text-muted)">
-                Wachtwoord
-                <button
-                  type="button"
-                  class="text-(--color-accent) hover:underline"
-                  @click="switchMode('forgot')"
+            <!-- "Wachtwoord vergeten?" staat in de DOM ná het invulveld, zodat
+                 Tab vanuit het e-mailadres eerst naar het wachtwoord gaat;
+                 visueel blijft de link rechtsboven naast het label. -->
+            <div v-if="mode === 'login'" class="relative">
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
+                  >Wachtwoord</span
                 >
-                  Wachtwoord vergeten?
-                </button>
-              </span>
-              <input
-                v-model="password"
-                type="password"
-                required
-                :minlength="8"
-                autocomplete="current-password"
-                placeholder="Minimaal 8 tekens"
-                :class="inputClass"
+                <input
+                  v-model="password"
+                  type="password"
+                  required
+                  :minlength="8"
+                  autocomplete="current-password"
+                  placeholder="Minimaal 8 tekens"
+                  :class="inputClass"
+                >
+              </label>
+              <button
+                type="button"
+                class="absolute top-0 right-0 text-xs font-medium text-(--color-accent) hover:underline"
+                @click="switchMode('forgot')"
               >
-            </label>
+                Wachtwoord vergeten?
+              </button>
+            </div>
 
             <p v-if="error" class="text-xs text-[#e06a6a]">{{ error }}</p>
 
