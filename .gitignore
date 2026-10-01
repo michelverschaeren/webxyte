@@ -5,3 +5,6 @@ dist
 .env
 *.log
 old-data
+# Productfiches staan op het Dokploy-volume (DOCS_DIR), niet in de repo
+data/docs/*
+!data/docs/README.txt
