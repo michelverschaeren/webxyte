@@ -1,15 +1,19 @@
 import { createReadStream, statSync } from "node:fs";
 import { join } from "node:path";
 import { productDocsDir } from "~~/server/utils/docs-dir";
+import { requireUser } from "~~/server/utils/session";
 
 /**
  * GET /docs/products/:file — serveert een productfiche uit de docs-map
  * (zie server/utils/docs-dir.ts). Vervangt de statische bestanden die vroeger
- * in public/docs/ stonden; de URL is ongewijzigd.
+ * in public/docs/ stonden; de URL is ongewijzigd. Enkel voor ingelogde
+ * klanten: een fiche verraadt de fabrikant van het artikel.
  */
 const SAFE_FILE_NAME = /^[\w.-]+\.pdf$/i;
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
+  await requireUser(event);
+
   const file = getRouterParam(event, "file") ?? "";
 
   // Enkel een kale bestandsnaam: geen paden, geen "..".
@@ -27,8 +31,9 @@ export default defineEventHandler((event) => {
   setHeader(event, "content-length", stat.size);
   setHeader(event, "content-disposition", "inline");
   setHeader(event, "last-modified", stat.mtime.toUTCString());
-  // Een vervangen fiche houdt dezelfde URL, dus geen lange cache.
-  setHeader(event, "cache-control", "public, max-age=300");
+  // Een vervangen fiche houdt dezelfde URL, dus geen lange cache. `private`:
+  // een gedeelde cache/CDN mag een fiche niet aan gasten doorgeven.
+  setHeader(event, "cache-control", "private, max-age=300");
   // De fabrikant per artikel is bedrijfsgevoelig: laat dit nooit indexeren,
   // ook niet als een link naar een PDF ergens uitlekt.
   setHeader(event, "x-robots-tag", "noindex, nofollow, noarchive");

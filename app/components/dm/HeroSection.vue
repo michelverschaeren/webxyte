@@ -111,10 +111,10 @@
             v-html="feat.icon"
           />
           <p
-            class="m-0 text-[0.58rem] leading-[1.3] tracking-[0.06em] wrap-break-word uppercase md:text-[0.78rem]"
+            class="m-0 text-[0.65rem] leading-[1.3] tracking-[0.06em] wrap-break-word uppercase md:text-[0.85rem]"
           >
             {{ feat.sub
-            }}<strong class="block text-[0.72rem] font-bold text-white md:text-[0.85rem]">{{
+            }}<strong class="block text-[0.8rem] font-bold text-white md:text-[0.95rem]">{{
               feat.label
             }}</strong>
           </p>

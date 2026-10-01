@@ -80,7 +80,7 @@
         />
       </label>
 
-      <p v-if="error" class="text-sm text-[#e06a6a]">{{ error }}</p>
+      <p v-if="error" class="text-base text-[#e06a6a]">{{ error }}</p>
 
       <div class="flex flex-wrap items-center gap-3 pt-2">
         <button
@@ -92,7 +92,7 @@
         </button>
         <NuxtLink
           to="/admin/producten"
-          class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+          class="px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Annuleren
         </NuxtLink>

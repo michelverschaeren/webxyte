@@ -17,6 +17,12 @@ import { getAuthSession } from "~~/server/utils/session";
  *
  * Geeft producten terug mét hun categorie, gepagineerd. Het returntype
  * wordt volledig afgeleid uit de select — geen handgeschreven interface.
+ *
+ * Gasten zien enkel het gamma (naam + categorie): artikelnummer, fabrikant,
+ * eenheid en productfiche zijn bedrijfsgevoelig en enkel voor ingelogde
+ * klanten. Daarom zoekt een gast ook enkel op productnaam en negeert de API
+ * voor hem elke filter of sortering op die velden — anders kan je de
+ * koppeling product ↔ fabrikant alsnog afleiden.
  */
 const querySchema = z.object({
   /** Slug van de categorie, bv. "salamis". Leeg = alle categorieën. */
@@ -36,6 +42,9 @@ const querySchema = z.object({
   articleNrs: z.string().trim().optional(),
 });
 
+/** Sorteringen die ook een gast mag gebruiken. */
+const GUEST_SORTS = new Set(["name", "category"]);
+
 const SORT_COLUMNS = {
   name: products.name,
   articleNr: products.articleNr,
@@ -45,21 +54,28 @@ const SORT_COLUMNS = {
 };
 
 export default defineEventHandler(async (event) => {
-  const { category, search, supplier, sort, sortDir, page, perPage, purchased, articleNrs } =
-    await getValidatedQuery(event, (data) => querySchema.parse(data));
+  const query = await getValidatedQuery(event, (data) => querySchema.parse(data));
+  const session = await getAuthSession(event);
+  const isGuest = !session;
+
+  const { category, search, sortDir, page, perPage } = query;
+  const supplier = isGuest ? undefined : query.supplier;
+  const sort = isGuest && query.sort && !GUEST_SORTS.has(query.sort) ? undefined : query.sort;
+  const purchased = isGuest ? undefined : query.purchased;
+  const articleNrs = isGuest ? undefined : query.articleNrs;
 
   const emptyResult = () => ({
     items: [],
     pagination: { page, perPage, total: 0, pageCount: 0 },
+    listCategoryCounts: {},
   });
 
   // "Enkel eerder afgenomen": beperkt tot artikelnummers die ooit in een
-  // bestelling van deze klant zaten. Zonder sessie of zonder bestelhistoriek
-  // kan er nooit een match zijn — dan meteen een leeg resultaat teruggeven.
+  // bestelling van deze klant zaten (gasten: zie hierboven, genegeerd).
+  // Zonder bestelhistoriek kan er nooit een match zijn — dan meteen een leeg
+  // resultaat teruggeven.
   let purchasedArticleNrs: string[] | undefined;
-  if (purchased) {
-    const session = await getAuthSession(event);
-    if (!session) return emptyResult();
+  if (purchased && session) {
 
     // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
     // van de klant(en) die aan deze login gekoppeld zijn.
@@ -99,11 +115,13 @@ export default defineEventHandler(async (event) => {
     category ? eq(categories.slug, category) : undefined,
     supplier ? eq(products.supplier, supplier) : undefined,
     search
-      ? or(
-          ilike(products.name, `%${search}%`),
-          ilike(products.articleNr, `%${search}%`),
-          ilike(products.supplier, `%${search}%`),
-        )
+      ? isGuest
+        ? ilike(products.name, `%${search}%`)
+        : or(
+            ilike(products.name, `%${search}%`),
+            ilike(products.articleNr, `%${search}%`),
+            ilike(products.supplier, `%${search}%`),
+          )
       : undefined,
     purchasedArticleNrs ? inArray(products.articleNr, purchasedArticleNrs) : undefined,
     cartArticleNrs ? inArray(products.articleNr, cartArticleNrs) : undefined,
@@ -111,11 +129,17 @@ export default defineEventHandler(async (event) => {
 
   const where = and(...filters);
 
+  // Zit de klant in een lijst (eerder afgenomen, mandje of bestelling/lijstje),
+  // dan geven we ook mee in welke categorieën die lijst producten heeft — los
+  // van de gekozen categorie en zoekterm, zodat de categorielijst niet krimpt
+  // terwijl de klant erin filtert.
+  const listArticleNrs = purchasedArticleNrs ?? cartArticleNrs;
+
   const orderBy = sort
     ? [sortDir === "asc" ? asc(SORT_COLUMNS[sort]) : desc(SORT_COLUMNS[sort])]
     : [asc(categories.sortOrder), asc(products.articleNr)];
 
-  const [items, [total]] = await Promise.all([
+  const [items, [total], listCategories] = await Promise.all([
     db
       .select({
         id: products.id,
@@ -144,15 +168,44 @@ export default defineEventHandler(async (event) => {
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(where),
+
+    listArticleNrs
+      ? db
+          .select({ slug: categories.slug, count: count() })
+          .from(products)
+          .innerJoin(categories, eq(products.categoryId, categories.id))
+          .where(
+            and(
+              eq(products.isActive, true),
+              inArray(products.articleNr, listArticleNrs),
+            ),
+          )
+          .groupBy(categories.slug)
+      : null,
   ]);
 
   return {
-    items,
+    items: isGuest
+      ? items.map(({ id, name, category }) => ({
+          id,
+          name,
+          category,
+          articleNr: null,
+          supplier: null,
+          unit: null,
+          infoPdf: null,
+        }))
+      : items,
     pagination: {
       page,
       perPage,
       total: total?.value ?? 0,
       pageCount: Math.ceil((total?.value ?? 0) / perPage),
     },
+    /** Aantal producten per categorie-slug in de actieve lijst; `null`
+     * zonder lijst-filter (dan gelden alle categorieën). */
+    listCategoryCounts: listCategories
+      ? Object.fromEntries(listCategories.map((c) => [c.slug, c.count]))
+      : null,
   };
 });

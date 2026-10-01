@@ -1,15 +1,20 @@
 import { z } from "zod";
 import { db } from "~~/server/database/client";
+import { requireUser } from "~~/server/utils/session";
 
 /**
  * GET /api/products/:id
  * Eén product met zijn categorie, via de relationele query-API van Drizzle.
+ * Enkel voor ingelogde klanten: het volledige product bevat fabrikant,
+ * artikelnummer en productfiche.
  */
 const paramsSchema = z.object({
   id: z.uuid("Ongeldig product-id."),
 });
 
 export default defineEventHandler(async (event) => {
+  await requireUser(event);
+
   const { id } = await getValidatedRouterParams(event, (data) =>
     paramsSchema.parse(data),
   );

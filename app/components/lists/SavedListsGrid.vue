@@ -3,7 +3,7 @@
     <!-- Loading -->
     <div
       v-if="orderLists.loading.value && orderLists.lists.value.length === 0"
-      class="py-12 text-center text-sm text-(--color-text-muted)"
+      class="py-12 text-center text-base text-(--color-text-muted)"
     >
       Lijsten laden…
     </div>
@@ -31,10 +31,10 @@
         </svg>
       </div>
       <div>
-        <p class="text-sm font-semibold text-(--color-text-strong)">
+        <p class="text-base font-semibold text-(--color-text-strong)">
           Nog geen lijsten opgeslagen
         </p>
-        <p class="mt-2 text-xs leading-relaxed text-(--color-text-muted)">
+        <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">
           Zet producten in uw bestellijst en gebruik "Lijst opslaan" in het
           winkelmandje om een vaste selectie te bewaren — bijvoorbeeld "Kazen"
           of "Kerstmis".
@@ -75,7 +75,7 @@
         v-if="selected.length > 0"
         class="sticky bottom-0 z-10 -mx-1 mt-4 flex flex-wrap items-center gap-3 border-t border-[#c89868]/30 bg-(--color-surface-strong) px-4 py-3"
       >
-        <p class="text-xs text-(--color-text)">
+        <p class="text-sm text-(--color-text)">
           <span class="font-semibold text-(--color-accent)">{{ selected.length }}</span>
           lijst{{ selected.length !== 1 ? "en" : "" }} geselecteerd ·
           {{ mergedItems.length }} artikel{{
@@ -85,7 +85,7 @@
         <div class="ml-auto flex flex-wrap gap-2">
           <button
             type="button"
-            class="px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+            class="px-3 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
             @click="selected = []"
           >
             Wissen
@@ -93,7 +93,7 @@
           <button
             type="button"
             :disabled="mergedItems.length === 0"
-            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
             @click="addSelectedToCart()"
           >
             Toevoegen aan winkelmandje

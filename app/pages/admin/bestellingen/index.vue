@@ -9,7 +9,7 @@
       >
     </div>
 
-    <p class="mb-3 text-xs text-(--color-text-muted)">
+    <p class="mb-3 text-sm text-(--color-text-muted)">
       {{ pagination?.total ?? 0 }} bestellingen
     </p>
 
@@ -29,13 +29,13 @@
               <p class="font-semibold text-(--color-text-strong)">
                 {{ o.customerName }}
               </p>
-              <p class="truncate text-xs text-(--color-text-muted)">
+              <p class="truncate text-sm text-(--color-text-muted)">
                 {{ o.customerEmail }}
               </p>
             </div>
           </div>
           <div
-            class="flex items-center justify-between gap-3 text-xs text-(--color-text-muted)"
+            class="flex items-center justify-between gap-3 text-sm text-(--color-text-muted)"
           >
             <span>{{ formatDate(o.createdAt) }}</span>
             <span>{{ o.lineCount }} artikel{{ o.lineCount !== 1 ? "en" : "" }} · {{ o.totalQuantity }} st.</span>
@@ -45,7 +45,7 @@
     </ul>
     <p
       v-else
-      class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-4 py-10 text-center text-sm text-(--color-text-muted) sm:hidden"
+      class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-4 py-10 text-center text-base text-(--color-text-muted) sm:hidden"
     >
       Geen bestellingen gevonden.
     </p>
@@ -53,10 +53,10 @@
     <!-- Tabel (desktop) -->
     <div class="hidden rounded-xl border border-(--color-border) overflow-hidden sm:block">
       <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
+      <table class="w-full text-base border-collapse">
         <thead>
           <tr
-            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
+            class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
           >
             <th class="px-4 py-3 text-left font-semibold">Datum</th>
             <th class="px-4 py-3 text-left font-semibold">Klant</th>
@@ -80,7 +80,7 @@
             </td>
             <td class="px-4 py-2.5 text-(--color-text-strong)">
               {{ o.customerName }}
-              <span class="block text-xs text-(--color-text-muted)">{{
+              <span class="block text-sm text-(--color-text-muted)">{{
                 o.customerEmail
               }}</span>
             </td>
@@ -93,7 +93,7 @@
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
                 :to="`/admin/bestellingen/${o.id}`"
-                class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
+                class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Bekijken →
               </NuxtLink>
@@ -116,18 +116,18 @@
       <button
         type="button"
         :disabled="page <= 1"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page--"
       >
         Vorige
       </button>
-      <span class="text-xs text-(--color-text-muted)">
+      <span class="text-sm text-(--color-text-muted)">
         Pagina {{ page }} van {{ pagination.pageCount }}
       </span>
       <button
         type="button"
         :disabled="page >= pagination.pageCount"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page++"
       >
         Volgende

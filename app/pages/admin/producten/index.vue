@@ -38,25 +38,25 @@
       </select>
       <NuxtLink
         to="/admin/producten/nieuw"
-        class="ml-auto rounded-lg bg-[#b8252a] px-5 py-2.5 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        class="ml-auto rounded-lg bg-[#b8252a] px-5 py-2.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
       >
         + Nieuw product
       </NuxtLink>
     </div>
 
-    <p class="mb-3 text-xs text-(--color-text-muted)">
+    <p class="mb-3 text-sm text-(--color-text-muted)">
       {{ pagination?.total ?? 0 }} producten
     </p>
-    <p v-if="toggleError" class="mb-3 text-sm text-[#e06a6a]">
+    <p v-if="toggleError" class="mb-3 text-base text-[#e06a6a]">
       {{ toggleError }}
     </p>
 
     <div class="rounded-xl border border-(--color-border) overflow-hidden">
       <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
+      <table class="w-full text-base border-collapse">
         <thead>
           <tr
-            class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
+            class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
           >
             <th class="px-4 py-3 text-left font-semibold">
               <button type="button" class="adm-sort" @click="toggleSort('articleNr')">
@@ -106,7 +106,7 @@
                   target="_blank"
                   :title="`Productfiche ${p.name} openen`"
                   :aria-label="`Productfiche ${p.name} openen`"
-                  class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#c89868]/40 text-[0.65rem] font-bold italic text-(--color-accent) transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+                  class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#c89868]/40 text-[0.75rem] font-bold italic text-(--color-accent) transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
                 >
                   i
                 </a>
@@ -130,7 +130,7 @@
                 :disabled="togglingIds.has(p.id)"
                 :title="p.isActive ? 'Klik om inactief te maken' : 'Klik om actief te maken'"
                 :aria-label="`${p.name}: ${p.isActive ? 'actief' : 'inactief'}, klik om te wisselen`"
-                class="cursor-pointer rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-wait disabled:opacity-50"
+                class="cursor-pointer rounded-full px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-wait disabled:opacity-50"
                 :class="
                   p.isActive
                     ? 'text-[#8fc98f] border border-[#8fc98f]/40 hover:bg-[#8fc98f]/10'
@@ -144,7 +144,7 @@
             <td class="px-4 py-2.5 text-right">
               <NuxtLink
                 :to="`/admin/producten/${p.id}`"
-                class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
+                class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Bewerken →
               </NuxtLink>
@@ -167,18 +167,18 @@
       <button
         type="button"
         :disabled="page <= 1"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page--"
       >
         Vorige
       </button>
-      <span class="text-xs text-(--color-text-muted)">
+      <span class="text-sm text-(--color-text-muted)">
         Pagina {{ page }} van {{ pagination.pageCount }}
       </span>
       <button
         type="button"
         :disabled="page >= pagination.pageCount"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page++"
       >
         Volgende

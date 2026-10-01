@@ -4,7 +4,7 @@
       <div class="mb-6 flex flex-wrap items-center gap-4">
         <NuxtLink
           to="/admin/bestellingen"
-          class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
+          class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           ← Alle bestellingen
         </NuxtLink>
@@ -13,7 +13,7 @@
       <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <!-- Items -->
         <section>
-          <h2 class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
+          <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
             — Bestelde artikelen —
           </h2>
 
@@ -26,12 +26,12 @@
             >
               <div class="min-w-0 flex-1">
                 <p class="truncate font-semibold text-(--color-text-strong)">{{ item.name }}</p>
-                <p class="mt-0.5 text-[0.7rem] text-(--color-text-muted)">
+                <p class="mt-0.5 text-[0.8rem] text-(--color-text-muted)">
                   <span class="font-mono text-(--color-accent)">{{ item.articleNr }}</span>
                   · {{ item.supplier }}
                   <span v-if="item.unit"> · {{ item.unit }}</span>
                 </p>
-                <p v-if="!item.available" class="mt-1 text-[0.7rem] text-[#d9a05b]">
+                <p v-if="!item.available" class="mt-1 text-[0.8rem] text-[#d9a05b]">
                   Niet meer beschikbaar
                 </p>
               </div>
@@ -43,19 +43,19 @@
         <!-- Klant + facturatie -->
         <section class="space-y-8">
           <div>
-            <h2 class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
+            <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
               — Klant —
             </h2>
-            <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
+            <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)">
               <p class="font-semibold text-(--color-text-strong)">{{ order.customer.name }}</p>
               <p class="text-(--color-text-muted)">{{ order.customer.email }}</p>
-              <p v-if="order.customer.customerNr" class="text-xs text-(--color-text-muted)">
+              <p v-if="order.customer.customerNr" class="text-sm text-(--color-text-muted)">
                 Klantnr. {{ order.customer.customerNr }}
               </p>
               <NuxtLink
                 v-if="order.customer.customerId"
                 :to="`/admin/klanten/${order.customer.customerId}`"
-                class="mt-3 inline-block text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
+                class="mt-3 inline-block text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
               >
                 Klantprofiel bekijken →
               </NuxtLink>
@@ -63,10 +63,10 @@
           </div>
 
           <div>
-            <h2 class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
+            <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
               — Gefactureerd aan —
             </h2>
-            <div class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)">
+            <div class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)">
               <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
               <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
                 BTW {{ order.billing.vatNumber }}

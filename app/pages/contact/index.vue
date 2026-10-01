@@ -18,7 +18,7 @@
         >
           Contacteer ons
         </h1>
-        <p class="text-white/70 text-lg max-w-xl mx-auto">
+        <p class="text-white/70 text-[1.2rem] max-w-xl mx-auto">
           Heeft u vragen of wenst u meer info? Wij helpen u graag verder.
         </p>
       </div>
@@ -30,7 +30,7 @@
         <div class="flex flex-col gap-8">
           <div>
             <p
-              class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-6"
+              class="uppercase tracking-[0.3em] text-[0.8rem] text-(--color-accent) font-semibold mb-6"
             >
               — Contactgegevens —
             </p>
@@ -47,7 +47,7 @@
                 </div>
                 <div>
                   <p
-                    class="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-1"
+                    class="text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-1"
                   >
                     {{ info.label }}
                   </p>
@@ -56,7 +56,7 @@
                   </p>
                   <p
                     v-if="info.sub"
-                    class="text-(--color-text-muted) text-sm mt-0.5"
+                    class="text-(--color-text-muted) text-[0.95rem] mt-0.5"
                   >
                     {{ info.sub }}
                   </p>
@@ -91,7 +91,7 @@
           class="bg-(--color-surface) border border-(--color-border) rounded-xl p-8"
         >
           <p
-            class="uppercase tracking-[0.3em] text-[0.75rem] text-(--color-accent) font-semibold mb-2"
+            class="uppercase tracking-[0.3em] text-[0.8rem] text-(--color-accent) font-semibold mb-2"
           >
             — Stuur ons een bericht —
           </p>
@@ -109,7 +109,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
-                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
+                  class="block text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                   >Naam</label
                 >
                 <input
@@ -117,26 +117,26 @@
                   type="text"
                   placeholder="Uw naam"
                   required
-                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-[0.95rem] focus:outline-none focus:border-[#c89868] transition-colors"
                 >
               </div>
               <div>
                 <label
-                  class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
+                  class="block text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                   >Bedrijf</label
                 >
                 <input
                   v-model="form.company"
                   type="text"
                   placeholder="Bedrijfsnaam (optioneel)"
-                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                  class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) placeholder-(--color-text-muted)/60 text-[0.95rem] focus:outline-none focus:border-[#c89868] transition-colors"
                 >
               </div>
             </div>
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
+                class="block text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >E-mailadres</label
               >
               <input
@@ -144,26 +144,26 @@
                 type="email"
                 placeholder="uw@email.be"
                 required
-                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-[0.95rem] focus:outline-none focus:border-[#c89868] transition-colors"
               >
             </div>
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
+                class="block text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >Telefoonnummer</label
               >
               <input
                 v-model="form.phone"
                 type="tel"
                 placeholder="0495 123 456"
-                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-[0.95rem] focus:outline-none focus:border-[#c89868] transition-colors"
               >
             </div>
 
             <div>
               <label
-                class="block text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
+                class="block text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-(--color-accent) mb-2"
                 >Bericht</label
               >
               <textarea
@@ -171,20 +171,20 @@
                 rows="5"
                 placeholder="Uw vraag of opmerking…"
                 required
-                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-sm focus:outline-none focus:border-[#c89868] transition-colors resize-none"
+                class="w-full px-4 py-3 bg-(--color-bg) border border-(--color-border) text-(--color-text) placeholder-(--color-text-muted)/60 text-[0.95rem] focus:outline-none focus:border-[#c89868] transition-colors resize-none"
               />
             </div>
 
             <button
               type="submit"
-              class="w-full py-4 rounded-lg bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-sm hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200"
+              class="w-full py-4 rounded-lg bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-[0.95rem] hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200"
             >
               Verstuur bericht
             </button>
 
             <p
               v-if="submitted"
-              class="text-center text-sm font-medium text-(--color-accent)"
+              class="text-center text-[0.95rem] font-medium text-(--color-accent)"
             >
               ✓ Bedankt! We nemen zo snel mogelijk contact op.
             </p>

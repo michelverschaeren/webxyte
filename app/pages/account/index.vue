@@ -7,13 +7,13 @@
       v-if="!billing"
       class="mb-8 flex flex-wrap items-center gap-4 rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
-      <p class="flex-1 text-sm text-(--color-text)">
+      <p class="flex-1 text-base text-(--color-text)">
         Vul uw facturatiegegevens in — die hebben wij nodig voor u kunt
         bestellen.
       </p>
       <NuxtLink
         to="/account/gegevens"
-        class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f]"
       >
         Nu invullen
       </NuxtLink>
@@ -34,7 +34,7 @@
         >
       </NuxtLink>
 
-      <button type="button" class="acc-card" @click="cart.isOpen.value = true">
+      <button type="button" class="acc-card" @click="goToCart()">
         <span class="acc-card-value">{{ cart.totalItems.value }}</span>
         <span class="acc-card-title">Winkelmandje</span>
         <span class="acc-card-hint">Bekijk en pas uw huidige bestelling aan</span>
@@ -53,13 +53,13 @@
     <section v-if="recentOrders.length > 0" class="mt-12">
       <div class="mb-4 flex items-center justify-between gap-4">
         <h2
-          class="text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Recent besteld —
         </h2>
         <NuxtLink
           to="/account/bestellingen"
-          class="text-xs font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+          class="text-sm font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Alles bekijken →
         </NuxtLink>
@@ -79,7 +79,7 @@
               <p class="font-semibold text-(--color-text-strong)">
                 {{ formatDate(order.createdAt) }}
               </p>
-              <p class="mt-0.5 text-xs text-(--color-text-muted)">
+              <p class="mt-0.5 text-sm text-(--color-text-muted)">
                 {{ order.lineCount }} artikel{{
                   order.lineCount !== 1 ? "en" : ""
                 }}
@@ -112,6 +112,12 @@ const billing = computed(() => billingData.value);
 const orderCount = computed(() => ordersData.value?.pagination.total ?? 0);
 const recentOrders = computed(() => ordersData.value?.items ?? []);
 const listCount = computed(() => orderLists.lists.value.length);
+
+// Het mandje heeft geen eigen pagina: het is het mandje-filter op /producten.
+function goToCart() {
+  cart.showCartOnly.value = true;
+  navigateTo("/producten");
+}
 
 const greeting = computed(() => {
   const name = auth.user.value?.name?.trim();

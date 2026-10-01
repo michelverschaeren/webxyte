@@ -11,7 +11,7 @@
         >
           Producten &amp; Bestellen
         </h1>
-        <p class="text-white/70 text-lg max-w-xl mx-auto">
+        <p class="text-white/90 text-lg max-w-xl mx-auto">
           {{ pagination.total }} producten gevonden
         </p>
       </div>
@@ -26,39 +26,107 @@
           >
             <div class="px-6 py-5">
               <p
-                class="uppercase tracking-[0.2em] text-[0.7rem] text-(--color-accent) font-semibold"
+                class="uppercase tracking-[0.2em] text-[0.8rem] text-(--color-accent) font-semibold"
               >
                 Categorieën
               </p>
             </div>
+            <!-- Klik op een naam = alle producten van die categorie. Zit de
+                 klant in een lijst (mandje, eerder afgenomen, bestelling of
+                 lijstje), dan filtert de trechter ernaast díé lijst. -->
             <div class="flex flex-col gap-1 px-3 pb-4">
-              <button
-                class="w-full flex items-center justify-between gap-3 text-left px-4 py-3 text-sm rounded-lg transition-colors"
-                :class="
-                  !selectedCategorySlug
-                    ? 'text-(--color-accent) bg-(--color-hover) font-medium'
-                    : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
-                "
-                @click="selectedCategorySlug = null"
-              >
-                <span>Alle categorieën</span>
-                <span class="text-(--color-accent)/60 text-xs">{{
-                  totalActiveCount
-                }}</span>
-              </button>
-              <button
-                v-for="cat in categories"
+              <div class="flex items-center gap-1">
+                <button
+                  class="flex-1 min-w-0 flex items-center justify-between gap-3 text-left px-4 py-3 text-[0.95rem] rounded-lg transition-colors"
+                  :class="
+                    !selectedCategorySlug && showingAll
+                      ? 'text-(--color-accent) bg-(--color-hover) font-medium'
+                      : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
+                  "
+                  @click="pickCategory(null)"
+                >
+                  <span>Alle categorieën</span>
+                  <span class="text-(--color-accent) text-sm">{{
+                    listTotal ?? totalActiveCount
+                  }}</span>
+                </button>
+                <button
+                  v-if="!showingAll"
+                  type="button"
+                  :title="`Toon alle categorieën in ${listScopeLabel}`"
+                  :aria-label="`Toon alle categorieën in ${listScopeLabel}`"
+                  class="shrink-0 w-9 h-9 inline-flex items-center justify-center rounded-lg transition-colors"
+                  :class="
+                    !selectedCategorySlug
+                      ? 'bg-[#b8252a] text-white'
+                      : 'text-(--color-text-muted) hover:text-(--color-accent) hover:bg-(--color-hover)'
+                  "
+                  @click="selectedCategorySlug = null"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 4.5h18l-7 8.25V19.5l-4-2.25v-4.5L3 4.5z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div
+                v-for="cat in visibleCategories"
                 :key="cat.id"
-                class="w-full text-left px-4 py-3 text-sm rounded-lg transition-colors"
-                :class="
-                  selectedCategorySlug === cat.slug
-                    ? 'text-(--color-accent) bg-(--color-hover) font-medium'
-                    : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
-                "
-                @click="selectedCategorySlug = cat.slug"
+                class="flex items-center gap-1"
               >
-                {{ cat.name }}
-              </button>
+                <button
+                  class="flex-1 min-w-0 text-left px-4 py-3 text-[0.95rem] rounded-lg transition-colors"
+                  :class="
+                    selectedCategorySlug === cat.slug && showingAll
+                      ? 'text-(--color-accent) bg-(--color-hover) font-medium'
+                      : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
+                  "
+                  @click="pickCategory(cat.slug)"
+                >
+                  {{ cat.name }}
+                </button>
+                <button
+                  v-if="!showingAll"
+                  type="button"
+                  :title="`Filter ${listScopeLabel} op ${cat.name}`"
+                  :aria-label="`Filter ${listScopeLabel} op ${cat.name}`"
+                  class="shrink-0 w-9 h-9 inline-flex items-center justify-center rounded-lg transition-colors"
+                  :class="
+                    selectedCategorySlug === cat.slug
+                      ? 'bg-[#b8252a] text-white'
+                      : 'text-(--color-text-muted) hover:text-(--color-accent) hover:bg-(--color-hover)'
+                  "
+                  @click="
+                    selectedCategorySlug =
+                      selectedCategorySlug === cat.slug ? null : cat.slug
+                  "
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 4.5h18l-7 8.25V19.5l-4-2.25v-4.5L3 4.5z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </aside>
@@ -83,46 +151,65 @@
             <input
               v-model="search"
               type="text"
-              placeholder="Zoek op naam, artikelnr of fabrikant…"
-              class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-sm focus:outline-none focus:border-[#c89868] transition-colors"
+              :placeholder="
+                auth.isLoggedIn.value
+                  ? 'Zoek op naam, artikelnr of fabrikant…'
+                  : 'Zoek op productnaam…'
+              "
+              class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-base focus:outline-none focus:border-[#c89868] transition-colors"
             >
+          </div>
+
+          <!-- Gasten zien enkel het gamma: geen mandje, filters of details. -->
+          <div
+            v-if="!auth.isLoggedIn.value"
+            class="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-5 py-4"
+          >
+            <p class="flex-1 min-w-60 text-base text-(--color-text)">
+              Klant bij Vleeswaren Vermeir? Log in om artikelnummers,
+              productfiches en uw eerdere bestellingen te zien en online te
+              bestellen.
+            </p>
+            <button
+              type="button"
+              class="rounded-lg bg-[#b8252a] px-5 py-2.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+              @click="authModal.open()"
+            >
+              Inloggen
+            </button>
           </div>
 
           <!-- Filters: naast de categorieën links zijn dit extra filters die
                samen bepalen welke producten hieronder verschijnen. -->
-          <div class="mb-8">
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3 4.5h18M6 9.75h12M10.5 15h3"
-                />
-              </svg>
-              <span
-                class="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-(--color-accent) whitespace-nowrap"
-                >Filters</span
-              >
-              <div class="flex-1 h-px bg-(--color-border)" />
-            </div>
+          <div v-else class="mb-8">
             <!-- Mobiel: één horizontaal scrollbare rij die tot aan de schermrand
                  loopt (de afgesneden chip verraadt dat er meer is); vanaf sm
                  gewoon wrappen zoals voorheen. -->
             <div
               class="-mx-4 flex flex-nowrap items-center gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-2.5 sm:overflow-visible sm:px-0 sm:pb-0"
             >
+              <!-- Alle producten: heft mandje, eerder afgenomen en vorige
+                   bestelling/lijstje op (categorie en zoekterm blijven). -->
+              <button
+                type="button"
+                :aria-pressed="showingAll"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
+                :class="
+                  showingAll
+                    ? 'border-[#b8252a] bg-[#b8252a] text-white'
+                    : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover)'
+                "
+                @click="showAllProducts()"
+              >
+                Alle producten
+              </button>
+
               <!-- Winkelmandje -->
               <button
                 type="button"
                 role="switch"
                 :aria-checked="cart.showCartOnly.value"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-xs"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-sm"
                 :class="
                   cart.showCartOnly.value
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -158,7 +245,7 @@
                 type="button"
                 role="switch"
                 :aria-checked="purchasedOnly"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
                 :class="
                   purchasedOnly
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -171,16 +258,7 @@
               </button>
 
               <!-- Vorige bestelling -->
-              <button
-                v-if="!auth.isLoggedIn.value"
-                type="button"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-hover) text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
-                @click="authModal.open()"
-              >
-                Bestellingen &amp; lijstjes
-              </button>
               <SelectMenu
-                v-else
                 class="shrink-0"
                 :model-value="selectedOrderId || null"
                 :options="orderSourceOptions"
@@ -195,16 +273,37 @@
                 @update:model-value="selectPreviousOrder($event ?? '')"
               />
             </div>
+            <div class="flex items-center gap-2 mt-4">
+              <svg
+                class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 4.5h18M6 9.75h12M10.5 15h3"
+                />
+              </svg>
+              <span
+                class="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-(--color-accent) whitespace-nowrap"
+                >Filters</span
+              >
+              <div class="flex-1 h-px bg-(--color-border)" />
+            </div>
           </div>
 
           <!-- Mobile category select -->
           <div class="lg:hidden mb-5">
             <SelectMenu
-              v-model="selectedCategorySlug"
-              :options="categoryOptions"
-              trigger-class="w-full justify-between px-4 py-3 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) text-sm focus:outline-none focus:border-[#c89868]"
+              :model-value="mobileCategoryValue"
+              :options="mobileCategoryOptions"
+              trigger-class="w-full justify-between px-4 py-3 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) text-base focus:outline-none focus:border-[#c89868]"
               title="Kies een categorie"
               eyebrow="Categorieën"
+              @update:model-value="onMobileCategory($event)"
             />
           </div>
 
@@ -222,7 +321,7 @@
           >
             <span
               v-if="purchasedOnly"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
               Eerder afgenomen
               <button
@@ -234,7 +333,7 @@
             </span>
             <span
               v-if="cart.showCartOnly.value"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               Enkel winkelmandje
               <button
@@ -246,7 +345,7 @@
             </span>
             <span
               v-if="selectedOrderId"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               {{ selectedOrderLabel }}
               <button
@@ -258,7 +357,7 @@
             </span>
             <span
               v-if="selectedCategorySlug"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
               {{ activeCategoryName }}
               <button
@@ -270,7 +369,7 @@
             </span>
             <span
               v-if="selectedSupplier"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
             >
               {{ selectedSupplier }}
               <button
@@ -282,7 +381,7 @@
             </span>
             <span
               v-if="search"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-(--color-hover) text-(--color-text-muted) border border-(--color-border)"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-(--color-hover) text-(--color-text) border border-(--color-border)"
             >
               "{{ search }}"
               <button
@@ -303,8 +402,12 @@
             <p class="text-lg font-semibold text-(--color-text)">
               Geen producten gevonden
             </p>
-            <p class="text-(--color-text-muted) text-sm">
-              Probeer een andere zoekterm, categorie of fabrikant.
+            <p class="text-(--color-text-muted) text-base">
+              {{
+                auth.isLoggedIn.value
+                  ? "Probeer een andere zoekterm, categorie of fabrikant."
+                  : "Probeer een andere zoekterm of categorie."
+              }}
             </p>
             <button
               class="mt-2 px-6 py-3 rounded-lg bg-[#b8252a] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#8b1f1f] transition-colors"
@@ -327,10 +430,10 @@
             class="border border-(--color-border) rounded-xl overflow-hidden"
           >
             <div class="overflow-x-auto">
-            <table class="w-full text-sm border-collapse">
+            <table class="w-full text-base border-collapse">
               <thead>
                 <tr
-                  class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-[0.12em]"
+                  class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-[0.12em]"
                 >
                   <th class="text-left py-3 px-3 font-semibold">
                     <button
@@ -339,13 +442,13 @@
                       :class="
                         sortKey === 'name'
                           ? 'text-(--color-accent)'
-                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
+                          : 'text-(--color-text-muted) hover:text-(--color-accent)'
                       "
                       @click="toggleSort('name')"
                     >
                       Product
                       <span
-                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                        class="text-[0.75rem] opacity-80 group-hover:opacity-100"
                       >
                         <template v-if="sortKey === 'name'">{{
                           sortDir === "asc" ? "▲" : "▼"
@@ -355,6 +458,7 @@
                     </button>
                   </th>
                   <th
+                    v-if="auth.isLoggedIn.value"
                     class="text-left py-3 px-3 font-semibold hidden sm:table-cell"
                   >
                     <button
@@ -363,13 +467,13 @@
                       :class="
                         sortKey === 'articleNr'
                           ? 'text-(--color-accent)'
-                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
+                          : 'text-(--color-text-muted) hover:text-(--color-accent)'
                       "
                       @click="toggleSort('articleNr')"
                     >
                       Art. nr
                       <span
-                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                        class="text-[0.75rem] opacity-80 group-hover:opacity-100"
                       >
                         <template v-if="sortKey === 'articleNr'">{{
                           sortDir === "asc" ? "▲" : "▼"
@@ -379,6 +483,7 @@
                     </button>
                   </th>
                   <th
+                    v-if="auth.isLoggedIn.value"
                     class="text-left py-3 px-3 font-semibold hidden md:table-cell"
                   >
                     <button
@@ -387,13 +492,13 @@
                       :class="
                         sortKey === 'supplier'
                           ? 'text-(--color-accent)'
-                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
+                          : 'text-(--color-text-muted) hover:text-(--color-accent)'
                       "
                       @click="toggleSort('supplier')"
                     >
                       Fabrikant
                       <span
-                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                        class="text-[0.75rem] opacity-80 group-hover:opacity-100"
                       >
                         <template v-if="sortKey === 'supplier'">{{
                           sortDir === "asc" ? "▲" : "▼"
@@ -403,6 +508,7 @@
                     </button>
                   </th>
                   <th
+                    v-if="auth.isLoggedIn.value"
                     class="text-left py-3 px-3 font-semibold hidden lg:table-cell"
                   >
                     <button
@@ -411,13 +517,13 @@
                       :class="
                         sortKey === 'unit'
                           ? 'text-(--color-accent)'
-                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
+                          : 'text-(--color-text-muted) hover:text-(--color-accent)'
                       "
                       @click="toggleSort('unit')"
                     >
                       Eenheid
                       <span
-                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                        class="text-[0.75rem] opacity-80 group-hover:opacity-100"
                       >
                         <template v-if="sortKey === 'unit'">{{
                           sortDir === "asc" ? "▲" : "▼"
@@ -427,7 +533,8 @@
                     </button>
                   </th>
                   <th
-                    class="text-left py-3 px-3 font-semibold hidden xl:table-cell"
+                    class="text-left py-3 px-3 font-semibold"
+                    :class="auth.isLoggedIn.value ? 'hidden xl:table-cell' : ''"
                   >
                     <button
                       type="button"
@@ -435,13 +542,13 @@
                       :class="
                         sortKey === 'category'
                           ? 'text-(--color-accent)'
-                          : 'text-(--color-accent)/60 hover:text-(--color-accent)'
+                          : 'text-(--color-text-muted) hover:text-(--color-accent)'
                       "
                       @click="toggleSort('category')"
                     >
                       Categorie
                       <span
-                        class="text-[0.65rem] opacity-70 group-hover:opacity-100"
+                        class="text-[0.75rem] opacity-80 group-hover:opacity-100"
                       >
                         <template v-if="sortKey === 'category'">{{
                           sortDir === "asc" ? "▲" : "▼"
@@ -451,7 +558,8 @@
                     </button>
                   </th>
                   <th
-                    class="py-3 px-3 font-semibold w-36 text-center text-(--color-accent)/60"
+                    v-if="auth.isLoggedIn.value"
+                    class="py-3 px-3 font-semibold w-36 text-center text-(--color-text-muted)"
                   >
                     Aantal
                   </th>
@@ -463,45 +571,52 @@
                   :key="product.id"
                   class="border-b border-(--color-border) hover:bg-(--color-hover) transition-colors group"
                 >
-                  <td class="py-2.5 px-3">
+                  <td class="py-3 px-3">
                     <div class="flex items-center gap-2">
                       <span
                         class="text-(--color-text) font-medium group-hover:text-(--color-text-strong) transition-colors"
                         >{{ product.name }}</span
                       >
                       <button
-                        v-if="product.infoPdf"
+                        v-if="auth.isLoggedIn.value && product.infoPdf"
                         type="button"
                         :title="`Productfiche ${product.name}`"
-                        class="shrink-0 w-5 h-5 inline-flex items-center justify-center rounded-full border border-[#c89868]/40 text-(--color-accent) text-[0.65rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
+                        class="shrink-0 w-6 h-6 inline-flex items-center justify-center rounded-full border border-[#c89868]/60 text-(--color-accent) text-[0.8rem] font-bold italic hover:bg-[#c89868] hover:text-[#1a0a0a] transition-colors"
                         @click="openInfo(product)"
                       >
                         i
                       </button>
                     </div>
                     <!-- Mobile fallback: art. nr + supplier -->
-                    <div class="flex gap-2 mt-0.5 sm:hidden">
+                    <div
+                      v-if="auth.isLoggedIn.value"
+                      class="flex gap-2 mt-0.5 sm:hidden"
+                    >
                       <span
-                        class="text-[0.7rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-1.5 py-0.5"
+                        class="text-[0.85rem] text-(--color-accent) border border-[#c89868]/40 rounded-md px-1.5 py-0.5"
                         >{{ product.articleNr }}</span
                       >
                       <button
                         type="button"
-                        class="text-[0.7rem] text-(--color-text-muted) hover:text-(--color-accent) transition-colors"
+                        class="text-[0.85rem] text-(--color-text-muted) hover:text-(--color-accent) transition-colors"
                         @click="selectedSupplier = product.supplier"
                       >
                         {{ product.supplier }}
                       </button>
                     </div>
                   </td>
-                  <td class="py-2.5 px-3 hidden sm:table-cell">
+                  <td
+                    v-if="auth.isLoggedIn.value"
+                    class="py-3 px-3 hidden sm:table-cell"
+                  >
                     <span
-                      class="text-[0.75rem] text-(--color-accent) border border-[#c89868]/25 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
+                      class="text-[0.85rem] text-(--color-accent) border border-[#c89868]/40 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
                       >{{ product.articleNr }}</span
                     >
                   </td>
                   <td
-                    class="py-2.5 px-3 text-[0.8rem] hidden md:table-cell"
+                    v-if="auth.isLoggedIn.value"
+                    class="py-3 px-3 text-[0.95rem] hidden md:table-cell"
                   >
                     <button
                       type="button"
@@ -513,21 +628,25 @@
                     </button>
                   </td>
                   <td
-                    class="py-2.5 px-3 text-(--color-accent)/80 text-[0.8rem] hidden lg:table-cell"
+                    v-if="auth.isLoggedIn.value"
+                    class="py-3 px-3 text-(--color-accent) text-[0.95rem] hidden lg:table-cell"
                   >
                     {{ product.unit ?? "—" }}
                   </td>
-                  <td class="py-2.5 px-3 hidden xl:table-cell">
+                  <td
+                    class="py-3 px-3"
+                    :class="auth.isLoggedIn.value ? 'hidden xl:table-cell' : ''"
+                  >
                     <button
                       type="button"
                       :title="`Filter op categorie: ${product.category.name}`"
-                      class="text-[0.7rem] text-(--color-accent)/70 hover:text-(--color-accent) uppercase tracking-widest transition-colors text-left"
+                      class="text-[0.8rem] text-(--color-accent) hover:text-(--color-text-strong) uppercase tracking-widest transition-colors text-left"
                       @click="selectedCategorySlug = product.category.slug"
                     >
                       {{ product.category.name }}
                     </button>
                   </td>
-                  <td class="py-2 px-3">
+                  <td v-if="auth.isLoggedIn.value" class="py-2 px-3">
                     <div class="flex items-center justify-center">
                       <div
                         class="flex items-center border rounded-lg overflow-hidden transition-colors"
@@ -540,7 +659,7 @@
                         <button
                           type="button"
                           :disabled="cartQty(product) === 0"
-                          class="w-7 h-8 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                          class="w-8 h-9 text-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                           :class="
                             cartQty(product) > 0
                               ? 'text-[#b8252a] hover:bg-[#b8252a]/10'
@@ -555,7 +674,7 @@
                           type="number"
                           min="0"
                           :value="cartQty(product)"
-                          class="w-9 h-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          class="w-10 h-9 bg-transparent text-center text-base focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           :class="
                             cartQty(product) > 0
                               ? 'text-[#b8252a] focus:bg-[#b8252a]/10'
@@ -570,7 +689,7 @@
                         >
                         <button
                           type="button"
-                          class="w-7 h-8 transition-colors"
+                          class="w-8 h-9 text-lg transition-colors"
                           :class="
                             cartQty(product) > 0
                               ? 'text-[#b8252a] hover:bg-[#b8252a]/10'
@@ -595,7 +714,7 @@
             v-if="pagination.total > PAGE_SIZE"
             class="mt-10 flex flex-col items-center gap-4"
           >
-            <p class="text-sm text-(--color-text-muted)">
+            <p class="text-base text-(--color-text-muted)">
               {{ items.length }} van {{ pagination.total }} producten
             </p>
             <div class="w-full max-w-xs bg-(--color-hover) h-0.5 rounded-full overflow-hidden">
@@ -620,13 +739,13 @@
          pagina, dus deze balk vervangt de vroegere /winkelmandje-pagina en
          mandje-drawer. -->
     <div
-      v-if="cart.totalItems.value > 0"
+      v-if="auth.isLoggedIn.value && cart.totalItems.value > 0"
       class="sticky bottom-0 z-40 mt-10 border-t border-(--color-border) bg-(--color-surface-strong)/95 backdrop-blur-md"
     >
       <div
         class="max-w-325 mx-auto flex items-center gap-2 px-3 py-2.5 sm:flex-wrap sm:gap-4 sm:px-6 sm:py-4 lg:px-8"
       >
-        <div class="text-xs shrink-0 sm:text-sm">
+        <div class="text-sm shrink-0 sm:text-base">
           <span class="text-(--color-text-muted)">In winkelmandje</span>
           <span class="ml-1 font-bold text-(--color-text-strong) sm:ml-2">{{
             cart.totalItems.value
@@ -638,14 +757,14 @@
         <div class="ml-auto flex items-center gap-1.5 sm:flex-wrap sm:gap-2">
           <button
             type="button"
-            class="rounded-lg px-2 py-2 text-[0.7rem] font-medium text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong) sm:px-3 sm:py-2.5"
+            class="rounded-lg px-2 py-2 text-[0.8rem] font-medium sm:text-sm text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-text-strong) sm:px-3 sm:py-2.5"
             @click="checkout.openClearConfirm()"
           >
             Wissen
           </button>
           <button
             type="button"
-            class="rounded-lg border border-[#c89868] px-2.5 py-2 text-[0.65rem] font-semibold whitespace-nowrap tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] sm:px-4 sm:py-2.5 sm:text-[0.7rem]"
+            class="rounded-lg border border-[#c89868] px-2.5 py-2 text-[0.75rem] font-semibold whitespace-nowrap tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] sm:px-4 sm:py-2.5 sm:text-[0.8rem]"
             @click="checkout.openSaveModal()"
           >
             <span class="sm:hidden">Lijst</span>
@@ -653,7 +772,7 @@
           </button>
           <button
             type="button"
-            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.7rem] font-semibold whitespace-nowrap tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] sm:px-6 sm:py-2.5 sm:text-[0.75rem]"
+            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold whitespace-nowrap tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] sm:px-6 sm:py-2.5 sm:text-[0.85rem]"
             @click="checkout.openOrderModal()"
           >
             <span class="sm:hidden">Bestellen</span>
@@ -704,11 +823,13 @@ interface CategoryDto {
   productCount: number;
 }
 
+/** Voor gasten zijn artikelnr, fabrikant, eenheid en fiche `null` (zie
+ * /api/products). */
 interface ProductDto {
   id: string;
-  articleNr: string;
+  articleNr: string | null;
   name: string;
-  supplier: string;
+  supplier: string | null;
   unit: string | null;
   infoPdf: string | null;
   category: {
@@ -723,6 +844,7 @@ interface ProductDto {
 interface ProductsResponse {
   items: ProductDto[];
   pagination: { page: number; perPage: number; total: number; pageCount: number };
+  listCategoryCounts: Record<string, number> | null;
 }
 
 const { data: categoriesData } = await useFetch<CategoryDto[]>("/api/categories");
@@ -772,6 +894,75 @@ function toggleCartOnly() {
   if (cart.showCartOnly.value) {
     selectPreviousOrder("");
     purchasedOnly.value = false;
+  }
+}
+
+const showingAll = computed(
+  () => !cart.showCartOnly.value && !purchasedOnly.value && !selectedOrderId.value,
+);
+function showAllProducts() {
+  cart.showCartOnly.value = false;
+  purchasedOnly.value = false;
+  selectPreviousOrder("");
+}
+
+/** Naam van de actieve lijst, voor de categorie-filterknoppen. */
+const listScopeLabel = computed(() => {
+  if (cart.showCartOnly.value) return "winkelmandje";
+  if (purchasedOnly.value) return "eerder afgenomen";
+  if (selectedOrderId.value.startsWith(LIST_PREFIX)) return "dit lijstje";
+  return "deze bestelling";
+});
+
+// Categorienaam = verder winkelen: alle producten van die categorie, zodat de
+// klant meteen kan toevoegen zonder eerst zelf de lijst-filter af te zetten.
+// Filteren bínnen de lijst gaat via de trechter naast de naam.
+function pickCategory(slug: string | null) {
+  showAllProducts();
+  selectedCategorySlug.value = slug;
+}
+
+// Mobiel is er geen plaats voor een trechter per regel: zolang er een lijst
+// actief is, toont de keuzelijst twee groepen. Waarden in de lijst-groep
+// krijgen een prefix ("in:" = alle categorieën binnen de lijst).
+const IN_LIST_PREFIX = "in:";
+const mobileCategoryOptions = computed<SelectMenuOption[]>(() => {
+  if (showingAll.value) return categoryOptions.value;
+  const inList = `In ${listScopeLabel.value}`;
+  const allProducts = "Alle producten";
+  return [
+    {
+      value: IN_LIST_PREFIX,
+      label: `Alle categorieën (${listTotal.value ?? 0})`,
+      group: inList,
+    },
+    ...visibleCategories.value.map((c) => ({
+      value: `${IN_LIST_PREFIX}${c.slug}`,
+      label: c.name,
+      group: inList,
+    })),
+    {
+      value: null,
+      label: `Alle categorieën (${totalActiveCount.value})`,
+      group: allProducts,
+    },
+    ...visibleCategories.value.map((c) => ({
+      value: c.slug,
+      label: c.name,
+      group: allProducts,
+    })),
+  ];
+});
+const mobileCategoryValue = computed(() =>
+  showingAll.value
+    ? selectedCategorySlug.value
+    : `${IN_LIST_PREFIX}${selectedCategorySlug.value ?? ""}`,
+);
+function onMobileCategory(value: string | null) {
+  if (value?.startsWith(IN_LIST_PREFIX)) {
+    selectedCategorySlug.value = value.slice(IN_LIST_PREFIX.length) || null;
+  } else {
+    pickCategory(value);
   }
 }
 
@@ -831,7 +1022,7 @@ const loadingOrderSources = computed(
 const selectedOrderId = ref("");
 const previousOrderTriggerClass = computed(
   () =>
-    "max-w-[60vw] justify-between px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] bg-(--color-surface) focus:outline-none disabled:opacity-60 disabled:cursor-wait sm:max-w-50 sm:px-4 sm:py-2.5 sm:text-xs " +
+    "max-w-[60vw] justify-between px-3 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] bg-(--color-surface) focus:outline-none disabled:opacity-60 disabled:cursor-wait sm:max-w-56 sm:px-4 sm:py-2.5 sm:text-sm " +
     (selectedOrderId.value
       ? "border-[#b8252a] text-(--color-text)"
       : "border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text)"),
@@ -945,7 +1136,8 @@ const { data: firstPage, pending } = await useAsyncData<ProductsResponse>(
     $fetch<ProductsResponse>("/api/products", {
       query: { ...queryParams.value, page: 1, perPage: PAGE_SIZE },
     }),
-  { watch: [queryParams] },
+  // Ook bij in-/uitloggen herladen: de API geeft gasten minder velden terug.
+  { watch: [queryParams, auth.isLoggedIn] },
 );
 
 // "Meer laden" voegt volgende pagina's toe bovenop `firstPage`, zonder al
@@ -954,7 +1146,7 @@ const { data: firstPage, pending } = await useAsyncData<ProductsResponse>(
 const extraItems = ref<ProductDto[]>([]);
 const loadedPages = ref(1);
 
-watch(queryParams, () => {
+watch([queryParams, auth.isLoggedIn], () => {
   extraItems.value = [];
   loadedPages.value = 1;
 });
@@ -975,6 +1167,25 @@ const pagination = computed(
 );
 
 const hasMore = computed(() => items.value.length < pagination.value.total);
+
+// In een lijst (mandje, eerder afgenomen, bestelling/lijstje) tonen we enkel
+// de categorieën waar die lijst producten in heeft. De gekozen categorie blijft
+// altijd zichtbaar, ook als ze net leeg viel (bv. laatste stuk uit het mandje).
+const listCategoryCounts = computed(
+  () => firstPage.value?.listCategoryCounts ?? null,
+);
+const listTotal = computed(() =>
+  listCategoryCounts.value
+    ? Object.values(listCategoryCounts.value).reduce((sum, n) => sum + n, 0)
+    : null,
+);
+const visibleCategories = computed(() => {
+  const counts = listCategoryCounts.value;
+  if (!counts) return categories.value;
+  return categories.value.filter(
+    (c) => (counts[c.slug] ?? 0) > 0 || c.slug === selectedCategorySlug.value,
+  );
+});
 
 async function loadMore() {
   loadedPages.value++;
@@ -997,6 +1208,7 @@ function cartQty(product: ProductDto): number {
 }
 
 function setCartQty(product: ProductDto, value: number) {
+  if (!product.articleNr || !product.supplier) return;
   const qty = Number.isFinite(value) ? Math.floor(value) : 0;
   const clamped = Math.max(0, qty);
   const existing = cart.items.value.find((i) => i.id === product.id);

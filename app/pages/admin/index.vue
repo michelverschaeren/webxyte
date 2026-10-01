@@ -27,17 +27,17 @@
 
     <section v-if="stats && stats.topProducts.length > 0" class="mt-12">
       <h2
-        class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+        class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
       >
         — Meest verkocht —
       </h2>
 
       <div class="rounded-xl border border-(--color-border) overflow-hidden">
         <div class="overflow-x-auto">
-        <table class="w-full text-sm border-collapse">
+        <table class="w-full text-base border-collapse">
           <thead>
             <tr
-              class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
+              class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
             >
               <th class="px-4 py-3 text-left font-semibold">Artikelnr</th>
               <th class="px-4 py-3 text-left font-semibold">Product</th>
@@ -83,11 +83,11 @@ const { data: stats } = await useFetch<Stats>("/api/admin/stats");
 .adm-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  border: 1px solid var(--color-border);
+  gap: 0.5rem;
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.75rem;
-  background: var(--color-surface-2);
-  padding: 1.5rem;
+  background: var(--color-surface);
+  padding: 1.5rem 1.75rem;
   text-align: left;
   text-decoration: none;
   transition:
@@ -102,25 +102,28 @@ a.adm-card:hover {
   border-style: dashed;
   color: var(--color-accent);
 }
+/* Bewust geen Playfair: die heeft old-style cijfers (5, 9 zakken onder de
+   regel) en leest slecht als kerncijfer. Body-font met rechte cijfers. */
 .adm-card-value {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 2rem;
-  font-weight: 900;
-  line-height: 1;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums;
   color: var(--color-text-strong);
 }
 .adm-card--action .adm-card-value {
   color: var(--color-accent);
 }
 .adm-card-title {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   color: var(--color-accent);
 }
 .adm-card-hint {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  font-size: 1rem;
+  color: var(--color-text);
 }
 </style>

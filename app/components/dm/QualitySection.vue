@@ -18,7 +18,7 @@
       >
         <div>
           <p
-            class="uppercase tracking-[0.3em] text-[0.75rem] text-[#c89868] font-semibold mb-4"
+            class="uppercase tracking-[0.3em] text-[0.8rem] text-[#c89868] font-semibold mb-4"
           >
             — Persoonlijk contact —
           </p>
@@ -33,7 +33,7 @@
           </h2>
         </div>
         <div>
-          <p class="text-white/80 text-[1.05rem] leading-[1.7] m-0 mb-6">
+          <p class="text-white/80 text-[1.125rem] leading-[1.7] m-0 mb-6">
             Als hecht familiebedrijf bouwen wij met elke klant een persoonlijke
             vertrouwensband op. Bij ons krijgt u geen callcenter, maar iemand
             van het team die met u meedenkt. Bestel online wanneer het u past,
@@ -41,7 +41,7 @@
           </p>
           <NuxtLink
             to="/contact"
-            class="inline-block rounded-xl bg-[#c89868] text-[#1a0a0a] px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.8rem] hover:bg-[#d8a878] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-200"
+            class="inline-block rounded-xl bg-[#c89868] text-[#1a0a0a] px-8 py-[0.9rem] no-underline font-semibold uppercase tracking-[0.15em] text-[0.85rem] hover:bg-[#d8a878] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-200"
             >Alle contactgegevens</NuxtLink
           >
         </div>
@@ -63,7 +63,7 @@
             </div>
             <div class="min-w-0">
               <h3
-                class="text-white text-[0.9rem] m-0 mb-1 uppercase tracking-widest"
+                class="text-white text-[0.95rem] m-0 mb-1 uppercase tracking-widest"
               >
                 {{ point.title }}
               </h3>
@@ -71,7 +71,7 @@
                 class="block text-[#c89868] font-semibold wrap-break-word group-hover:underline"
                 >{{ point.value }}</span
               >
-              <p class="text-white/70 m-0 mt-1 text-[0.9rem] leading-normal">
+              <p class="text-white/70 m-0 mt-1 text-[0.95rem] leading-normal">
                 {{ point.text }}
               </p>
             </div>

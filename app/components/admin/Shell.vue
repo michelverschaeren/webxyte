@@ -7,7 +7,7 @@
     >
       <div class="relative z-1 mx-auto max-w-300 pt-12 text-center">
         <p
-          class="mb-2 text-[0.7rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
+          class="mb-2 text-[0.8rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
         >
           — Beheer —
         </p>
@@ -16,7 +16,7 @@
         >
           {{ title }}
         </h1>
-        <p v-if="subtitle" class="mx-auto max-w-xl text-white/70">
+        <p v-if="subtitle" class="mx-auto max-w-xl text-white/90">
           {{ subtitle }}
         </p>
       </div>
@@ -100,7 +100,7 @@ async function onLogout() {
   align-items: center;
   justify-content: center;
   padding: 0.75rem 0.2rem;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -126,7 +126,7 @@ async function onLogout() {
   flex: 0 0 auto;
   margin-left: auto;
   padding-inline: 0.4rem;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .adm-tab--logout {
   flex: 0 0 auto;
@@ -148,7 +148,7 @@ async function onLogout() {
   .adm-tab {
     flex: 0 0 auto;
     padding: 0.9rem 1rem;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     letter-spacing: 0.12em;
   }
   .adm-tab-icon {

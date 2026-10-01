@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto";
 import { betterAuth } from "better-auth";
+import { generateRandomString } from "better-auth/crypto";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
 import { db, schema } from "../database/client";
@@ -117,6 +119,37 @@ export const auth = betterAuth({
     }),
   ],
 });
+
+/** Hoe lang een uitnodiging (nieuwe klant) geldig blijft. */
+const INVITE_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Stuurt een nieuwe klant een uitnodiging: een magic link die 7 dagen geldig
+ * is (i.p.v. 15 min) en na het inloggen meteen om een wachtwoord vraagt —
+ * dezelfde terugkeer als "wachtwoord vergeten" (`?wachtwoord=nieuw`).
+ *
+ * Bewust níét via `auth.api.signInMagicLink`: die volgt de korte `expiresIn`
+ * van de plugin. We schrijven het token zelf weg in hetzelfde formaat als de
+ * plugin (SHA-256/base64url door `storeToken: "hashed"`, value `{ email }`),
+ * zodat Better Auth's eigen /magic-link/verify het gewoon inwisselt.
+ */
+export async function sendCustomerInvite(email: string) {
+  const ctx = await auth.$context;
+  const token = generateRandomString(32, "a-z", "A-Z");
+
+  await ctx.internalAdapter.createVerificationValue({
+    identifier: createHash("sha256").update(token).digest("base64url"),
+    value: JSON.stringify({ email }),
+    expiresAt: new Date(Date.now() + INVITE_EXPIRES_MS),
+  });
+
+  const url = new URL(`${ctx.baseURL}/magic-link/verify`);
+  url.searchParams.set("token", token);
+  url.searchParams.set("callbackURL", "/?wachtwoord=nieuw");
+  url.searchParams.set("errorCallbackURL", "/?login=fout");
+
+  await sendAuthLinkMail({ email, url: url.toString(), purpose: "invite" });
+}
 
 /** Het volledige, afgeleide sessietype — inclusief je eigen `role`. */
 export type Auth = typeof auth;

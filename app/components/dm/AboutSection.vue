@@ -28,7 +28,7 @@
             class="absolute bottom-4 left-4 rounded bg-[#0f0d0d]/85 px-4 py-2 backdrop-blur-sm"
           >
             <p
-              class="m-0 font-['Dancing_Script',cursive] text-lg text-(--color-accent)"
+              class="m-0 font-['Dancing_Script',cursive] text-[1.2rem] text-(--color-accent)"
             >
               het team van Vermeir
             </p>
@@ -38,7 +38,7 @@
         <!-- Text content -->
         <div class="text-center lg:text-left">
           <p
-            class="mb-4 text-[0.75rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
+            class="mb-4 text-[0.8rem] font-semibold tracking-[0.3em] text-(--color-accent) uppercase"
           >
             — Over Vleeswaren Vermeir —
           </p>
@@ -52,14 +52,14 @@
             >
           </h2>
           <p
-            class="mt-6 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
+            class="mt-6 max-w-150 text-[1.125rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
           >
             Sinds {{ COMPANY.foundingYear }} levert Vleeswaren Vermeir
             vleeswaren aan handelaars in België. Vandaag staat de derde
             generatie aan het roer, samen met een klein en hecht team.
           </p>
           <p
-            class="mt-4 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
+            class="mt-4 max-w-150 text-[1.125rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
           >
             Ons gamma telt meer dan {{ COMPANY.productCount }} producten: van
             fijne vleeswaren, kaas en salades tot bereide gerechten, sauzen en
@@ -68,7 +68,7 @@
             terecht.
           </p>
           <p
-            class="mt-4 max-w-150 text-[1.05rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
+            class="mt-4 max-w-150 text-[1.125rem] leading-[1.7] text-(--color-text-muted) lg:mx-0 mx-auto"
           >
             Van generatie op generatie bleven onze waarden dezelfde: streven
             naar 100% klanttevredenheid, met een persoonlijke service als
@@ -79,17 +79,17 @@
             class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start"
           >
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.8rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               Sinds {{ COMPANY.foundingYear }}
             </span>
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.8rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               3ᵉ generatie
             </span>
             <span
-              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.75rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
+              class="rounded-full border border-[#c89868]/40 px-4 py-1.5 text-[0.8rem] font-semibold tracking-[0.15em] text-(--color-accent) uppercase"
             >
               {{ COMPANY.productCount }}+ producten
             </span>

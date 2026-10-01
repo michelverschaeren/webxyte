@@ -1,7 +1,12 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { billingDetails, orderItems, orders } from "~~/server/database/schema";
+import {
+  billingDetails,
+  customers,
+  orderItems,
+  orders,
+} from "~~/server/database/schema";
 import { requireUser } from "~~/server/utils/session";
 
 /**
@@ -98,6 +103,13 @@ export default defineEventHandler(async (event) => {
 
   // De bestelling staat vast; een mislukte mail mag dat niet ongedaan maken.
   try {
+    // Eén login kan aan meerdere CRM-klanten hangen; de bon toont ze allemaal.
+    const crmCustomers = await db
+      .select({ customerNr: customers.customerNr })
+      .from(customers)
+      .where(eq(customers.userId, user.id))
+      .orderBy(asc(customers.customerNr));
+
     await sendOrderNotification({
       order,
       billing,
@@ -112,6 +124,7 @@ export default defineEventHandler(async (event) => {
         };
       }),
       customerEmail: user.email,
+      customerNrs: crmCustomers.map((c) => c.customerNr),
     });
   } catch (err) {
     console.error("[orders] e-mailnotificatie mislukt:", err);

@@ -70,6 +70,9 @@ export function useOrderLists() {
     try {
       lists.value = await $fetch<SavedList[]>("/api/account/lists", { headers });
       loaded.value = true;
+      // Teruggeven i.p.v. `undefined`: anders haalt useAsyncData (account-
+      // pagina's) de lijsten in de browser nog eens op (NUXT_E3006).
+      return lists.value;
     } finally {
       loading.value = false;
     }

@@ -111,12 +111,13 @@
               </svg>
             </button>
 
-            <!-- Login / account -->
+            <!-- Login / klantenzone -->
             <button
-              class="dm-icon-btn"
-              :aria-label="auth.isLoggedIn.value ? 'Mijn account' : 'Inloggen'"
-              :title="auth.isLoggedIn.value ? 'Mijn account' : 'Inloggen'"
-              @click="onAccountClick()"
+              v-if="!auth.isLoggedIn.value"
+              type="button"
+              class="dm-account-btn"
+              aria-label="Login klantenzone"
+              @click="authModal.open()"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -130,12 +131,89 @@
                   d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                 />
               </svg>
-              <span v-if="auth.isLoggedIn.value" class="dm-account-dot" />
+              <span class="dm-account-label">Login klantenzone</span>
             </button>
+            <div v-else ref="accountMenuRef" class="dm-account-split">
+              <NuxtLink
+                :to="auth.isAdmin.value ? '/admin' : '/account'"
+                class="dm-account-btn dm-account-btn--main"
+                :aria-label="zoneLabel"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                  />
+                </svg>
+                <span class="dm-account-label">{{ zoneLabel }}</span>
+              </NuxtLink>
+              <button
+                type="button"
+                class="dm-account-btn dm-account-btn--toggle"
+                :aria-label="`${zoneLabel}-menu`"
+                aria-haspopup="menu"
+                :aria-expanded="accountMenuOpen"
+                @click="accountMenuOpen = !accountMenuOpen"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  :class="{ 'dm-chevron--open': accountMenuOpen }"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </button>
+              <transition name="dm-slide">
+                <div
+                  v-if="accountMenuOpen"
+                  class="dm-account-menu"
+                  role="menu"
+                >
+                  <NuxtLink
+                    to="/account/bestellingen"
+                    class="dm-account-menu-item"
+                    role="menuitem"
+                    @click="accountMenuOpen = false"
+                  >
+                    Mijn vorige bestellingen
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/account/gegevens"
+                    class="dm-account-menu-item"
+                    role="menuitem"
+                    @click="accountMenuOpen = false"
+                  >
+                    Mijn gegevens
+                  </NuxtLink>
+                  <button
+                    type="button"
+                    class="dm-account-menu-item"
+                    role="menuitem"
+                    @click="onLogout()"
+                  >
+                    Afmelden
+                  </button>
+                </div>
+              </transition>
+            </div>
 
             <!-- Cart: geen eigen pagina meer — springt naar het (uitgeklapte)
-                 mandje-filter op de productenpagina. -->
+                 mandje-filter op de productenpagina. Enkel voor ingelogde
+                 klanten: gasten kunnen niet bestellen. -->
             <button
+              v-if="auth.isLoggedIn.value"
               type="button"
               class="dm-icon-btn"
               aria-label="Winkelwagen"
@@ -244,9 +322,20 @@ const links = [
 // zonder dat elke pagina dit zelf moet aanroepen.
 if (import.meta.client) cart.ensureLoaded();
 
-function onAccountClick() {
-  if (auth.isLoggedIn.value) navigateTo("/account");
-  else authModal.open();
+// Klantenzone-submenu: sluit bij klik buiten, Escape of paginawissel.
+const accountMenuOpen = ref(false);
+const accountMenuRef = ref<HTMLElement | null>(null);
+const zoneLabel = computed(() =>
+  auth.isAdmin.value ? "Adminzone" : "Klantenzone",
+);
+
+watch(() => route.fullPath, () => {
+  accountMenuOpen.value = false;
+});
+
+async function onLogout() {
+  accountMenuOpen.value = false;
+  await auth.logout();
 }
 
 function goToCart() {
@@ -263,8 +352,24 @@ onMounted(() => {
   const onScroll = () => {
     scrolled.value = window.scrollY > 40;
   };
+  const onDocClick = (e: MouseEvent) => {
+    if (
+      accountMenuOpen.value &&
+      !accountMenuRef.value?.contains(e.target as Node)
+    )
+      accountMenuOpen.value = false;
+  };
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") accountMenuOpen.value = false;
+  };
   window.addEventListener("scroll", onScroll, { passive: true });
-  onUnmounted(() => window.removeEventListener("scroll", onScroll));
+  document.addEventListener("click", onDocClick);
+  document.addEventListener("keydown", onKey);
+  onUnmounted(() => {
+    window.removeEventListener("scroll", onScroll);
+    document.removeEventListener("click", onDocClick);
+    document.removeEventListener("keydown", onKey);
+  });
 });
 </script>
 
@@ -330,7 +435,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
   text-decoration: none;
   letter-spacing: 0.03em;
@@ -411,7 +516,7 @@ onMounted(() => {
 .dm-nav-link {
   position: relative;
   padding: 0.5rem 1.1rem;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -482,7 +587,7 @@ onMounted(() => {
   height: 18px;
   background: #b8252a;
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   border-radius: 9px;
   display: flex;
@@ -490,14 +595,82 @@ onMounted(() => {
   justify-content: center;
   padding: 0 4px;
 }
-.dm-account-dot {
+/* Login / klantenzone */
+.dm-account-btn {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  background: #b8252a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dm-account-btn:hover {
+  background: #9a1e22;
+}
+.dm-account-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.dm-account-split {
+  position: relative;
+  display: flex;
+}
+.dm-account-btn--main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.dm-account-btn--toggle {
+  padding: 0 0.6rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+.dm-chevron--open {
+  transform: rotate(180deg);
+}
+.dm-account-menu {
   position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 7px;
-  height: 7px;
-  background: #c89868;
-  border-radius: 50%;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  padding: 0.375rem;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+.dm-account-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  background: transparent;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dm-account-menu-item:hover {
+  background: rgba(184, 37, 42, 0.15);
+  color: var(--color-text-strong);
 }
 .dm-hamburger {
   display: none;
@@ -514,7 +687,7 @@ onMounted(() => {
 }
 .dm-mobile-link {
   padding: 0.75rem 1rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -587,6 +760,20 @@ onMounted(() => {
   .dm-icon-btn svg {
     width: 17px;
     height: 17px;
+  }
+  .dm-account-btn {
+    height: 34px;
+    padding: 0 0.75rem;
+  }
+}
+
+/* Te smal voor de tekst: rode knop blijft, enkel het icoon. */
+@media (max-width: 560px) {
+  .dm-account-label {
+    display: none;
+  }
+  .dm-account-btn {
+    padding: 0 0.6rem;
   }
 }
 

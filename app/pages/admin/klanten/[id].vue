@@ -8,14 +8,14 @@
       <section>
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2
-            class="text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+            class="text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
           >
             — Contact & levering —
           </h2>
           <button
             v-if="!editing"
             type="button"
-            class="text-xs font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-(--color-accent)"
+            class="text-sm font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-(--color-accent)"
             @click="startEdit()"
           >
             Bewerken
@@ -94,7 +94,7 @@
             </label>
           </div>
 
-          <p v-if="saveError" class="text-sm text-[#e06a6a]">{{ saveError }}</p>
+          <p v-if="saveError" class="text-base text-[#e06a6a]">{{ saveError }}</p>
 
           <div class="flex flex-wrap items-center gap-3">
             <button
@@ -107,7 +107,7 @@
             <button
               type="button"
               :disabled="saving"
-              class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+              class="px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
               @click="editing = false"
             >
               Annuleren
@@ -117,19 +117,19 @@
 
         <dl v-else class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
           <div>
-            <dt class="text-xs text-(--color-text-muted)">Contact-e-mail</dt>
+            <dt class="text-sm text-(--color-text-muted)">Contact-e-mail</dt>
             <dd class="text-(--color-text-strong)">{{ data.customer.contactEmail ?? "—" }}</dd>
           </div>
           <div>
-            <dt class="text-xs text-(--color-text-muted)">Telefoon</dt>
+            <dt class="text-sm text-(--color-text-muted)">Telefoon</dt>
             <dd class="text-(--color-text-strong)">{{ data.customer.phone ?? "—" }}</dd>
           </div>
           <div class="sm:col-span-2">
-            <dt class="text-xs text-(--color-text-muted)">Leveradres</dt>
+            <dt class="text-sm text-(--color-text-muted)">Leveradres</dt>
             <dd class="text-(--color-text-strong)">{{ deliveryAddress ?? "—" }}</dd>
           </div>
         </dl>
-        <p v-if="saved && !editing" class="mt-3 text-sm text-[#8fc98f]">
+        <p v-if="saved && !editing" class="mt-3 text-base text-[#8fc98f]">
           Wijzigingen opgeslagen.
         </p>
       </section>
@@ -137,29 +137,29 @@
       <!-- Account -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Account —
         </h2>
 
         <div
           v-if="!data.account"
-          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text-muted)"
         >
           Nog geen account gekoppeld. De klant ziet zijn historiek pas na het koppelen van een login.
         </div>
         <dl v-else class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
           <div>
-            <dt class="text-xs text-(--color-text-muted)">Naam</dt>
+            <dt class="text-sm text-(--color-text-muted)">Naam</dt>
             <dd class="text-(--color-text-strong)">{{ data.account.name }}</dd>
           </div>
           <div>
-            <dt class="text-xs text-(--color-text-muted)">Login-e-mail</dt>
+            <dt class="text-sm text-(--color-text-muted)">Login-e-mail</dt>
             <dd class="text-(--color-text-strong)">{{ data.account.email }}</dd>
           </div>
           <template v-if="data.billing">
             <div>
-              <dt class="text-xs text-(--color-text-muted)">Facturatie: bedrijf</dt>
+              <dt class="text-sm text-(--color-text-muted)">Facturatie: bedrijf</dt>
               <dd class="text-(--color-text-strong)">
                 {{ data.billing.companyName }}
                 <span v-if="data.billing.vatNumber" class="text-(--color-text-muted)">
@@ -168,7 +168,7 @@
               </dd>
             </div>
             <div>
-              <dt class="text-xs text-(--color-text-muted)">Facturatie: adres</dt>
+              <dt class="text-sm text-(--color-text-muted)">Facturatie: adres</dt>
               <dd class="text-(--color-text-strong)">
                 {{ data.billing.street }}, {{ data.billing.postalCode }}
                 {{ data.billing.city }}, {{ data.billing.country }}
@@ -181,14 +181,14 @@
       <!-- Webshopbestellingen -->
       <section v-if="data.account">
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Webshopbestellingen ({{ data.orders.length }}) —
         </h2>
 
         <div
           v-if="data.orders.length === 0"
-          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text-muted)"
         >
           Nog geen bestellingen via de webshop.
         </div>
@@ -202,7 +202,7 @@
                 <p class="font-semibold text-(--color-text-strong)">
                   {{ formatDate(order.createdAt, true) }}
                 </p>
-                <p class="mt-0.5 text-xs text-(--color-text-muted)">
+                <p class="mt-0.5 text-sm text-(--color-text-muted)">
                   {{ order.lineCount }} artikel{{ order.lineCount !== 1 ? "en" : "" }}
                   · {{ order.totalQuantity }} stuks
                 </p>
@@ -216,7 +216,7 @@
       <section>
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2
-            class="text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+            class="text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
           >
             — Eerder afgenomen ({{ data.purchaseHistory.length }}) —
           </h2>
@@ -231,16 +231,16 @@
 
         <div
           v-if="data.purchaseHistory.length === 0"
-          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-sm text-(--color-text-muted)"
+          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text-muted)"
         >
           Geen aankoophistoriek uit het CRM.
         </div>
         <div v-else class="rounded-xl border border-(--color-border) overflow-hidden">
           <div class="overflow-x-auto">
-          <table class="w-full text-sm border-collapse">
+          <table class="w-full text-base border-collapse">
             <thead>
               <tr
-                class="border-b border-(--color-border) text-[0.7rem] uppercase tracking-widest text-(--color-text-muted)"
+                class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
               >
                 <th class="px-4 py-3 text-left font-semibold">Artikelnr.</th>
                 <th class="px-4 py-3 text-left font-semibold">Product</th>
@@ -256,7 +256,7 @@
                 :key="item.productId"
                 class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
               >
-                <td class="px-4 py-2.5 font-mono text-xs text-(--color-text-muted)">
+                <td class="px-4 py-2.5 font-mono text-sm text-(--color-text-muted)">
                   <NuxtLink :to="`/admin/producten/${item.productId}`" class="hover:text-(--color-accent)">
                     {{ item.articleNr }}
                   </NuxtLink>
@@ -265,7 +265,7 @@
                   {{ item.name }}
                   <span
                     v-if="!item.isActive"
-                    class="ml-2 rounded bg-(--color-hover) px-1.5 py-0.5 text-[0.65rem] text-(--color-text-muted) uppercase"
+                    class="ml-2 rounded bg-(--color-hover) px-1.5 py-0.5 text-[0.75rem] text-(--color-text-muted) uppercase"
                   >
                     Inactief
                   </span>

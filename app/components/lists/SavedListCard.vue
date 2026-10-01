@@ -17,10 +17,10 @@
           @change="emit('toggle')"
         >
         <span class="min-w-0">
-          <span class="block truncate text-sm font-semibold text-(--color-text-strong)">{{
+          <span class="block truncate text-base font-semibold text-(--color-text-strong)">{{
             list.name
           }}</span>
-          <span class="mt-0.5 block truncate text-[0.7rem] text-(--color-text-muted)">
+          <span class="mt-0.5 block truncate text-[0.8rem] text-(--color-text-muted)">
             {{ summary }}
             <span v-if="unavailableCount > 0" class="text-[#d9a05b]">
               · {{ unavailableCount }} niet meer beschikbaar</span
@@ -30,10 +30,10 @@
       </label>
 
       <div v-else class="min-w-0 flex-1">
-        <h3 class="truncate text-sm font-semibold text-(--color-text-strong)">
+        <h3 class="truncate text-base font-semibold text-(--color-text-strong)">
           {{ list.name }}
         </h3>
-        <p class="mt-0.5 truncate text-[0.7rem] text-(--color-text-muted)">
+        <p class="mt-0.5 truncate text-[0.8rem] text-(--color-text-muted)">
           {{ summary }}
           <span v-if="unavailableCount > 0" class="text-[#d9a05b]">
             · {{ unavailableCount }} niet meer beschikbaar</span
@@ -44,7 +44,7 @@
       <div class="flex shrink-0 flex-wrap items-center gap-2">
         <template v-if="!confirming">
           <button
-            class="rounded-lg border border-[#c89868] px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+            class="rounded-lg border border-[#c89868] px-3 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
             :disabled="expanded && orderLists.draftItems.value.length === 0"
             @click="onToevoegenClick"
           >
@@ -52,14 +52,14 @@
           </button>
           <button
             v-if="!expanded"
-            class="rounded-lg border border-(--color-border-strong) px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
+            class="rounded-lg border border-(--color-border-strong) px-3 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
             @click="emit('edit')"
           >
             Bewerken
           </button>
           <button
             v-else
-            class="rounded-lg border border-[#c89868] px-3 py-2 text-[0.7rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
+            class="rounded-lg border border-[#c89868] px-3 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
             @click="onOpslaanClick"
           >
             Opslaan
@@ -86,9 +86,9 @@
           </button>
         </template>
         <template v-else>
-          <span class="text-[0.7rem] text-[#b8252a]">Verwijderen?</span>
+          <span class="text-[0.8rem] text-[#b8252a]">Verwijderen?</span>
           <button
-            class="rounded-md bg-[#b8252a] px-2 py-1 text-xs text-white"
+            class="rounded-md bg-[#b8252a] px-2 py-1 text-sm text-white"
             @click="
               confirming = false;
               emit('delete');
@@ -97,7 +97,7 @@
             Ja
           </button>
           <button
-            class="rounded-md border border-(--color-border-strong) px-2 py-1 text-xs text-(--color-text)"
+            class="rounded-md border border-(--color-border-strong) px-2 py-1 text-sm text-(--color-text)"
             @click="confirming = false"
           >
             Nee
@@ -138,12 +138,12 @@
         <span class="min-w-0">
           <span
             class="block truncate font-semibold text-(--color-text-strong)"
-            :class="large ? 'text-base' : 'text-sm'"
+            :class="large ? 'text-base' : 'text-base'"
             >{{ list.name }}</span
           >
           <span
             class="mt-0.5 block text-(--color-text-muted)"
-            :class="large ? 'text-xs' : 'text-[0.7rem]'"
+            :class="large ? 'text-sm' : 'text-[0.8rem]'"
             >{{ summary }}</span
           >
         </span>
@@ -152,13 +152,13 @@
       <div v-else class="min-w-0">
         <h3
           class="truncate font-semibold text-(--color-text-strong)"
-          :class="large ? 'text-base' : 'text-sm'"
+          :class="large ? 'text-base' : 'text-base'"
         >
           {{ list.name }}
         </h3>
         <p
           class="mt-0.5 text-(--color-text-muted)"
-          :class="large ? 'text-xs' : 'text-[0.7rem]'"
+          :class="large ? 'text-sm' : 'text-[0.8rem]'"
         >
           {{ summary }}
         </p>
@@ -189,7 +189,7 @@
 
     <p
       v-if="unavailableCount > 0"
-      class="text-[0.7rem] text-[#d9a05b]"
+      class="text-[0.8rem] text-[#d9a05b]"
     >
       {{ unavailableCount }} artikel{{ unavailableCount !== 1 ? "en" : "" }} niet
       meer beschikbaar
@@ -198,14 +198,14 @@
     <div class="grid grid-cols-1 gap-2">
       <button
         class="rounded-lg border border-[#c89868] font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a]"
-        :class="large ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
+        :class="large ? 'px-4 py-3 text-sm' : 'px-3 py-2 text-[0.8rem]'"
         @click="emit('append')"
       >
         Toevoegen aan winkelmandje
       </button>
       <button
         class="rounded-lg border border-(--color-border-strong) font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover)"
-        :class="large ? 'px-4 py-3 text-xs' : 'px-3 py-2 text-[0.7rem]'"
+        :class="large ? 'px-4 py-3 text-sm' : 'px-3 py-2 text-[0.8rem]'"
         @click="emit('edit')"
       >
         Bewerken
@@ -214,7 +214,7 @@
 
     <p
       v-if="confirming"
-      class="flex items-center justify-between gap-2 text-[0.7rem] text-[#b8252a]"
+      class="flex items-center justify-between gap-2 text-[0.8rem] text-[#b8252a]"
     >
       <span>Verwijderen?</span>
       <span class="flex gap-2">

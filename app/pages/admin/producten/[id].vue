@@ -66,7 +66,7 @@
 
       <label class="flex items-center gap-3">
         <input v-model="form.isActive" type="checkbox" class="h-4 w-4" >
-        <span class="text-sm text-(--color-text)"
+        <span class="text-base text-(--color-text)"
           >Actief (zichtbaar op de site)</span
         >
       </label>
@@ -74,7 +74,7 @@
       <!-- Productfiche (pdf) -->
       <fieldset class="space-y-3 border-t border-(--color-border) pt-6">
         <legend
-          class="mb-2 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-2 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Productfiche (pdf) —
         </legend>
@@ -83,20 +83,20 @@
           <a
             :href="product.infoPdf"
             target="_blank"
-            class="text-sm text-(--color-accent) underline hover:text-[#e8c97a]"
+            class="text-base text-(--color-accent) underline hover:text-[#e8c97a]"
           >
             Huidige pdf openen →
           </a>
           <button
             type="button"
             :disabled="pdfPending"
-            class="text-xs font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-[#b8252a]"
+            class="text-sm font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-[#b8252a]"
             @click="removePdf()"
           >
             Verwijderen
           </button>
         </div>
-        <p v-else class="text-sm text-(--color-text-muted)">
+        <p v-else class="text-base text-(--color-text-muted)">
           Nog geen productfiche gekoppeld.
         </p>
 
@@ -107,14 +107,14 @@
           class="adm-input"
           @change="onFileSelected"
         >
-        <p v-if="pdfError" class="text-sm text-[#e06a6a]">{{ pdfError }}</p>
-        <p v-if="pdfPending" class="text-sm text-(--color-text-muted)">
+        <p v-if="pdfError" class="text-base text-[#e06a6a]">{{ pdfError }}</p>
+        <p v-if="pdfPending" class="text-base text-(--color-text-muted)">
           Bezig met uploaden…
         </p>
       </fieldset>
 
-      <p v-if="error" class="text-sm text-[#e06a6a]">{{ error }}</p>
-      <p v-if="saved" class="text-sm text-[#8fc98f]">Wijzigingen opgeslagen.</p>
+      <p v-if="error" class="text-base text-[#e06a6a]">{{ error }}</p>
+      <p v-if="saved" class="text-base text-[#8fc98f]">Wijzigingen opgeslagen.</p>
 
       <div class="flex flex-wrap items-center gap-3 pt-2">
         <button
@@ -126,7 +126,7 @@
         </button>
         <NuxtLink
           to="/admin/producten"
-          class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+          class="px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Terug naar overzicht
         </NuxtLink>

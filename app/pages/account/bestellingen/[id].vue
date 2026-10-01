@@ -7,7 +7,7 @@
       <p class="font-semibold text-(--color-text-strong)">
         Bedankt voor uw bestelling!
       </p>
-      <p class="mt-1 text-sm text-(--color-text-muted)">
+      <p class="mt-1 text-base text-(--color-text-muted)">
         Ze is zonet doorgestuurd naar Vleeswaren Vermeir en wordt zo snel
         mogelijk verwerkt en geleverd. U vindt de bestelling hier steeds
         terug.
@@ -18,16 +18,16 @@
       v-if="order.note"
       class="mb-8 rounded-r-xl border-l-2 border-(--color-border-strong) bg-(--color-surface-2) px-5 py-4"
     >
-      <p class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase">
+      <p class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase">
         Notitie
       </p>
-      <p class="mt-1 text-sm whitespace-pre-line text-(--color-text)">{{ order.note }}</p>
+      <p class="mt-1 text-base whitespace-pre-line text-(--color-text)">{{ order.note }}</p>
     </div>
 
     <div class="mb-6 flex flex-wrap items-center gap-4">
       <NuxtLink
         to="/account/bestellingen"
-        class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
+        class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
       >
         ← Alle bestellingen
       </NuxtLink>
@@ -37,7 +37,7 @@
       <!-- Items -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Bestelde artikelen —
         </h2>
@@ -51,14 +51,14 @@
           >
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold text-(--color-text-strong)">{{ item.name }}</p>
-              <p class="mt-0.5 text-[0.7rem] text-(--color-text-muted)">
+              <p class="mt-0.5 text-[0.8rem] text-(--color-text-muted)">
                 <span class="font-mono text-(--color-accent)">{{
                   item.articleNr
                 }}</span>
                 · {{ item.supplier }}
                 <span v-if="item.unit"> · {{ item.unit }}</span>
               </p>
-              <p v-if="!item.available" class="mt-1 text-[0.7rem] text-[#d9a05b]">
+              <p v-if="!item.available" class="mt-1 text-[0.8rem] text-[#d9a05b]">
                 Niet meer beschikbaar
               </p>
             </div>
@@ -71,14 +71,14 @@
         <!-- Reorder -->
         <div class="mt-6 rounded-xl border border-[#c89868]/30 bg-(--color-surface-2) p-5">
           <h3 class="font-semibold text-(--color-text-strong)">Opnieuw bestellen</h3>
-          <p class="mt-1 text-sm text-(--color-text-muted)">
+          <p class="mt-1 text-base text-(--color-text-muted)">
             {{ reorderSummary }}
           </p>
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <button
               type="button"
               :disabled="reorderItems.length === 0"
-              class="rounded-lg bg-[#b8252a] px-4 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              class="rounded-lg bg-[#b8252a] px-4 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-40"
               @click="reorder('replace')"
             >
               Vervang mandje
@@ -86,7 +86,7 @@
             <button
               type="button"
               :disabled="reorderItems.length === 0"
-              class="rounded-lg border border-[#c89868] px-4 py-3 text-xs font-semibold tracking-widest text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              class="rounded-lg border border-[#c89868] px-4 py-3 text-sm font-semibold tracking-widest text-(--color-accent) uppercase transition-colors hover:bg-[#c89868] hover:text-[#1a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
               @click="reorder('append')"
             >
               Toevoegen aan mandje
@@ -98,12 +98,12 @@
       <!-- Billing snapshot -->
       <section>
         <h2
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Gefactureerd aan —
         </h2>
         <div
-          class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-sm text-(--color-text)"
+          class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)"
         >
           <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
           <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
@@ -115,7 +115,7 @@
           <p class="pt-2 text-(--color-text-muted)">{{ order.billing.phone }}</p>
           <p class="text-(--color-text-muted)">{{ order.billing.invoiceEmail }}</p>
         </div>
-        <p class="mt-3 text-[0.7rem] leading-relaxed text-(--color-text-muted)">
+        <p class="mt-3 text-[0.8rem] leading-relaxed text-(--color-text-muted)">
           Dit zijn de gegevens zoals ze golden op het moment van bestellen.
           Wijzigingen aanpassen doet u bij
           <NuxtLink to="/account/gegevens" class="text-(--color-accent) hover:underline"

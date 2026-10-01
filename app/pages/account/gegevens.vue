@@ -7,7 +7,7 @@
       v-if="route.query.next"
       class="mb-8 max-w-2xl mx-auto rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
     >
-      <p class="text-sm text-(--color-text)">
+      <p class="text-base text-(--color-text)">
         Vul eerst uw facturatiegegevens in om uw bestelling te kunnen plaatsen.
       </p>
     </div>
@@ -15,7 +15,7 @@
     <form class="max-w-2xl mx-auto space-y-6" @submit.prevent="save()">
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Bedrijf —
         </legend>
@@ -47,7 +47,7 @@
 
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Adres —
         </legend>
@@ -109,7 +109,7 @@
 
       <fieldset class="space-y-5">
         <legend
-          class="mb-4 text-[0.7rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
         >
           — Contact —
         </legend>
@@ -144,8 +144,8 @@
         </div>
       </fieldset>
 
-      <p v-if="error" class="text-sm text-[#e06a6a]">{{ error }}</p>
-      <p v-if="saved" class="text-sm text-[#8fc98f]">
+      <p v-if="error" class="text-base text-[#e06a6a]">{{ error }}</p>
+      <p v-if="saved" class="text-base text-[#8fc98f]">
         Uw gegevens zijn opgeslagen.
       </p>
 
@@ -159,7 +159,7 @@
         </button>
         <NuxtLink
           to="/account"
-          class="px-4 py-3 text-xs font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
+          class="px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
         >
           Terug naar overzicht
         </NuxtLink>
@@ -218,8 +218,8 @@ async function save() {
     // Kwam de klant hier via een geblokkeerde bestelling? Dan meteen terug
     // naar het mandje zodat hij kan afronden.
     if (route.query.next === "cart") {
-      await navigateTo("/account");
-      cart.isOpen.value = true;
+      cart.showCartOnly.value = true;
+      await navigateTo("/producten");
     }
   } catch (err) {
     error.value =

@@ -8,13 +8,13 @@
       class="flex flex-col items-center gap-4 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-6 py-16 text-center"
     >
       <p class="font-semibold text-(--color-text-strong)">U heeft nog geen bestellingen</p>
-      <p class="max-w-md text-sm text-(--color-text-muted)">
+      <p class="max-w-md text-base text-(--color-text-muted)">
         Zodra u een bestelling plaatst, vindt u ze hier terug en kunt u ze
         herhalen zonder alles opnieuw te zoeken.
       </p>
       <NuxtLink
         to="/producten"
-        class="mt-2 rounded-lg bg-[#b8252a] px-6 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        class="mt-2 rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
       >
         Naar de producten
       </NuxtLink>
@@ -34,14 +34,14 @@
             <p class="truncate font-semibold text-(--color-text-strong)">
               {{ order.name || formatDate(order.createdAt) }}
             </p>
-            <p class="mt-0.5 text-xs text-(--color-text-muted)">
+            <p class="mt-0.5 text-sm text-(--color-text-muted)">
               {{ formatDate(order.createdAt) }} ·
               {{ order.lineCount }} artikel{{ order.lineCount !== 1 ? "en" : "" }}
               · {{ order.totalQuantity }} stuks
             </p>
           </div>
           <span
-            class="text-xs font-semibold tracking-[0.08em] text-(--color-accent) uppercase"
+            class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase"
           >
             Bekijken →
           </span>
@@ -56,18 +56,18 @@
       <button
         type="button"
         :disabled="page <= 1"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page--"
       >
         Vorige
       </button>
-      <span class="text-xs text-(--color-text-muted)">
+      <span class="text-sm text-(--color-text-muted)">
         Pagina {{ page }} van {{ data.pagination.pageCount }}
       </span>
       <button
         type="button"
         :disabled="page >= data.pagination.pageCount"
-        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-xs font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+        class="rounded-lg border border-(--color-border-strong) px-4 py-2 text-sm font-semibold tracking-[0.08em] text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
         @click="page++"
       >
         Volgende
