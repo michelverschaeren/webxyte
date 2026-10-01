@@ -1,4 +1,4 @@
-import { desc, eq, sql as raw } from "drizzle-orm";
+import { desc, eq, getTableColumns, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
@@ -10,12 +10,13 @@ import {
   products,
   user,
 } from "~~/server/database/schema";
+import { loginStatusSql } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/customers/:id — één CRM-klant, admin-only: contactgegevens,
- * aankoophistoriek uit het CRM en — als er een account gekoppeld is — diens
- * facturatiegegevens en webshopbestellingen.
+ * loginstatus, aankoophistoriek uit het CRM en — als de klant een login
+ * heeft — diens facturatiegegevens en webshopbestellingen.
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   );
 
   const [customer] = await db
-    .select()
+    .select({ ...getTableColumns(customers), loginStatus: loginStatusSql })
     .from(customers)
     .where(eq(customers.id, id))
     .limit(1);
@@ -98,6 +99,7 @@ export default defineEventHandler(async (event) => {
       deliveryPostalCode: customer.deliveryPostalCode,
       deliveryCity: customer.deliveryCity,
       deliveryCountry: customer.deliveryCountry,
+      loginStatus: customer.loginStatus,
     },
     account,
     billing,

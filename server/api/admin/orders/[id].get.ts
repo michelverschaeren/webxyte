@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers, orderItems, orders, user } from "~~/server/database/schema";
@@ -42,13 +42,10 @@ export default defineEventHandler(async (event) => {
       .from(user)
       .where(eq(user.id, order.userId))
       .limit(1),
-    // Eén login kan aan meerdere CRM-klanten hangen; voor de profiellink
-    // volstaat de eerste (laagste klantnummer).
     db
       .select({ id: customers.id, customerNr: customers.customerNr })
       .from(customers)
       .where(eq(customers.userId, order.userId))
-      .orderBy(asc(customers.customerNr))
       .limit(1),
   ]);
 

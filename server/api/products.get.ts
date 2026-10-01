@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
   if (purchased && session) {
 
     // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
-    // van de klant(en) die aan deze login gekoppeld zijn.
+    // van de klant achter deze login.
     const [orderRows, crmRows] = await Promise.all([
       db
         .selectDistinct({ articleNr: orderItems.articleNr })

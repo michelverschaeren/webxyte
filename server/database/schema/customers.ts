@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   date,
   index,
@@ -13,12 +13,12 @@ import { user } from "./auth";
 import { products } from "./catalog";
 
 /**
- * Klanten zoals ze in het CRM staan — los van `user` (de login). Facturatie
- * blijft in het CRM; hier enkel wat de webshop nodig heeft om te leveren.
+ * Klanten zoals ze in het CRM staan. Facturatie blijft in het CRM; hier
+ * enkel wat de webshop nodig heeft om te leveren.
  *
- * Contactmail is bewust niet uniek: in het CRM delen meerdere klantnummers
- * soms één adres (bv. Wolkenhoeve). Om dezelfde reden kan één login aan
- * meerdere klanten gekoppeld worden via `userId`.
+ * Eén klantnummer = één e-mailadres = één login. Het contactadres is ook het
+ * login-adres: bij de uitnodiging wordt er een `user` mee aangemaakt (zie
+ * server/utils/customer-login.ts). Beide zijn daarom uniek.
  */
 export const customers = pgTable(
   "customers",
@@ -27,13 +27,14 @@ export const customers = pgTable(
     /** Klantnummer uit het CRM, bv. "100145" — de natuurlijke sleutel. */
     customerNr: text().notNull(),
     name: text().notNull(),
+    /** Ook het login-adres; altijd in kleine letters opgeslagen. */
     contactEmail: text(),
     phone: text(),
     deliveryStreet: text(),
     deliveryPostalCode: text(),
     deliveryCity: text(),
     deliveryCountry: text().default("België").notNull(),
-    /** Gekoppelde login; null zolang de klant nog geen account heeft. */
+    /** De login van deze klant; null zolang de klant niet uitgenodigd is. */
     userId: text().references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true })
@@ -43,7 +44,8 @@ export const customers = pgTable(
   },
   (table) => [
     uniqueIndex("customers_customer_nr_idx").on(table.customerNr),
-    index("customers_user_id_idx").on(table.userId),
+    uniqueIndex("customers_contact_email_idx").on(sql`lower(${table.contactEmail})`),
+    uniqueIndex("customers_user_id_idx").on(table.userId),
   ],
 );
 

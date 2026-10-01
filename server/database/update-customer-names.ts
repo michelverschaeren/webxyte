@@ -10,6 +10,10 @@ import { customers } from "./schema";
  * old-data/klanten/Klanten-4.csv. Maakt geen klanten aan: enkel
  * klantnummers die al in `customers` staan worden bijgewerkt.
  *
+ * Eén e-mailadres hoort bij één klant (het is ook de login). Een adres dat
+ * al bij een andere klant staat, wordt niet overgenomen en komt in het
+ * rapport onder `emailConflicts`. Klanten met een login houden hun adres.
+ *
  *   npx tsx server/database/update-customer-names.ts --dry-run
  *   npx tsx server/database/update-customer-names.ts
  */
@@ -55,7 +59,12 @@ async function main() {
   const existing = new Map(
     (
       await db
-        .select({ customerNr: customers.customerNr, name: customers.name, contactEmail: customers.contactEmail })
+        .select({
+          customerNr: customers.customerNr,
+          name: customers.name,
+          contactEmail: customers.contactEmail,
+          userId: customers.userId,
+        })
         .from(customers)
     ).map((c) => [c.customerNr, c]),
   );
@@ -66,17 +75,42 @@ async function main() {
     .map((r) => ({ customerNr: r.customerNr, value: r.rawEmail }));
   const withoutName = [...existing.keys()].filter((nr) => !matched.some((r) => r.customerNr === nr)).sort();
 
+  // Wie houdt welk adres: wat al in de database staat wint (zo blijven de
+  // keuzes uit migratie 0009 staan), daarna de CSV in volgorde.
+  const emailOwner = new Map<string, string>();
+  for (const c of existing.values()) {
+    if (c.contactEmail) emailOwner.set(c.contactEmail.toLowerCase(), c.customerNr);
+  }
+  const emailConflicts: { customerNr: string; email: string; ownedBy: string }[] = [];
+  const emailFor = new Map<string, string | null>();
+  for (const r of matched) {
+    const current = existing.get(r.customerNr)!;
+    if (current.userId) {
+      emailFor.set(r.customerNr, current.contactEmail);
+      continue;
+    }
+    const owner = r.contactEmail ? emailOwner.get(r.contactEmail) : undefined;
+    if (r.contactEmail && owner && owner !== r.customerNr) {
+      emailConflicts.push({ customerNr: r.customerNr, email: r.contactEmail, ownedBy: owner });
+      emailFor.set(r.customerNr, null);
+      continue;
+    }
+    if (r.contactEmail) emailOwner.set(r.contactEmail, r.customerNr);
+    emailFor.set(r.customerNr, r.contactEmail);
+  }
+
   console.log(`Klanten in CSV: ${records.length}${DRY_RUN ? "  (DRY RUN — er wordt niets geschreven)" : ""}`);
   console.log(`Bij te werken: ${matched.length} van ${existing.size}`);
   console.log(`Met contactmail: ${matched.filter((r) => r.contactEmail).length}, ongeldige mail: ${invalidEmails.length}`);
   console.log(`Nog zonder naam: ${withoutName.length}`);
+  console.log(`Adres al bij een andere klant (niet overgenomen): ${emailConflicts.length}`);
 
   if (!DRY_RUN) {
     await db.transaction(async (tx) => {
       for (const r of matched) {
         await tx
           .update(customers)
-          .set({ name: r.name, contactEmail: r.contactEmail })
+          .set({ name: r.name, contactEmail: emailFor.get(r.customerNr) ?? null })
           .where(eq(customers.customerNr, r.customerNr));
       }
     });
@@ -93,9 +127,10 @@ async function main() {
           customerNr: r.customerNr,
           from: existing.get(r.customerNr)!.name,
           name: r.name,
-          contactEmail: r.contactEmail,
+          contactEmail: emailFor.get(r.customerNr) ?? null,
         })),
         invalidEmails,
+        emailConflicts,
         withoutName,
       },
       null,

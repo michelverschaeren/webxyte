@@ -8,8 +8,19 @@
         class="adm-input max-w-sm flex-1"
       >
       <button
+        v-if="summary.notInvited > 0"
         type="button"
-        class="ml-auto rounded-lg bg-[#b8252a] px-5 py-2.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
+        :disabled="!INVITE_ALL_ENABLED || invitingAll"
+        :title="INVITE_ALL_ENABLED ? undefined : 'Tijdelijk uitgeschakeld tot alle klanten een e-mailadres hebben.'"
+        class="ml-auto rounded-lg border border-(--color-border-strong) px-5 py-2.5 text-sm font-semibold tracking-widest text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-50"
+        @click="inviteAll"
+      >
+        {{ invitingAll ? "Uitnodigen…" : `Alle klanten uitnodigen (${summary.notInvited})` }}
+      </button>
+      <button
+        type="button"
+        :class="summary.notInvited > 0 ? '' : 'ml-auto'"
+        class="rounded-lg bg-[#b8252a] px-5 py-2.5 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f]"
         @click="openCreate"
       >
         + Nieuwe klant
@@ -26,6 +37,9 @@
 
     <p class="mb-3 text-sm text-(--color-text-muted)">
       {{ pagination?.total ?? 0 }} klanten
+      <template v-if="summary.noEmail > 0">
+        · {{ summary.noEmail }} zonder e-mailadres (kunnen niet inloggen)
+      </template>
     </p>
 
     <!-- Kaarten (mobiel) -->
@@ -48,7 +62,7 @@
           </div>
           <div class="flex items-center justify-between gap-3 text-sm text-(--color-text-muted)">
             <span>{{ c.productCount }} product{{ c.productCount !== 1 ? "en" : "" }}</span>
-            <span>{{ c.accountEmail ? "Account gekoppeld" : "Geen account" }}</span>
+            <span>{{ loginStatusLabel[c.loginStatus] }}</span>
           </div>
         </NuxtLink>
       </li>
@@ -74,7 +88,7 @@
               Contact
             </th>
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
-              Account
+              Login
             </th>
             <th class="px-4 py-3 text-right font-semibold">Producten</th>
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
@@ -95,7 +109,7 @@
               {{ c.contactEmail ?? "—" }}
             </td>
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) lg:table-cell">
-              {{ c.accountEmail ?? "—" }}
+              {{ loginStatusLabel[c.loginStatus] }}
             </td>
             <td class="px-4 py-2.5 text-right text-(--color-text-strong)">
               {{ c.productCount }}
@@ -172,8 +186,9 @@
 
           <form class="space-y-4 px-5 py-5 sm:px-6" @submit.prevent="submitCreate">
             <p class="text-sm text-(--color-text-muted)">
-              De klant krijgt een e-mail met een link om een wachtwoord in te
-              stellen en meteen in te loggen.
+              Het e-mailadres wordt de login van deze klant. De klant krijgt
+              een e-mail met een link om een wachtwoord in te stellen en meteen
+              in te loggen.
             </p>
             <label class="block">
               <span class="adm-label">Klantnummer</span>
@@ -234,13 +249,14 @@ interface CustomerDto {
   name: string;
   contactEmail: string | null;
   phone: string | null;
-  accountEmail: string | null;
+  loginStatus: CustomerLoginStatus;
   productCount: number;
   lastPurchasedAt: string | null;
 }
 
 interface CustomersResponse {
   items: CustomerDto[];
+  summary: { notInvited: number; noEmail: number };
   pagination: { page: number; perPage: number; total: number; pageCount: number };
 }
 
@@ -274,7 +290,6 @@ const { data, refresh } = await useFetch<CustomersResponse>("/api/admin/customer
 interface CreateCustomerResponse {
   id: string;
   invited: boolean;
-  linkedToExistingAccount: boolean;
 }
 
 const createOpen = ref(false);
@@ -307,11 +322,9 @@ async function submitCreate() {
       body: { customerNr: form.customerNr, email: form.email },
     });
 
-    createNotice.value = result.linkedToExistingAccount
-      ? `Klant ${form.customerNr} is gekoppeld aan het bestaande account ${form.email}.`
-      : result.invited
-        ? `Klant ${form.customerNr} aangemaakt. Uitnodiging verstuurd naar ${form.email}.`
-        : `Klant ${form.customerNr} aangemaakt, maar de uitnodiging kon niet verstuurd worden. Laat de klant 'Wachtwoord vergeten' gebruiken.`;
+    createNotice.value = result.invited
+      ? `Klant ${form.customerNr} opgeslagen. Uitnodiging verstuurd naar ${form.email}.`
+      : `Klant ${form.customerNr} opgeslagen, maar de uitnodiging kon niet verstuurd worden. Probeer opnieuw via de klantpagina.`;
     createOpen.value = false;
     await refresh();
   } catch (err) {
@@ -338,6 +351,41 @@ onMounted(() => {
 });
 
 const items = computed(() => data.value?.items ?? []);
+const summary = computed(() => data.value?.summary ?? { notInvited: 0, noEmail: 0 });
+
+const invitingAll = ref(false);
+/** Tijdelijk uit: pas aanzetten zodra elke klant een e-mailadres heeft. */
+const INVITE_ALL_ENABLED = false;
+
+async function inviteAll() {
+  if (!INVITE_ALL_ENABLED || invitingAll.value) return;
+  const n = summary.value.notInvited;
+  if (
+    !window.confirm(
+      `${n} klant${n !== 1 ? "en" : ""} met een e-mailadres maar zonder login krijg${n !== 1 ? "en" : "t"} nu een uitnodiging. Doorgaan?`,
+    )
+  ) {
+    return;
+  }
+
+  invitingAll.value = true;
+  try {
+    const result = await $fetch<{
+      invited: number;
+      failed: { customerNr: string; reason: string }[];
+    }>("/api/admin/customers/invite-all", { method: "POST" });
+    createNotice.value =
+      `${result.invited} uitnodiging${result.invited !== 1 ? "en" : ""} verstuurd.` +
+      (result.failed.length > 0
+        ? ` Niet gelukt: ${result.failed.map((f) => `${f.customerNr} (${f.reason})`).join(", ")}.`
+        : "");
+  } catch {
+    createNotice.value = "Uitnodigen mislukt. Probeer het later opnieuw.";
+  } finally {
+    invitingAll.value = false;
+    await refresh();
+  }
+}
 const pagination = computed(() => data.value?.pagination);
 
 function formatDate(value: string): string {

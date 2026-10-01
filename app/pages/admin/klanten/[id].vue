@@ -29,7 +29,7 @@
         >
           <div class="grid gap-5 sm:grid-cols-2">
             <label class="block">
-              <span class="adm-label">Contact-e-mail</span>
+              <span class="adm-label">E-mail (ook de login)</span>
               <input
                 v-model="form.contactEmail"
                 type="email"
@@ -134,28 +134,43 @@
         </p>
       </section>
 
-      <!-- Account -->
+      <!-- Login -->
       <section>
-        <h2
-          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
-        >
-          — Account —
-        </h2>
-
-        <div
-          v-if="!data.account"
-          class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text-muted)"
-        >
-          Nog geen account gekoppeld. De klant ziet zijn historiek pas na het koppelen van een login.
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2
+            class="text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+          >
+            — Login —
+          </h2>
+          <button
+            v-if="data.customer.loginStatus !== 'no-email' && data.customer.loginStatus !== 'active'"
+            type="button"
+            :disabled="inviting"
+            class="text-sm font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-(--color-accent) disabled:cursor-not-allowed disabled:opacity-50"
+            @click="invite()"
+          >
+            {{
+              inviting
+                ? "Versturen…"
+                : data.customer.loginStatus === "invited"
+                  ? "Opnieuw uitnodigen"
+                  : "Uitnodigen"
+            }}
+          </button>
         </div>
-        <dl v-else class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
+
+        <dl class="grid gap-x-8 gap-y-3 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:grid-cols-2">
           <div>
-            <dt class="text-sm text-(--color-text-muted)">Naam</dt>
-            <dd class="text-(--color-text-strong)">{{ data.account.name }}</dd>
+            <dt class="text-sm text-(--color-text-muted)">Status</dt>
+            <dd class="text-(--color-text-strong)">
+              {{ loginStatusLabel[data.customer.loginStatus] }}
+            </dd>
           </div>
           <div>
             <dt class="text-sm text-(--color-text-muted)">Login-e-mail</dt>
-            <dd class="text-(--color-text-strong)">{{ data.account.email }}</dd>
+            <dd class="text-(--color-text-strong)">
+              {{ data.customer.contactEmail ?? "— (vul eerst een e-mailadres in via Bewerken)" }}
+            </dd>
           </div>
           <template v-if="data.billing">
             <div>
@@ -176,6 +191,9 @@
             </div>
           </template>
         </dl>
+        <p v-if="inviteMessage" class="mt-3 text-base" :class="inviteError ? 'text-[#e06a6a]' : 'text-[#8fc98f]'">
+          {{ inviteMessage }}
+        </p>
       </section>
 
       <!-- Webshopbestellingen -->
@@ -307,6 +325,7 @@ interface CustomerDetail {
     deliveryPostalCode: string | null;
     deliveryCity: string | null;
     deliveryCountry: string;
+    loginStatus: CustomerLoginStatus;
   };
   account: { id: string; name: string; email: string } | null;
   billing: {
@@ -391,6 +410,33 @@ async function saveContact() {
       "Opslaan mislukt. Controleer de ingevulde gegevens.";
   } finally {
     saving.value = false;
+  }
+}
+
+const inviting = ref(false);
+const inviteMessage = ref("");
+const inviteError = ref(false);
+
+async function invite() {
+  if (inviting.value || !data.value) return;
+  inviting.value = true;
+  inviteMessage.value = "";
+
+  try {
+    const result = await $fetch<{ email: string }>(
+      `/api/admin/customers/${data.value.customer.id}/invite`,
+      { method: "POST" },
+    );
+    inviteError.value = false;
+    inviteMessage.value = `Uitnodiging verstuurd naar ${result.email}.`;
+    await refresh();
+  } catch (err) {
+    inviteError.value = true;
+    inviteMessage.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      "Uitnodigen mislukt. Probeer het later opnieuw.";
+  } finally {
+    inviting.value = false;
   }
 }
 

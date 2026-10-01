@@ -11,8 +11,8 @@ export interface OrderPdfItem {
 interface OrderPdfInput {
   order: Order;
   billing: BillingDetails;
-  /** Klantnummer(s) uit het CRM; leeg als de login nog niet gekoppeld is. */
-  customerNrs: string[];
+  /** Klantnummer uit het CRM; null voor een login zonder klant (bv. test). */
+  customerNr: string | null;
   customerEmail: string;
   items: OrderPdfItem[];
 }
@@ -85,7 +85,7 @@ function wrapText(text: string, font: PDFFont, size: number, maxWidth: number) {
 export async function generateOrderPdf({
   order,
   billing,
-  customerNrs,
+  customerNr,
   customerEmail,
   items,
 }: OrderPdfInput): Promise<Uint8Array> {
@@ -151,7 +151,7 @@ export async function generateOrderPdf({
   const details: [string, string][] = [
     ["Datum", placedAt],
     ["Klant", billing.companyName],
-    ["Klantnummer", customerNrs.length > 0 ? customerNrs.join(", ") : "— (nog niet gekoppeld)"],
+    ["Klantnummer", customerNr ?? "—"],
     ["Account", customerEmail],
     ["Naam bestelling", order.name || "—"],
     ["Bestelnummer", order.id],

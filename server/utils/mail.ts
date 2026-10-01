@@ -14,8 +14,8 @@ interface OrderNotification {
   billing: BillingDetails;
   items: OrderMailItem[];
   customerEmail: string;
-  /** Klantnummer(s) uit het CRM die aan deze login hangen. */
-  customerNrs: string[];
+  /** Klantnummer uit het CRM; null voor een login zonder klant (bv. test). */
+  customerNr: string | null;
 }
 
 const LETTERMINT_ENDPOINT = "https://api.lettermint.co/v1/send";
@@ -99,7 +99,7 @@ export async function sendOrderNotification({
   billing,
   items,
   customerEmail,
-  customerNrs,
+  customerNr,
 }: OrderNotification) {
   const to = process.env.ORDER_NOTIFICATION_EMAIL;
 
@@ -127,7 +127,7 @@ export async function sendOrderNotification({
     `Nieuwe bestelling van ${billing.companyName}`,
     ``,
     `Geplaatst op: ${placedAt}`,
-    `Klantnummer: ${customerNrs.length > 0 ? customerNrs.join(", ") : "—"}`,
+    `Klantnummer: ${customerNr ?? "—"}`,
     `Account: ${customerEmail}`,
     ``,
     `— Facturatiegegevens —`,
@@ -148,10 +148,10 @@ export async function sendOrderNotification({
   // Een mislukte PDF mag de bestelmail zelf niet tegenhouden.
   let attachments: MailAttachment[] | undefined;
   try {
-    const pdf = await generateOrderPdf({ order, billing, customerNrs, customerEmail, items });
+    const pdf = await generateOrderPdf({ order, billing, customerNr, customerEmail, items });
     const datePart = order.createdAt
       .toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }); // JJJJ-MM-DD
-    const nrPart = customerNrs[0] ?? order.id.slice(0, 8);
+    const nrPart = customerNr ?? order.id.slice(0, 8);
     attachments = [
       {
         filename: `bestelling-${nrPart}-${datePart}.pdf`,

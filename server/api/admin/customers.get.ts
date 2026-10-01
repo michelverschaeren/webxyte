@@ -1,16 +1,15 @@
 import { asc, count, eq, ilike, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import {
-  customerPurchaseHistory,
-  customers,
-  user,
-} from "~~/server/database/schema";
+import { customerPurchaseHistory, customers } from "~~/server/database/schema";
+import { loginStatusSql } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
- * GET /api/admin/customers — klanten uit het CRM, gepagineerd, met het
- * gekoppelde account en een samenvatting van hun aankoophistoriek.
+ * GET /api/admin/customers — klanten uit het CRM, gepagineerd, met hun
+ * loginstatus en een samenvatting van hun aankoophistoriek. `summary` telt
+ * over alle klanten heen (los van zoeken/paginering), voor "alle klanten
+ * uitnodigen".
  */
 const querySchema = z.object({
   search: z.string().trim().min(1).optional(),
@@ -30,7 +29,6 @@ export default defineEventHandler(async (event) => {
         ilike(customers.customerNr, `%${search}%`),
         ilike(customers.name, `%${search}%`),
         ilike(customers.contactEmail, `%${search}%`),
-        ilike(user.email, `%${search}%`),
       )
     : undefined;
 
@@ -48,7 +46,7 @@ export default defineEventHandler(async (event) => {
     .groupBy(customerPurchaseHistory.customerId)
     .as("history");
 
-  const [items, [total]] = await Promise.all([
+  const [items, [total], [summary]] = await Promise.all([
     db
       .select({
         id: customers.id,
@@ -56,27 +54,30 @@ export default defineEventHandler(async (event) => {
         name: customers.name,
         contactEmail: customers.contactEmail,
         phone: customers.phone,
-        accountEmail: user.email,
+        loginStatus: loginStatusSql,
         productCount: raw<number>`coalesce(${history.productCount}, 0)::int`,
         lastPurchasedAt: history.lastPurchasedAt,
       })
       .from(customers)
-      .leftJoin(user, eq(customers.userId, user.id))
       .leftJoin(history, eq(history.customerId, customers.id))
       .where(where)
       .orderBy(asc(customers.customerNr))
       .limit(perPage)
       .offset((page - 1) * perPage),
 
+    db.select({ value: count() }).from(customers).where(where),
+
     db
-      .select({ value: count() })
-      .from(customers)
-      .leftJoin(user, eq(customers.userId, user.id))
-      .where(where),
+      .select({
+        notInvited: raw<number>`count(*) filter (where ${customers.contactEmail} is not null and ${customers.userId} is null)::int`,
+        noEmail: raw<number>`count(*) filter (where ${customers.contactEmail} is null)::int`,
+      })
+      .from(customers),
   ]);
 
   return {
     items,
+    summary: summary ?? { notInvited: 0, noEmail: 0 },
     pagination: {
       page,
       perPage,
