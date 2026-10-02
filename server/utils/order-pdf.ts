@@ -4,6 +4,7 @@ import type { BillingDetails, Order } from "~~/server/database/schema";
 export interface OrderPdfItem {
   articleNr: string;
   name: string;
+  supplier: string;
   unit: string | null;
   quantity: number;
 }
@@ -28,11 +29,13 @@ const TEXT = rgb(0.1, 0.1, 0.1);
 const MUTED = rgb(0.4, 0.4, 0.4);
 const LINE = rgb(0.85, 0.85, 0.85);
 
-// Kolommen van de artikeltabel: artikelnummer, aantal, productnaam.
+// Kolommen van de artikeltabel: artikelnummer, aantal, productnaam, leverancier.
 const COL_ARTICLE = MARGIN;
 const COL_QTY_RIGHT = MARGIN + 140;
 const COL_NAME = MARGIN + 160;
-const NAME_WIDTH = PAGE_WIDTH - MARGIN - COL_NAME;
+const SUPPLIER_WIDTH = 120;
+const COL_SUPPLIER = PAGE_WIDTH - MARGIN - SUPPLIER_WIDTH;
+const NAME_WIDTH = COL_SUPPLIER - 12 - COL_NAME;
 
 const ROW_LINE_HEIGHT = 13;
 const ROW_PADDING = 5;
@@ -79,8 +82,8 @@ function wrapText(text: string, font: PDFFont, size: number, maxWidth: number) {
 
 /**
  * Genereert een bestelbon (PDF) voor de bestelmail aan de zaak.
- * Tabel: artikelnummer, aantal, productnaam — in die volgorde, zoals
- * het magazijn de bon leest.
+ * Tabel: artikelnummer, aantal, productnaam, leverancier — in die volgorde,
+ * zoals het magazijn de bon leest.
  */
 export async function generateOrderPdf({
   order,
@@ -202,6 +205,7 @@ export async function generateOrderPdf({
     text("Artikelnr.", COL_ARTICLE, { font: bold, size: 9, color: MUTED });
     rightText("Aantal", COL_QTY_RIGHT, { font: bold, size: 9, color: MUTED });
     text("Product", COL_NAME, { font: bold, size: 9, color: MUTED });
+    text("Leverancier", COL_SUPPLIER, { font: bold, size: 9, color: MUTED });
     y -= 6;
     hr(TEXT, 0.75);
     y -= ROW_LINE_HEIGHT + 1;
@@ -213,7 +217,8 @@ export async function generateOrderPdf({
   for (const item of items) {
     const label = item.unit ? `${item.name} (${item.unit})` : item.name;
     const nameLines = wrapText(clean(label), regular, 10, NAME_WIDTH);
-    const rowHeight = nameLines.length * ROW_LINE_HEIGHT;
+    const supplierLines = wrapText(clean(item.supplier), regular, 10, SUPPLIER_WIDTH);
+    const rowHeight = Math.max(nameLines.length, supplierLines.length) * ROW_LINE_HEIGHT;
 
     // Rij past niet meer: nieuwe pagina met herhaalde tabelkop.
     if (y - rowHeight < MARGIN + 20) {
@@ -227,6 +232,15 @@ export async function generateOrderPdf({
     nameLines.forEach((line, i) => {
       page.drawText(line, {
         x: COL_NAME,
+        y: y - i * ROW_LINE_HEIGHT,
+        font: regular,
+        size: 10,
+        color: TEXT,
+      });
+    });
+    supplierLines.forEach((line, i) => {
+      page.drawText(line, {
+        x: COL_SUPPLIER,
         y: y - i * ROW_LINE_HEIGHT,
         font: regular,
         size: 10,

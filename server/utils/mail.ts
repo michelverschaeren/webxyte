@@ -1,4 +1,5 @@
 import type { BillingDetails, Order } from "~~/server/database/schema";
+import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
 import { generateOrderPdf } from "./order-pdf";
 
 interface OrderMailItem {
@@ -145,6 +146,12 @@ export async function sendOrderNotification({
     .filter((line) => line !== null)
     .join("\n");
 
+  const html = renderMailLayout({
+    title: `Nieuwe bestelling van ${billing.companyName}`,
+    preheader: `${items.length} artikel${items.length === 1 ? "" : "en"} — bestelbon in bijlage`,
+    content: orderMailContent({ order, billing, items, customerEmail, customerNr }, placedAt),
+  });
+
   // Een mislukte PDF mag de bestelmail zelf niet tegenhouden.
   let attachments: MailAttachment[] | undefined;
   try {
@@ -170,9 +177,65 @@ export async function sendOrderNotification({
     // Enkel het adres: een bedrijfsnaam met komma breekt "Naam <adres>".
     replyTo: billing.invoiceEmail,
     subject: `Nieuwe bestelling — ${billing.companyName}`,
-    text,
+    text: withTextFooter(text),
+    html,
     attachments,
   });
+}
+
+/** HTML-inhoud van de bestelmail; komt in de standaard-layout. */
+function orderMailContent(
+  { order, billing, items, customerEmail, customerNr }: OrderNotification,
+  placedAt: string,
+) {
+  const e = escapeHtml;
+  const label = "padding:2px 16px 2px 0;color:#666;font-size:14px;white-space:nowrap;vertical-align:top";
+  const head = "padding:0 8px 6px 0;border-bottom:2px solid #1a1a1a;font-size:13px;color:#666;text-align:left";
+  const cell = "padding:8px 8px 8px 0;border-bottom:1px solid #e5e5e5;vertical-align:top";
+  const h2 = "margin:0 0 8px;font-size:16px";
+
+  const details: [string, string][] = [
+    ["Geplaatst op", placedAt],
+    ["Klantnummer", customerNr ?? "—"],
+    ["Account", customerEmail],
+  ];
+  if (order.name) details.push(["Naam bestelling", order.name]);
+
+  const billingLines = [
+    `<strong>${e(billing.companyName)}</strong>`,
+    billing.vatNumber ? `BTW: ${e(billing.vatNumber)}` : null,
+    `${e(billing.street)}, ${e(billing.postalCode)} ${e(billing.city)}, ${e(billing.country)}`,
+    `Tel: ${e(billing.phone)}`,
+    `Factuur-e-mail: ${e(billing.invoiceEmail)}`,
+  ].filter((line) => line !== null);
+
+  const rows = items.map(
+    (i) => `<tr>
+    <td style="${cell};font-weight:600">${e(i.articleNr)}</td>
+    <td style="${cell};text-align:right;font-weight:600">${i.quantity}</td>
+    <td style="${cell};padding-left:12px">${e(i.name)}${i.unit ? ` <span style="color:#666">(${e(i.unit)})</span>` : ""}</td>
+    <td style="${cell}">${e(i.supplier)}</td>
+  </tr>`,
+  );
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px">
+  ${details.map(([k, v]) => `<tr><td style="${label}">${k}</td><td style="padding:2px 0;font-size:14px">${e(v)}</td></tr>`).join("\n  ")}
+</table>
+<h2 style="${h2}">Facturatiegegevens</h2>
+<p style="margin:0 0 24px;font-size:14px">${billingLines.join("<br>")}</p>
+${order.note ? `<h2 style="${h2}">Opmerking</h2>
+<p style="margin:0 0 24px;font-size:14px;white-space:pre-line">${e(order.note)}</p>` : ""}
+<h2 style="${h2}">Bestelde artikelen</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px">
+  <tr>
+    <th style="${head}">Artikelnr.</th>
+    <th style="${head};text-align:right">Aantal</th>
+    <th style="${head};padding-left:12px">Product</th>
+    <th style="${head}">Leverancier</th>
+  </tr>
+  ${rows.join("\n  ")}
+</table>
+<p style="margin:24px 0 0;font-size:13px;color:#666">De bestelbon zit als PDF in bijlage. Referentie: ${e(order.id)}</p>`;
 }
 
 interface AuthLinkMail {
@@ -188,6 +251,7 @@ interface AuthLinkMail {
 const AUTH_LINK_TEXT = {
   login: {
     subject: "Uw inloglink — Vleeswaren Vermeir",
+    title: "Inloggen in de klantenzone",
     intro: "Via onderstaande link wordt u meteen ingelogd in de klantenzone.",
     buttonLabel: "Inloggen",
     outro:
@@ -195,6 +259,7 @@ const AUTH_LINK_TEXT = {
   },
   reset: {
     subject: "Nieuw wachtwoord instellen — Vleeswaren Vermeir",
+    title: "Nieuw wachtwoord instellen",
     intro:
       "U vroeg een nieuw wachtwoord aan. Via onderstaande link wordt u ingelogd en kan u meteen een nieuw wachtwoord kiezen.",
     buttonLabel: "Nieuw wachtwoord instellen",
@@ -203,6 +268,7 @@ const AUTH_LINK_TEXT = {
   },
   invite: {
     subject: "Uw account bij Vleeswaren Vermeir",
+    title: "Welkom in de klantenzone",
     intro:
       "Er werd een account voor u aangemaakt in de klantenzone van Vleeswaren Vermeir. Via onderstaande link wordt u ingelogd en kiest u meteen uw wachtwoord.",
     buttonLabel: "Wachtwoord instellen",
@@ -228,16 +294,20 @@ export async function sendAuthLinkMail({ email, url, purpose }: AuthLinkMail) {
     return;
   }
 
-  const { subject, intro, buttonLabel, outro } = AUTH_LINK_TEXT[purpose];
+  const { subject, title, intro, buttonLabel, outro } = AUTH_LINK_TEXT[purpose];
 
   await sendMail({
     // Niet MAIL_FROM_NAME: die is "Bestellingen …" en bedoeld voor bestelmails.
     fromName: "Vleeswaren Vermeir",
     to: email,
     subject,
-    text: [intro, "", url, "", outro].join("\n"),
-    html: `<p>${intro}</p>
-<p><a href="${url}" style="display:inline-block;padding:12px 20px;background:#b8252a;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">${buttonLabel}</a></p>
-<p style="color:#666;font-size:13px">${outro}</p>`,
+    text: withTextFooter([intro, "", url, "", outro].join("\n")),
+    html: renderMailLayout({
+      title,
+      preheader: intro,
+      content: `<p style="margin:0">${intro}</p>
+${mailButton(buttonLabel, url)}
+<p style="margin:0;color:#666;font-size:13px">${outro}</p>`,
+    }),
   });
 }
