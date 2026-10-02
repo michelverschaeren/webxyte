@@ -1,5 +1,6 @@
 import type { BillingDetails, Order } from "~~/server/database/schema";
 import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
+import { renderLaunchMail } from "./mail-launch";
 import { generateOrderPdf } from "./order-pdf";
 
 interface OrderMailItem {
@@ -310,4 +311,33 @@ ${mailButton(buttonLabel, url)}
 <p style="margin:0;color:#666;font-size:13px">${outro}</p>`,
     }),
   });
+}
+
+/**
+ * Stuurt de lanceringsmail (aankondiging nieuwe website) met de persoonlijke
+ * uitnodigingslink. Zonder Lettermint-config: zelfde gedrag als
+ * `sendAuthLinkMail`.
+ */
+export async function sendLaunchMail({
+  email,
+  url,
+  companyName,
+}: {
+  email: string;
+  url: string;
+  companyName: string | null;
+}) {
+  if (!mailConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        `[mail] Lanceringsmail voor ${email} niet verstuurd (LETTERMINT_API_TOKEN / MAIL_FROM_EMAIL niet ingesteld).`,
+      );
+    } else {
+      console.info(`[mail] Lanceringsmail voor ${email}:\n${url}`);
+    }
+    return;
+  }
+
+  const { subject, text, html } = renderLaunchMail({ companyName, url });
+  await sendMail({ fromName: "Vleeswaren Vermeir", to: email, subject, text, html });
 }

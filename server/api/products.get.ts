@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, max, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
@@ -75,27 +75,41 @@ export default defineEventHandler(async (event) => {
   // Zonder bestelhistoriek kan er nooit een match zijn — dan meteen een leeg
   // resultaat teruggeven.
   let purchasedArticleNrs: string[] | undefined;
+  /** Artikelnr → laatste aankoopdatum (JJJJ-MM-DD), enkel bij `purchased`. */
+  const lastPurchased = new Map<string, string>();
   if (purchased && session) {
-
     // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
-    // van de klant achter deze login.
+    // van de klant achter deze login. Per bron de laatste datum; de
+    // bestellingen als kalenderdag in Belgische tijd, zoals het CRM.
     const [orderRows, crmRows] = await Promise.all([
       db
-        .selectDistinct({ articleNr: orderItems.articleNr })
+        .select({
+          articleNr: orderItems.articleNr,
+          last: sql<string>`(max(${orders.createdAt}) at time zone 'Europe/Brussels')::date::text`,
+        })
         .from(orderItems)
         .innerJoin(orders, eq(orderItems.orderId, orders.id))
-        .where(eq(orders.userId, session.user.id)),
+        .where(eq(orders.userId, session.user.id))
+        .groupBy(orderItems.articleNr),
       db
-        .selectDistinct({ articleNr: products.articleNr })
+        .select({
+          articleNr: products.articleNr,
+          last: sql<string>`${max(customerPurchaseHistory.lastPurchasedAt)}::text`,
+        })
         .from(customerPurchaseHistory)
         .innerJoin(customers, eq(customerPurchaseHistory.customerId, customers.id))
         .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
-        .where(eq(customers.userId, session.user.id)),
+        .where(eq(customers.userId, session.user.id))
+        .groupBy(products.articleNr),
     ]);
 
-    purchasedArticleNrs = [
-      ...new Set([...orderRows, ...crmRows].map((r) => r.articleNr)),
-    ];
+    // ISO-datums vergelijken als tekst = chronologisch.
+    for (const { articleNr, last } of [...orderRows, ...crmRows]) {
+      const current = lastPurchased.get(articleNr);
+      if (!current || last > current) lastPurchased.set(articleNr, last);
+    }
+
+    purchasedArticleNrs = [...lastPurchased.keys()];
     if (purchasedArticleNrs.length === 0) return emptyResult();
   }
 
@@ -194,8 +208,13 @@ export default defineEventHandler(async (event) => {
           supplier: null,
           unit: null,
           infoPdf: null,
+          lastPurchasedAt: null,
         }))
-      : items,
+      : items.map((item) => ({
+          ...item,
+          /** Laatste aankoop door deze klant; enkel bij "eerder afgenomen". */
+          lastPurchasedAt: lastPurchased.get(item.articleNr) ?? null,
+        })),
     pagination: {
       page,
       perPage,

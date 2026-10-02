@@ -11,11 +11,11 @@
         v-if="summary.notInvited > 0"
         type="button"
         :disabled="!INVITE_ALL_ENABLED || invitingAll"
-        :title="INVITE_ALL_ENABLED ? undefined : 'Tijdelijk uitgeschakeld tot alle klanten een e-mailadres hebben.'"
+        :title="INVITE_ALL_ENABLED ? undefined : 'Tijdelijk uitgeschakeld tot de livegang.'"
         class="ml-auto rounded-lg border border-(--color-border-strong) px-5 py-2.5 text-sm font-semibold tracking-widest text-(--color-text) uppercase transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-50"
         @click="inviteAll"
       >
-        {{ invitingAll ? "Uitnodigen…" : `Alle klanten uitnodigen (${summary.notInvited})` }}
+        {{ invitingAll ? "Versturen…" : `Lanceringsmail naar alle klanten (${summary.notInvited})` }}
       </button>
       <button
         type="button"
@@ -354,7 +354,10 @@ const items = computed(() => data.value?.items ?? []);
 const summary = computed(() => data.value?.summary ?? { notInvited: 0, noEmail: 0 });
 
 const invitingAll = ref(false);
-/** Tijdelijk uit: pas aanzetten zodra elke klant een e-mailadres heeft. */
+/**
+ * Tijdelijk uit: pas aanzetten bij de livegang, zodra elke klant een
+ * e-mailadres heeft. Ook aanzetten in server/api/admin/customers/invite-all.post.ts.
+ */
 const INVITE_ALL_ENABLED = false;
 
 async function inviteAll() {
@@ -362,7 +365,7 @@ async function inviteAll() {
   const n = summary.value.notInvited;
   if (
     !window.confirm(
-      `${n} klant${n !== 1 ? "en" : ""} met een e-mailadres maar zonder login krijg${n !== 1 ? "en" : "t"} nu een uitnodiging. Doorgaan?`,
+      `${n} klant${n !== 1 ? "en" : ""} met een e-mailadres maar zonder login krijg${n !== 1 ? "en" : "t"} nu de lanceringsmail met hun persoonlijke link. Doorgaan?`,
     )
   ) {
     return;

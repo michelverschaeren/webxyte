@@ -4,7 +4,7 @@ import { generateRandomString } from "better-auth/crypto";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
 import { db, schema } from "../database/client";
-import { sendAuthLinkMail } from "./mail";
+import { sendAuthLinkMail, sendLaunchMail } from "./mail";
 
 /**
  * De Better Auth server-instantie. Alles in server/utils wordt door Nitro
@@ -133,7 +133,11 @@ const INVITE_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000;
  * plugin (SHA-256/base64url door `storeToken: "hashed"`, value `{ email }`),
  * zodat Better Auth's eigen /magic-link/verify het gewoon inwisselt.
  */
-export async function sendCustomerInvite(email: string) {
+export async function sendCustomerInvite(
+  email: string,
+  /** Met `launch`: de lanceringsmail i.p.v. de korte uitnodiging. */
+  launch?: { companyName: string },
+) {
   const ctx = await auth.$context;
   const token = generateRandomString(32, "a-z", "A-Z");
 
@@ -148,7 +152,11 @@ export async function sendCustomerInvite(email: string) {
   url.searchParams.set("callbackURL", "/?wachtwoord=nieuw");
   url.searchParams.set("errorCallbackURL", "/?login=fout");
 
-  await sendAuthLinkMail({ email, url: url.toString(), purpose: "invite" });
+  if (launch) {
+    await sendLaunchMail({ email, url: url.toString(), companyName: launch.companyName });
+  } else {
+    await sendAuthLinkMail({ email, url: url.toString(), purpose: "invite" });
+  }
 }
 
 /** Het volledige, afgeleide sessietype — inclusief je eigen `role`. */

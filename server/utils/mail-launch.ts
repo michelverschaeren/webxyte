@@ -16,7 +16,8 @@ import {
  * persoonlijke uitnodigingslink (zelfde link als `sendCustomerInvite`:
  * 7 dagen geldig, daarna meteen een wachtwoord kiezen).
  *
- * Nog niet gekoppeld aan een verzendactie: eerst het ontwerp goedkeuren.
+ * Verstuurd via "Lanceringsmail naar alle klanten" in de admin
+ * (POST /api/admin/customers/invite-all), dat voorlopig uitgeschakeld is.
  */
 interface LaunchMail {
   /** Bedrijfsnaam van de klant voor de aanhef; zonder valt het terug op "Beste klant". */

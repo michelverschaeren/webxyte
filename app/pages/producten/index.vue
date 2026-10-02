@@ -587,6 +587,12 @@
                         i
                       </button>
                     </div>
+                    <p
+                      v-if="product.lastPurchasedAt"
+                      class="mt-0.5 text-[0.85rem] text-(--color-text-muted)"
+                    >
+                      Laatst afgenomen: {{ formatPurchaseDate(product.lastPurchasedAt) }}
+                    </p>
                     <!-- Mobile fallback: art. nr + supplier -->
                     <div
                       v-if="auth.isLoggedIn.value"
@@ -832,6 +838,8 @@ interface ProductDto {
   supplier: string | null;
   unit: string | null;
   infoPdf: string | null;
+  /** JJJJ-MM-DD; enkel gevuld bij de filter "eerder afgenomen". */
+  lastPurchasedAt: string | null;
   category: {
     id: string;
     slug: string;
@@ -1244,6 +1252,15 @@ function decrement(product: ProductDto) {
 
 // Info modal
 const infoOpen = ref(false);
+/** "2026-09-14" → "14 sep. 2026". Als UTC-middag, zodat de tijdzone de dag niet verschuift. */
+function formatPurchaseDate(value: string): string {
+  return new Date(`${value}T12:00:00Z`).toLocaleDateString("nl-BE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 const infoProduct = ref<ProductDto | null>(null);
 function openInfo(p: ProductDto) {
   infoProduct.value = p;

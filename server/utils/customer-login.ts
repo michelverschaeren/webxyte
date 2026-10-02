@@ -37,8 +37,14 @@ export function isUniqueViolation(err: unknown): boolean {
  * Maakt (indien nodig) de login van een klant aan en mailt een uitnodiging.
  * Opnieuw aanroepen stuurt een nieuwe uitnodiging. Gooit een h3-fout als de
  * klant geen adres heeft of het adres al bij een andere login hoort.
+ *
+ * `mail: "launch"` stuurt de lanceringsmail (aankondiging nieuwe website)
+ * in plaats van de korte uitnodiging; de link is dezelfde.
  */
-export async function inviteCustomer(customerId: string) {
+export async function inviteCustomer(
+  customerId: string,
+  { mail = "invite" }: { mail?: "invite" | "launch" } = {},
+) {
   const [customer] = await db
     .select({
       id: customers.id,
@@ -108,6 +114,9 @@ export async function inviteCustomer(customerId: string) {
     await tx.update(customers).set({ userId }).where(eq(customers.id, customer.id));
   });
 
-  await sendCustomerInvite(email);
+  await sendCustomerInvite(
+    email,
+    mail === "launch" ? { companyName: customer.name } : undefined,
+  );
   return { email };
 }
