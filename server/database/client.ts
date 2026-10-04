@@ -6,9 +6,17 @@ const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error(
-    "DATABASE_URL ontbreekt. Zet hem in .env (lokaal) of in de Environment-tab van Dokploy (productie).",
+    "DATABASE_URL ontbreekt. Zet hem in .env (lokaal) of in de Environment Variables van de host (productie).",
   );
 }
+
+/**
+ * Op Vercel draait elke functie-instantie met een eigen pool, en het zijn er
+ * meerdere tegelijk: hou de pool daar klein en verbind via de *pooled*
+ * Neon-URL (host met `-pooler`). Die pooler (PgBouncer, transaction mode)
+ * kent geen prepared statements, vandaar `prepare: false`.
+ */
+const serverless = Boolean(process.env.VERCEL);
 
 /**
  * De Nitro dev-server herlaadt modules bij elke wijziging. Zonder deze cache
@@ -22,8 +30,8 @@ const globalForDb = globalThis as unknown as {
 const sql =
   globalForDb.__sql ??
   postgres(connectionString, {
-    // Serverless/edge kent geen langlevende pool; een Node-container wel.
-    max: 10,
+    max: serverless ? 3 : 10,
+    prepare: !serverless,
     idle_timeout: 20,
     connect_timeout: 10,
   });

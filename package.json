@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build && node scripts/upload-sourcemaps.mjs",
+    "build": "nuxt build",
     "dev": "nuxt dev",
     "start": "node .output/server/index.mjs",
     "generate": "nuxt generate",
@@ -21,9 +21,9 @@
     "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
     "@nuxt/image": "^2.1.0",
     "@nuxtjs/seo": "5.3.12",
-    "@sentry/nuxt": "^10.75.3",
     "@takumi-rs/core": "^2.14.0",
     "better-auth": "^1.7.6",
     "drizzle-orm": "^0.45.3",

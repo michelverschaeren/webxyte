@@ -1,15 +1,14 @@
-import { existsSync, unlinkSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename } from "node:path";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
-import { productDocsDir } from "~~/server/utils/docs-dir";
+import { deleteProductDoc } from "~~/server/utils/product-docs";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * DELETE /api/admin/products/:id/pdf — koppelt de productfiche los en
- * verwijdert het lokale bestand.
+ * verwijdert het bestand uit de fiche-opslag.
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
@@ -31,10 +30,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // `infoPdf` kan ook een externe URL zijn; alleen onze eigen bestanden
-  // (/docs/products/<naam>.pdf) staan in de docs-map.
+  // (/docs/products/<naam>.pdf) staan in de fiche-opslag.
   if (product.infoPdf?.startsWith("/docs/products/")) {
-    const filePath = join(productDocsDir(), basename(product.infoPdf));
-    if (existsSync(filePath)) unlinkSync(filePath);
+    await deleteProductDoc(basename(product.infoPdf));
   }
 
   const [updated] = await db

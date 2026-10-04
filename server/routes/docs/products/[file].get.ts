@@ -1,11 +1,9 @@
-import { createReadStream, statSync } from "node:fs";
-import { join } from "node:path";
-import { productDocsDir } from "~~/server/utils/docs-dir";
+import { readProductDoc } from "~~/server/utils/product-docs";
 import { requireUser } from "~~/server/utils/session";
 
 /**
- * GET /docs/products/:file — serveert een productfiche uit de docs-map
- * (zie server/utils/docs-dir.ts). Vervangt de statische bestanden die vroeger
+ * GET /docs/products/:file — serveert een productfiche uit de fiche-opslag
+ * (zie server/utils/product-docs.ts). Vervangt de statische bestanden die vroeger
  * in public/docs/ stonden; de URL is ongewijzigd. Enkel voor ingelogde
  * klanten: een fiche verraadt de fabrikant van het artikel.
  */
@@ -21,16 +19,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Not Found" });
   }
 
-  const path = join(productDocsDir(), file);
-  const stat = statSync(path, { throwIfNoEntry: false });
-  if (!stat?.isFile()) {
+  const doc = await readProductDoc(file);
+  if (!doc) {
     throw createError({ statusCode: 404, statusMessage: "Not Found" });
   }
 
   setHeader(event, "content-type", "application/pdf");
-  setHeader(event, "content-length", stat.size);
+  setHeader(event, "content-length", doc.size);
   setHeader(event, "content-disposition", "inline");
-  setHeader(event, "last-modified", stat.mtime.toUTCString());
+  setHeader(event, "last-modified", doc.lastModified.toUTCString());
   // Een vervangen fiche houdt dezelfde URL, dus geen lange cache. `private`:
   // een gedeelde cache/CDN mag een fiche niet aan gasten doorgeven.
   setHeader(event, "cache-control", "private, max-age=300");
@@ -38,5 +35,5 @@ export default defineEventHandler(async (event) => {
   // ook niet als een link naar een PDF ergens uitlekt.
   setHeader(event, "x-robots-tag", "noindex, nofollow, noarchive");
 
-  return sendStream(event, createReadStream(path));
+  return sendStream(event, doc.stream);
 });

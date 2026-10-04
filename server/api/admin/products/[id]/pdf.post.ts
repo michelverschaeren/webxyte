@@ -1,20 +1,21 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
-import { productDocsDir } from "~~/server/utils/docs-dir";
+import { writeProductDoc } from "~~/server/utils/product-docs";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * POST /api/admin/products/:id/pdf — upload/vervang de productfiche.
- * Slaat op als <articleNr>.pdf in de docs-map (server/utils/docs-dir.ts) —
+ * Slaat op als <articleNr>.pdf in de fiche-opslag (server/utils/product-docs.ts) —
  * zelfde conventie als de legacy-import (server/database/import-legacy.ts).
  */
 const paramsSchema = z.object({ id: z.uuid() });
 
-const MAX_SIZE = 15 * 1024 * 1024; // 15MB
+// Een Vercel-functie weigert een request-body boven 4,5 MB, nog vóór deze
+// handler draait; daar ligt de grens dus lager dan op een eigen server.
+const MAX_SIZE_MB = process.env.VERCEL ? 4 : 15;
+const MAX_SIZE = MAX_SIZE_MB * 1024 * 1024;
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
   if (file.data.length > MAX_SIZE) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Bestand is groter dan 15MB.",
+      statusMessage: `Bestand is groter dan ${MAX_SIZE_MB}MB.`,
     });
   }
   // Content-Type komt van de client en is te vervalsen; de echte PDF-magic
@@ -61,10 +62,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const docsDir = productDocsDir();
-  mkdirSync(docsDir, { recursive: true });
   const fileName = `${product.articleNr}.pdf`;
-  writeFileSync(join(docsDir, fileName), file.data);
+  await writeProductDoc(fileName, file.data);
 
   const infoPdf = `/docs/products/${fileName}`;
   const [updated] = await db

@@ -253,12 +253,6 @@ draaien — de client regelt de tunnel zelf:
    met `DATABASE_URL` op de **interne** hostname en `BETTER_AUTH_URL` op het
    echte https-domein.
 3. Build: `pnpm build` · Start: `pnpm start` (draait `.output/server/index.mjs`).
-   De build uploadt de source maps naar Panel (`scripts/upload-sourcemaps.mjs`) en
-   verwijdert ze daarna uit `.output`. Zet daarvoor in de Environment `PANEL_URL` en
-   `PANEL_DEPLOY_KEY` (geheim, enkel tijdens de build). Zonder beide waarschuwt het
-   script en verwijdert het enkel de maps; met slechts één van de twee faalt de build.
-   `SENTRY_DSN` en `PANEL_ANALYTICS_KEY` zijn openbaar; de DSN is nodig tijdens build
-   én runtime, de analytics-sleutel enkel tijdens de build.
 4. Migraties draai je vanaf je eigen machine via de tunnel (hoofdstuk 6), vóór of
    vlak na de deploy.
 5. **Productfiches (PDF) in een volume.** Ze staan bewust niet in `public/`: dat kostte
@@ -269,6 +263,28 @@ draaien — de client regelt de tunnel zelf:
    volume met mountpad `/data/docs`, zet `DOCS_DIR=/data/docs` in de Environment en
    kopieer de map `data/docs/products/` erin. Zonder `DOCS_DIR` werkt alles nog, maar
    dan uit de map in de container en gaan uploads bij de volgende deploy verloren.
+
+---
+
+## 7b. Deploy naar Vercel + Neon
+
+Dezelfde code draait ook op Vercel; de omgeving bepaalt het gedrag.
+
+1. **Neon.** Maak een project in een EU-regio (Frankfurt). Zet de data over met
+   `pg_dump`/`pg_restore` (zelfde major-versie als de bron). In Vercel komt de
+   **pooled** URL (host met `-pooler`) als `DATABASE_URL`; migraties draai je lokaal
+   tegen de **directe** URL. Op Vercel gebruikt `server/database/client.ts`
+   automatisch een kleine pool zonder prepared statements.
+2. **Neon Object Storage** (beta, S3-compatibel). Maak in hetzelfde Neon-project een
+   **private** bucket en een credential met `storage:read` + `storage:write`. Zet
+   `S3_BUCKET`, `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID` en
+   `S3_SECRET_ACCESS_KEY` (niet de `AWS_*`-namen: die reserveert Vercel). Zet de
+   fiches eenmalig over met `npx tsx server/database/upload-docs.ts` (eerst
+   `--dry-run`). `DOCS_DIR` vervalt.
+3. **Environment Variables** in Vercel: alles uit hoofdstuk 2, met `BETTER_AUTH_URL`
+   op het echte https-domein.
+4. **Beperking:** een Vercel-functie aanvaardt maximaal 4,5 MB per request; een
+   fiche uploaden via het admin-scherm is daar dus begrensd op 4 MB.
 
 ---
 
