@@ -38,10 +38,7 @@ export default defineEventHandler(async (event) => {
 
   const categoryLines = rows
     .filter((c) => c.productCount > 0)
-    .map(
-      (c) =>
-        `- [${c.name}](${base}/assortiment/${c.slug}): ${c.productCount} producten`,
-    );
+    .map((c) => `- ${c.name}: ${c.productCount} producten`);
 
   const body = [
     `# ${COMPANY.name}`,

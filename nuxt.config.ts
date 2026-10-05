@@ -4,8 +4,7 @@ import { COMPANY } from "./shared/company";
 // Wat crawlers niet mogen ophalen en dus ook niet in de sitemap of llms.txt
 // hoort. Naast de klanten- en beheerpagina's (achter login/rol) gaat het om
 // de bestelomgeving en de product-API: daar staat per product de fabrikant
-// bij, en wie welk product levert is bedrijfsgevoelig. De publieke
-// categoriepagina's staan daarom onder /assortiment, buiten /producten.
+// bij, en wie welk product levert is bedrijfsgevoelig.
 //
 // Let op: dit houdt alleen zoekmachines en AI-bots uit die robots.txt
 // respecteren. Het is geen toegangsbeveiliging — zie /api/products.
@@ -152,12 +151,10 @@ export default defineNuxtConfig({
     ],
   },
 
-  // De categoriepagina's (/assortiment/:slug) komen uit de database en bestaan
-  // dus niet als bestand; deze bron voegt ze toe aan /sitemap.xml. Producten
-  // staan er bewust niet in.
+  // Enkel de statische pagina's; producten en categorieën staan er bewust
+  // niet in (de bestelomgeving is voor crawlers afgesloten).
   sitemap: {
     exclude: BLOCKED_PATHS,
-    sources: ["/api/__sitemap__/urls"],
   },
 
   // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf

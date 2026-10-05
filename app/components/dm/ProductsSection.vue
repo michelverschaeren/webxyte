@@ -30,7 +30,7 @@
         <NuxtLink
           v-for="category in categories"
           :key="category.slug"
-          :to="`/assortiment/${category.slug}`"
+          :to="{ path: '/producten', query: { category: category.slug } }"
           class="group cursor-pointer text-center text-(--color-text-muted) transition-transform duration-300 hover:-translate-y-2"
         >
           <div
@@ -69,7 +69,7 @@
 <script setup lang="ts">
 // Absolute paden: relatieve src'en braken zodra deze sectie op een geneste
 // route zou staan, en @nuxt/image vereist ze sowieso. `slug` moet bestaan
-// als categorie in de database (/assortiment/[slug]).
+// als categorie in de database: de link opent /producten met die filter.
 const categories = [
   { name: "Salami", slug: "salamis", img: "/images/categorie/new/Salami.png" },
   { name: "Hesp", slug: "hespen", img: "/images/categorie/new/Hesp.png" },
