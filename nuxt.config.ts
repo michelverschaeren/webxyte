@@ -47,6 +47,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxtjs/seo",
+    "@vercel/analytics",
   ],
 
   // Zelf-gehoste fonts i.p.v. de render-blokkerende stylesheet van Google:
