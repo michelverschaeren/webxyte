@@ -48,6 +48,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@nuxtjs/seo",
     "@vercel/analytics",
+    "@vercel/speed-insights",
   ],
 
   // Zelf-gehoste fonts i.p.v. de render-blokkerende stylesheet van Google:
@@ -147,9 +148,7 @@ export default defineNuxtConfig({
 
   robots: {
     disallow: BLOCKED_PATHS,
-    groups: [
-      { userAgent: AI_CRAWLERS, allow: ["/"], disallow: BLOCKED_PATHS },
-    ],
+    groups: [{ userAgent: AI_CRAWLERS, allow: ["/"], disallow: BLOCKED_PATHS }],
   },
 
   // Enkel de statische pagina's; producten en categorieën staan er bewust
