@@ -10,7 +10,7 @@
 export const COMPANY = {
   name: "Vleeswaren Vermeir",
   legalName: "Vleeswaren Vermeir BV",
-  foundingYear: 1958,
+  foundingYear: 1953,
   street: "Schoolstraat 51",
   postalCode: "1980",
   city: "Zemst",

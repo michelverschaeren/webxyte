@@ -96,7 +96,6 @@ ${mailButton("Activeer mijn account", url)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
   ${benefits}
 </table>
-
 <h2 style="${h2}">In drie stappen aan de slag</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
   ${steps}
@@ -107,8 +106,7 @@ ${mailButton("Activeer mijn account", url)}
   <tr>
     <td style="background:#f7f1ea;border-left:4px solid #c89868;border-radius:4px;padding:20px 24px;font-family:${MAIL_FONT};font-size:15px;line-height:1.6;color:${MAIL_TEXT}">
       <strong style="font-size:16px">Vertrouwd, ook online</strong><br>
-      Vleeswaren Vermeir blijft het familiebedrijf dat u kent, vandaag met de derde generatie aan het roer. U bestelt, onze eigen chauffeurs leveren de dag nadien. Ontbreekt er een artikel? Dan wordt het dezelfde week nageleverd.
-    </td>
+      Vleeswaren Vermeir blijft het familiebedrijf dat u kent, vandaag met de derde generatie aan het roer. U bestelt, onze eigen chauffeurs leveren de dag nadien. </td>
   </tr>
 </table>
 
@@ -134,7 +132,7 @@ ${mailButton("Activeer mijn account", url)}
       "",
       `Deze persoonlijke link is 7 dagen geldig en werkt één keer. Verlopen? Vraag dan via "Wachtwoord vergeten" op vleeswarenvermeir.be een nieuwe link aan.`,
       "",
-      "Vleeswaren Vermeir blijft het familiebedrijf dat u kent, vandaag met de derde generatie aan het roer. U bestelt, onze eigen chauffeurs leveren de dag nadien. Ontbreekt er een artikel? Dan wordt het dezelfde week nageleverd.",
+      "Vleeswaren Vermeir blijft het familiebedrijf dat u kent, vandaag met de derde generatie aan het roer. U bestelt, onze eigen chauffeurs leveren de dag nadien. ",
       "",
       `Liever persoonlijk? Bellen, mailen of een WhatsApp-bericht blijft altijd mogelijk. U bereikt ons op ${COMPANY.phone} of ${COMPANY.mobile}.`,
       "",

@@ -4,14 +4,22 @@
       <div
         class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20"
       >
-        <!-- Groepsfoto van het team (volgt van de klant) -->
+        <!-- Familiefoto. Het kader volgt de 4:3-verhouding van de foto zelf:
+             in een staand kader vallen de buitenste personen weg. -->
         <div class="relative">
           <div
             class="relative overflow-hidden rounded-lg shadow-2xl shadow-black/40"
           >
-            <DmPhotoPlaceholder
-              label="Groepsfoto van het team van Vleeswaren Vermeir"
-              class="aspect-4/5 w-full rounded-lg"
+            <NuxtImg
+              src="/images/site/familiefoto.jpeg"
+              alt="De familie achter Vleeswaren Vermeir"
+              width="2048"
+              height="1538"
+              loading="lazy"
+              format="webp"
+              quality="75"
+              sizes="sm:100vw lg:540px"
+              class="aspect-4/3 w-full rounded-lg object-cover"
             />
           </div>
           <!-- Decorative accent -->

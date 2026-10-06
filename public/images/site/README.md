@@ -6,18 +6,11 @@ op `images.unsplash.com` omdat een externe origin een extra DNS- en
 TLS-handshake kostte op het kritieke pad, bovenop ~938 kB aan te grote
 afbeeldingen.
 
-## Placeholders (nog aan te leveren door de klant)
+## Echte foto's van de klant
 
-Twee grote foto's staan tijdelijk als `<DmPhotoPlaceholder>` ("Foto volgt"):
-
-| Placeholder | Waar | Kader |
-|---|---|---|
-| Groepsfoto van het team | AboutSection | 4:5 staand |
-| Onze camion bij een levering | DeliverySection | liggend (mobiel) / staand (desktop) |
-
-Zodra de foto er is: zet hem in deze map en vervang de placeholder door een
-`<NuxtImg>` met dezelfde `class`. `eigenaars.jpg` en `chauffeur.jpg` worden daardoor momenteel niet gebruikt;
-`premium-vlees.jpg` is helemaal niet meer in gebruik.
+`familiefoto.jpeg` en `bestelwagens.jpeg` zijn door de klant aangeleverd en
+vervangen de vroegere placeholders. De stockfoto's `eigenaars.jpg`,
+`chauffeur.jpg` en `premium-vlees.jpg` zijn daardoor niet meer in gebruik.
 
 ## Een foto vervangen
 
@@ -36,9 +29,8 @@ Twee dingen die wél moeten kloppen:
 
 | Bestand | Waar | Verhouding van het kader | Min. breedte |
 |---|---|---|---|
-| `eigenaars.jpg` | [AboutSection](../../../app/components/dm/AboutSection.vue) | 4:5 staand | 1536 px |
-| `premium-vlees.jpg` | [QualitySection](../../../app/components/dm/QualitySection.vue) | vrij (eigen verhouding) | 1536 px |
-| `chauffeur.jpg` | [DeliverySection](../../../app/components/dm/DeliverySection.vue) | staand, bijgesneden tot een liggend kader | 1536 px |
+| `familiefoto.jpeg` | [AboutSection](../../../app/components/dm/AboutSection.vue) | 4:3 liggend | 1080 px |
+| `bestelwagens.jpeg` | [DeliverySection](../../../app/components/dm/DeliverySection.vue) | vierkant (mobiel en desktop) / 4:3 liggend (tablet) | 1536 px |
 | `gegrilde-steak.jpg` | [StepsSection](../../../app/components/dm/StepsSection.vue) — stap 01 | 4:3 | 1280 px |
 | `verwerken.jpg` | [StepsSection](../../../app/components/dm/StepsSection.vue) — stap 02 | 4:3 liggend | 1280 px |
 | `levering.jpg` | StepsSection — stap 03 | 4:3 liggend | 1280 px |
