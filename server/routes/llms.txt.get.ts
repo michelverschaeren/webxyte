@@ -11,8 +11,9 @@ import { categories, products } from "~~/server/database/schema";
  * -zoekmachines (https://llmstxt.org). De categorielijst komt live uit de
  * database, zodat ze nooit achterloopt op het assortiment.
  *
- * Volgt dezelfde schakelaar als robots.txt: zolang de site niet indexeerbaar
- * is (`site.indexable` in nuxt.config.ts) bestaat dit bestand niet.
+ * Volgt dezelfde schakelaar als robots.txt: is de site niet indexeerbaar
+ * (`site.indexable: false` of NUXT_SITE_INDEXABLE=false), dan bestaat dit
+ * bestand niet.
  */
 export default defineEventHandler(async (event) => {
   if (!getSiteIndexable(event)) {

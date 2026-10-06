@@ -34,6 +34,10 @@ export default defineEventHandler(async (event) => {
   // De fabrikant per artikel is bedrijfsgevoelig: laat dit nooit indexeren,
   // ook niet als een link naar een PDF ergens uitlekt.
   setHeader(event, "x-robots-tag", "noindex, nofollow, noarchive");
+  // Vervangt de site-brede policy uit nuxt.config.ts: een PDF heeft geen
+  // scripts of stijlen te beperken, en `object-src 'none'` kan de ingebouwde
+  // PDF-viewer van de browser hinderen. Inlijsten blijft enkel op eigen site.
+  setHeader(event, "content-security-policy", "frame-ancestors 'self'");
 
   return sendStream(event, doc.stream);
 });

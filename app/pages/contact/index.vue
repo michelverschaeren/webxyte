@@ -65,12 +65,35 @@
             </div>
           </div>
 
-          <!-- Google Maps -->
+          <!-- Google Maps: laadt pas na een klik. Zolang de kaart niet
+               geladen is, krijgt Google geen IP-adres en plaatst het geen
+               cookies — daardoor is er geen cookiebanner nodig. -->
           <div
             class="overflow-hidden rounded-xl border border-(--color-border)"
             style="height: 300px"
           >
+            <div
+              v-if="!mapLoaded"
+              class="flex h-full flex-col items-center justify-center gap-4 bg-(--color-surface) px-6 text-center"
+            >
+              <p class="text-(--color-text) font-medium">
+                {{ COMPANY.street }}, {{ COMPANY.postalCode }}
+                {{ COMPANY.city }}
+              </p>
+              <button
+                type="button"
+                class="rounded-lg bg-[#c89868] px-6 py-3 text-[0.85rem] font-semibold tracking-[0.15em] text-[#1a0a0a] uppercase transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d8a878]"
+                @click="mapLoaded = true"
+              >
+                Toon kaart
+              </button>
+              <p class="max-w-sm text-[0.8rem] text-(--color-text-muted)">
+                De kaart komt van Google Maps. Bij het laden ontvangt Google
+                uw IP-adres en kan het cookies plaatsen.
+              </p>
+            </div>
             <iframe
+              v-else
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2499.01!2d4.462458!3d50.981381!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTDCsDU4JzUzLjAiTiA0wrAyNyc0NC44IkU!5e0!3m2!1snl!2sbe!4v1000000000000"
               width="100%"
               height="300"
@@ -175,18 +198,50 @@
               />
             </div>
 
+            <!-- Honeypot: onzichtbaar voor bezoekers, bots vullen het in
+                 (zie server/api/contact.post.ts). -->
+            <div class="hidden" aria-hidden="true">
+              <label>
+                Website
+                <input
+                  v-model="form.website"
+                  type="text"
+                  name="website"
+                  tabindex="-1"
+                  autocomplete="off"
+                >
+              </label>
+            </div>
+
             <button
               type="submit"
-              class="w-full py-4 rounded-lg bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-[0.95rem] hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200"
+              :disabled="sending"
+              class="w-full py-4 rounded-lg bg-[#c89868] text-[#1a0a0a] font-semibold uppercase tracking-[0.15em] text-[0.95rem] hover:bg-[#d8a878] hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              Verstuur bericht
+              {{ sending ? "Bezig met versturen…" : "Verstuur bericht" }}
             </button>
+
+            <p class="text-center text-[0.8rem] text-(--color-text-muted)">
+              Wij gebruiken uw gegevens enkel om uw vraag te beantwoorden. Meer
+              in onze
+              <NuxtLink to="/privacyverklaring" class="underline"
+                >privacyverklaring</NuxtLink
+              >.
+            </p>
 
             <p
               v-if="submitted"
+              role="status"
               class="text-center text-[0.95rem] font-medium text-(--color-accent)"
             >
               ✓ Bedankt! We nemen zo snel mogelijk contact op.
+            </p>
+            <p
+              v-if="error"
+              role="alert"
+              class="text-center text-[0.95rem] font-medium text-[#e0565b]"
+            >
+              {{ error }}
             </p>
           </form>
         </div>
@@ -197,6 +252,7 @@
 
 <script setup lang="ts">
 import { defineComponent, h } from "vue";
+import { COMPANY } from "#shared/company";
 
 definePageMeta({ layout: "main" });
 
@@ -271,13 +327,33 @@ const form = reactive({
   email: "",
   phone: "",
   message: "",
+  website: "",
 });
+const mapLoaded = ref(false);
 const submitted = ref(false);
+const sending = ref(false);
+const error = ref("");
 
-function submitForm() {
-  submitted.value = true;
-  setTimeout(() => {
-    submitted.value = false;
-  }, 5000);
+async function submitForm() {
+  if (sending.value) return;
+  sending.value = true;
+  submitted.value = false;
+  error.value = "";
+
+  try {
+    await $fetch("/api/contact", { method: "POST", body: form });
+    submitted.value = true;
+    Object.assign(form, { name: "", company: "", email: "", phone: "", message: "" });
+  } catch (err) {
+    const status = (err as { statusCode?: number }).statusCode;
+    error.value =
+      status === 429
+        ? "U stuurde al enkele berichten. Probeer het later opnieuw."
+        : status === 400
+          ? "Controleer uw gegevens en probeer opnieuw."
+          : `Het bericht kon niet verstuurd worden. Bel ons op ${COMPANY.phone} of mail naar ${COMPANY.email}.`;
+  } finally {
+    sending.value = false;
+  }
 }
 </script>

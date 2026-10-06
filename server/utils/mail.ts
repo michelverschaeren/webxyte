@@ -239,6 +239,60 @@ ${order.note ? `<h2 style="${h2}">Opmerking</h2>
 <p style="margin:24px 0 0;font-size:13px;color:#666">De bestelbon zit als PDF in bijlage. Referentie: ${e(order.id)}</p>`;
 }
 
+interface ContactMessage {
+  name: string;
+  company?: string;
+  email: string;
+  phone?: string;
+  message: string;
+}
+
+/** Adres van de zaak dat de berichten van het contactformulier ontvangt. */
+function contactRecipient() {
+  return process.env.CONTACT_NOTIFICATION_EMAIL || process.env.ORDER_NOTIFICATION_EMAIL;
+}
+
+/**
+ * Stuurt een bericht van het contactformulier door naar de zaak. Geeft
+ * `false` terug als de mail niet ingesteld is: anders dan bij een bestelling
+ * wordt het bericht nergens bewaard, dus de aanroeper mag dan geen succes
+ * melden.
+ */
+export async function sendContactMail({ name, company, email, phone, message }: ContactMessage) {
+  const to = contactRecipient();
+  if (!mailConfigured() || !to) return false;
+
+  const e = escapeHtml;
+  const label = "padding:2px 16px 2px 0;color:#666;font-size:14px;white-space:nowrap;vertical-align:top";
+  const details: [string, string][] = [
+    ["Naam", name],
+    ["Bedrijf", company || "—"],
+    ["E-mail", email],
+    ["Telefoon", phone || "—"],
+  ];
+
+  await sendMail({
+    fromName: "Website Vermeir",
+    to,
+    // Antwoorden gaat rechtstreeks naar de afzender van het formulier.
+    replyTo: email,
+    subject: `Contactformulier — ${company || name}`,
+    text: withTextFooter(
+      [...details.map(([k, v]) => `${k}: ${v}`), "", "— Bericht —", message].join("\n"),
+    ),
+    html: renderMailLayout({
+      title: `Bericht van ${name}`,
+      preheader: message.slice(0, 120),
+      content: `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px">
+  ${details.map(([k, v]) => `<tr><td style="${label}">${k}</td><td style="padding:2px 0;font-size:14px">${e(v)}</td></tr>`).join("\n  ")}
+</table>
+<h2 style="margin:0 0 8px;font-size:16px">Bericht</h2>
+<p style="margin:0;font-size:14px;white-space:pre-line">${e(message)}</p>`,
+    }),
+  });
+  return true;
+}
+
 interface AuthLinkMail {
   email: string;
   url: string;

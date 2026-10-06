@@ -85,11 +85,17 @@ export const auth = betterAuth({
   /**
    * Better Auth's default (`enabled: isProduction`) hangt af van hoe Dokploy
    * NODE_ENV precies zet — expliciet aanzetten maakt dat onafhankelijk
-   * daarvan. Ingebouwde regels beperken /sign-in en /sign-up al streng tot
-   * 3 pogingen per 10s per IP; dat volstaat hier zonder extra storage.
+   * daarvan. De ingebouwde regel voor /sign-in (3 pogingen per 10s per IP)
+   * laat nog ~26.000 gokken per dag toe; wachtwoord-login krijgt daarom een
+   * eigen, trager venster. De teller zit in het geheugen van de instantie:
+   * een gedeelde opslag houdt een aanvaller met meerdere IP's evenmin tegen,
+   * en kost wel een extra query op elke auth-call.
    */
   rateLimit: {
     enabled: true,
+    customRules: {
+      "/sign-in/email": { window: 300, max: 10 },
+    },
   },
 
   plugins: [

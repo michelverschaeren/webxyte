@@ -13,7 +13,6 @@ const BLOCKED_PATHS = [
   "/account/**",
   "/admin",
   "/admin/**",
-  "/toegang/**",
   "/producten",
   "/producten/**",
   "/api/**",
@@ -37,6 +36,33 @@ const AI_CRAWLERS = [
   "Google-Extended",
   "Applebot-Extended",
 ];
+
+// Content-Security-Policy: beperkt waar de pagina scripts, stijlen, beelden en
+// frames mag ophalen en waarheen ze data mag sturen. Alles komt van de eigen
+// origin; de enige uitzondering is de Google Maps-kaart op de contactpagina.
+//
+// `'unsafe-inline'` blijft nodig: Nuxt zet zijn opstartscript en het
+// thema-script inline in de HTML, en de componenten gebruiken inline styles.
+// Een nonce per request zou dat strenger maken, maar vergt een extra module.
+//
+// Enkel in productie: de dev-server (Vite-HMR, devtools) heeft websockets en
+// scripts van andere origins nodig.
+const CONTENT_SECURITY_POLICY =
+  process.env.NODE_ENV === "production"
+    ? [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+        "frame-src 'self' https://www.google.com",
+        "frame-ancestors 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ].join("; ")
+    : null;
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
@@ -89,14 +115,6 @@ export default defineNuxtConfig({
     description:
       "Vleeswaren Vermeir levert meer dan 5000 vleeswaren aan handelaars in België. Familiebedrijf in Zemst met persoonlijke service en breed gamma.",
     defaultLocale: "nl-BE",
-
-    // ── ZET DIT OP `true` (OF VERWIJDER DE REGEL) BIJ LIVEGANG ──────────────
-    // Zolang de "website in aanbouw"-poort aan staat, blokkeert dit de hele
-    // site voor zoekmachines en AI-bots: robots.txt wordt "Disallow: /", elke
-    // pagina krijgt `noindex` (meta + X-Robots-Tag) en /llms.txt geeft 404.
-    // Zonder deze regel zou de productiesite wél geïndexeerd worden.
-    // Zonder rebuild kan het ook via de env-var NUXT_SITE_INDEXABLE=true.
-    indexable: false,
   },
 
   // Zet het bedrijf als Schema.org LocalBusiness — voedt Google's
@@ -182,33 +200,26 @@ export default defineNuxtConfig({
     databaseUrl: "",
     betterAuthSecret: "",
     betterAuthUrl: "",
-
-    public: {
-      // Wachtwoord voor de "website in aanbouw"-toegangspoort.
-      // Overschrijf via .env met NUXT_PUBLIC_SITE_PASSWORD=jouw-wachtwoord
-      sitePassword: "vermeir2026",
-
-      // Eenmalige toegangslink voor een specifieke klant: /toegang/<token>
-      // omzeilt de site-lock zonder het algemene wachtwoord te delen. Leeg
-      // laten = link staat uit. Zet via .env met
-      // NUXT_PUBLIC_CUSTOMER_ACCESS_TOKEN=een-lang-willekeurig-token
-      customerAccessToken: "",
-    },
   },
 
   routeRules: {
-    // Basis response-headers voor de hele site. Geen CSP hier: dat vergt
-    // uitgebreide browser-tests tegen Vite-HMR en wordt best apart aangepakt.
+    // Basis response-headers voor de hele site.
     "/**": {
       headers: {
         "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
+        // SAMEORIGIN en niet DENY: de productfiche opent in een iframe op de
+        // eigen site (ProductInfoModal). Andere sites mogen ons niet inlijsten.
+        "X-Frame-Options": "SAMEORIGIN",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
         // Genegeerd door browsers over http, dus onschadelijk in lokale dev.
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains",
+        ...(CONTENT_SECURITY_POLICY
+          ? { "Content-Security-Policy": CONTENT_SECURITY_POLICY }
+          : {}),
       },
     },
+
 
     // Bestanden uit public/ hebben geen hash in hun naam en kunnen dus wél
     // wijzigen onder dezelfde URL — een maand cache, maar geen `immutable`.

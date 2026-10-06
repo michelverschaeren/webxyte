@@ -134,6 +134,11 @@
           >© {{ new Date().getFullYear() }} Vleeswaren Vermeir. Alle rechten
           voorbehouden.</span
         >
+        <NuxtLink
+          to="/privacyverklaring"
+          class="transition-colors hover:text-(--color-text-strong)"
+          >Privacyverklaring</NuxtLink
+        >
         <span>Schoolstraat 51 · 1980 Zemst · België</span>
       </div>
     </div>

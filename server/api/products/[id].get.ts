@@ -20,6 +20,9 @@ export default defineEventHandler(async (event) => {
   );
 
   const product = await db.query.products.findFirst({
+    // Adviesprijs en interne notitie zijn enkel voor beheerders
+    // (zie /api/admin/products/:id).
+    columns: { price: false, notes: false },
     where: (fields, { and, eq }) =>
       and(eq(fields.id, id), eq(fields.isActive, true)),
     with: {
