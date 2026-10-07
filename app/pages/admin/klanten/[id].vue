@@ -27,6 +27,50 @@
           class="space-y-5 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5"
           @submit.prevent="saveContact()"
         >
+          <div class="grid gap-5 sm:grid-cols-[2fr_1fr]">
+            <label class="block">
+              <span class="adm-label">Naam <span aria-hidden="true">*</span></span>
+              <input
+                v-model="form.name"
+                type="text"
+                required
+                maxlength="200"
+                class="adm-input w-full"
+              >
+            </label>
+            <div>
+              <label class="block">
+                <span class="adm-label">Klantnummer <span aria-hidden="true">*</span></span>
+                <input
+                  v-model="form.customerNr"
+                  type="text"
+                  required
+                  maxlength="32"
+                  :disabled="!customerNrUnlocked"
+                  class="adm-input w-full font-mono disabled:cursor-not-allowed disabled:opacity-60"
+                >
+              </label>
+              <button
+                v-if="!customerNrUnlocked"
+                type="button"
+                class="mt-1.5 text-sm text-(--color-text-muted) underline hover:text-(--color-accent)"
+                @click="customerNrUnlocked = true"
+              >
+                Klantnummer wijzigen
+              </button>
+            </div>
+          </div>
+          <p
+            v-if="customerNrUnlocked"
+            class="rounded-r-lg border-l-2 border-[#c89868] bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)"
+            role="alert"
+          >
+            Let op: het klantnummer moet exact overeenkomen met het nummer in
+            het CRM-pakket. Wijzig het alleen als het daar ook gewijzigd is —
+            anders komen bestellingen en aankoophistoriek bij de verkeerde
+            klant terecht.
+          </p>
+
           <div class="grid gap-5 sm:grid-cols-2">
             <label class="block">
               <span class="adm-label">E-mail (ook de login)</span>
@@ -361,7 +405,12 @@ const editing = ref(false);
 const saving = ref(false);
 const saveError = ref("");
 const saved = ref(false);
+// Het klantnummer koppelt de klant aan het CRM; pas na een bewuste klik
+// bewerkbaar, zodat het niet per ongeluk mee wijzigt.
+const customerNrUnlocked = ref(false);
 const form = reactive({
+  name: "",
+  customerNr: "",
   contactEmail: "",
   phone: "",
   deliveryStreet: "",
@@ -373,6 +422,9 @@ const form = reactive({
 function startEdit() {
   const c = data.value?.customer;
   if (!c) return;
+  form.name = c.name;
+  form.customerNr = c.customerNr;
+  customerNrUnlocked.value = false;
   form.contactEmail = c.contactEmail ?? "";
   form.phone = c.phone ?? "";
   form.deliveryStreet = c.deliveryStreet ?? "";
@@ -384,6 +436,9 @@ function startEdit() {
   editing.value = true;
 }
 
+// Het potloodje in de klantenlijst opent deze pagina meteen in bewerkmodus.
+if (route.query.bewerken) startEdit();
+
 async function saveContact() {
   if (saving.value || !data.value) return;
   saving.value = true;
@@ -393,6 +448,10 @@ async function saveContact() {
     await $fetch(`/api/admin/customers/${data.value.customer.id}`, {
       method: "PATCH",
       body: {
+        name: form.name.trim(),
+        ...(customerNrUnlocked.value
+          ? { customerNr: form.customerNr.trim() }
+          : {}),
         contactEmail: form.contactEmail.trim(),
         phone: form.phone.trim(),
         deliveryStreet: form.deliveryStreet.trim(),
@@ -473,7 +532,7 @@ function formatDate(value: string, withWeekday = false): string {
 .adm-label {
   display: block;
   margin-bottom: 0.4rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-muted);
 }
@@ -482,7 +541,7 @@ function formatDate(value: string, withWeekday = false): string {
   border-radius: 0.5rem;
   background: var(--color-surface-2);
   padding: 0.6rem 0.85rem;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--color-text-strong);
 }
 .adm-input:focus {

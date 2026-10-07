@@ -54,6 +54,21 @@ export function useCartCheckout() {
     orderModalOpen.value = false;
   }
 
+  /**
+   * Pikt de bestelling weer op nadat de klant zijn facturatiegegevens heeft
+   * aangevuld: mandje tonen en het bestelvenster opnieuw openen, mét de naam
+   * en notitie die hij al had ingevuld. Bewust geen automatische verzending —
+   * de klant bevestigt zelf nog één keer.
+   */
+  async function resumeOrder() {
+    await cart.ensureLoaded();
+    cart.showCartOnly.value = true;
+    if (cart.items.value.length === 0) return;
+    orderError.value = "";
+    if (!orderName.value.trim()) orderName.value = defaultOrderName();
+    orderModalOpen.value = true;
+  }
+
   async function placeOrder() {
     if (placing.value || cart.items.value.length === 0) return;
     orderError.value = "";
@@ -86,6 +101,9 @@ export function useCartCheckout() {
 
       if (code === "FACTURATIEGEGEVENS_ONTBREKEN") {
         cart.isOpen.value = false;
+        // Naam en notitie blijven bewaard; resumeOrder() opent het venster
+        // opnieuw zodra de gegevens zijn opgeslagen.
+        orderModalOpen.value = false;
         await navigateTo("/account/gegevens?next=cart");
         return;
       }
@@ -188,5 +206,6 @@ export function useCartCheckout() {
     confirmClear,
     openOrderModal,
     closeOrderModal,
+    resumeOrder,
   };
 }

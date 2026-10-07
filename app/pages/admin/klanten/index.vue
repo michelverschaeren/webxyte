@@ -91,7 +91,7 @@
               Login
             </th>
             <th class="px-4 py-3 text-right font-semibold">Producten</th>
-            <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
+            <th class="hidden px-4 py-3 text-left font-semibold whitespace-nowrap lg:table-cell">
               Laatste aankoop
             </th>
             <th class="px-4 py-3"/>
@@ -108,22 +108,44 @@
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) md:table-cell">
               {{ c.contactEmail ?? "—" }}
             </td>
-            <td class="hidden px-4 py-2.5 text-(--color-text-muted) lg:table-cell">
+            <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
               {{ loginStatusLabel[c.loginStatus] }}
             </td>
             <td class="px-4 py-2.5 text-right text-(--color-text-strong)">
               {{ c.productCount }}
             </td>
-            <td class="hidden px-4 py-2.5 text-(--color-text-muted) lg:table-cell">
+            <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
               {{ c.lastPurchasedAt ? formatDate(c.lastPurchasedAt) : "—" }}
             </td>
-            <td class="px-4 py-2.5 text-right">
-              <NuxtLink
-                :to="`/admin/klanten/${c.id}`"
-                class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
-              >
-                Bekijken →
-              </NuxtLink>
+            <td class="px-4 py-2.5">
+              <div class="flex items-center justify-end gap-3 whitespace-nowrap">
+                <NuxtLink
+                  :to="`/admin/klanten/${c.id}`"
+                  class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
+                >
+                  Bekijken
+                </NuxtLink>
+                <NuxtLink
+                  :to="`/admin/klanten/${c.id}?bewerken=1`"
+                  :aria-label="`${c.name} bewerken`"
+                  title="Bewerken"
+                  class="rounded-md p-1.5 text-(--color-text-muted) transition-colors hover:bg-(--color-hover) hover:text-(--color-accent)"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </NuxtLink>
+              </div>
             </td>
           </tr>
           <tr v-if="items.length === 0">

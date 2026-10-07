@@ -155,7 +155,13 @@
           :disabled="pending"
           class="rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {{ pending ? "Opslaan…" : "Gegevens opslaan" }}
+          {{
+            pending
+              ? "Opslaan…"
+              : resumesOrder
+                ? "Opslaan en verder met bestelling"
+                : "Gegevens opslaan"
+          }}
         </button>
         <NuxtLink
           to="/account"
@@ -173,7 +179,8 @@ definePageMeta({ layout: "main", middleware: "account" });
 useHead({ title: "Facturatiegegevens — Vleeswaren Vermeir" });
 
 const route = useRoute();
-const cart = useCart();
+const checkout = useCartCheckout();
+const resumesOrder = computed(() => route.query.next === "cart");
 
 const { data: existing, refresh } = await useFetch("/api/account/billing");
 
@@ -216,9 +223,9 @@ async function save() {
     saved.value = true;
 
     // Kwam de klant hier via een geblokkeerde bestelling? Dan meteen terug
-    // naar het mandje zodat hij kan afronden.
-    if (route.query.next === "cart") {
-      cart.showCartOnly.value = true;
+    // naar het mandje, met het bestelvenster weer open, zodat hij kan afronden.
+    if (resumesOrder.value) {
+      await checkout.resumeOrder();
       await navigateTo("/producten");
     }
   } catch (err) {

@@ -66,7 +66,7 @@ const CONTENT_SECURITY_POLICY =
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-01-01",
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   modules: [
     "@nuxt/image",
@@ -160,6 +160,13 @@ export default defineNuxtConfig({
           areaServed: "BE",
           availableLanguage: "nl",
         },
+        {
+          "@type": "ContactPoint",
+          contactType: "sales",
+          telephone: COMPANY.mobile2Intl,
+          areaServed: "BE",
+          availableLanguage: "nl",
+        },
       ],
     },
   },
@@ -219,7 +226,6 @@ export default defineNuxtConfig({
           : {}),
       },
     },
-
 
     // Bestanden uit public/ hebben geen hash in hun naam en kunnen dus wél
     // wijzigen onder dezelfde URL — een maand cache, maar geen `immutable`.

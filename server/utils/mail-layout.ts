@@ -28,7 +28,7 @@ const CONTACT = {
   name: COMPANY.legalName,
   address: `${COMPANY.street}, ${COMPANY.postalCode} ${COMPANY.city}`,
   phone: COMPANY.phone,
-  mobile: COMPANY.mobile,
+  mobile: `${COMPANY.mobileName} ${COMPANY.mobile} · GSM ${COMPANY.mobile2Name} ${COMPANY.mobile2}`,
   email: COMPANY.email,
 };
 

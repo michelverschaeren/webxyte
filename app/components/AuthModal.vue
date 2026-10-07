@@ -269,6 +269,12 @@ function switchMode(next: AuthModalMode) {
   nextTick(() => firstInputRef.value?.focus());
 }
 
+/** Beheerders gaan na het inloggen meteen naar de adminzone. */
+async function redirectAdmin() {
+  if (!auth.isAdmin.value || route.path.startsWith("/admin")) return;
+  await navigateTo("/admin");
+}
+
 async function submitLogin() {
   if (pending.value) return;
   pending.value = true;
@@ -288,6 +294,7 @@ async function submitLogin() {
     authModal.close();
     // Mag het inloggen zelf nooit laten mislukken.
     cart.syncAfterLogin().catch(() => {});
+    await redirectAdmin();
   } catch {
     error.value = "Er ging iets mis. Probeer het later opnieuw.";
   } finally {
@@ -311,7 +318,7 @@ async function submitLink() {
   try {
     const { error: linkError } = await authClient.signIn.magicLink({
       email: email.value,
-      callbackURL: isReset ? `${path}?wachtwoord=nieuw` : path,
+      callbackURL: isReset ? `${path}?wachtwoord=nieuw` : `${path}?login=ok`,
       errorCallbackURL: `${path}?login=fout`,
       metadata: { purpose: isReset ? "reset" : "login" },
     });
@@ -375,13 +382,19 @@ watch(authModal.isOpen, (open) => {
 });
 
 /**
- * Terugkeer vanuit de maillink: `?wachtwoord=nieuw` (herstellen) of
+ * Terugkeer vanuit de maillink: `?login=ok` (ingelogd; beheerders gaan door
+ * naar de adminzone), `?wachtwoord=nieuw` (herstellen) of
  * `?login=fout&error=…` (verlopen/gebruikte link). De parameters gaan
  * meteen uit de URL, zodat een refresh de popup niet opnieuw opent.
  */
 function handleLinkReturn() {
   const { wachtwoord, login, error: linkError, ...rest } = route.query;
   if (!wachtwoord && !login) return;
+
+  if (login === "ok" && auth.isAdmin.value && !route.path.startsWith("/admin")) {
+    navigateTo("/admin", { replace: true });
+    return;
+  }
 
   router.replace({ query: rest });
 

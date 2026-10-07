@@ -19,6 +19,10 @@ export const COMPANY = {
   phoneIntl: "+32 15 61 15 39",
   mobile: "0475 97 13 70",
   mobileIntl: "+32 475 97 13 70",
+  mobileName: "Geert",
+  mobile2: "0472 65 20 17",
+  mobile2Intl: "+32 472 65 20 17",
+  mobile2Name: "Laura",
   email: "vleeswarenvermeir@telenet.be",
   // Zelfde coördinaten als de Google Maps-embed op de contactpagina.
   geo: { latitude: 50.981381, longitude: 4.462458 },
@@ -46,7 +50,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     question: "Hoe kan ik bestellen?",
-    answer: `U kunt uw bestelling doorgeven via mail, fax, telefoon of online. Telefonisch bereikt u ons op ${COMPANY.phone} of ${COMPANY.mobile}, via mail op ${COMPANY.email}.`,
+    answer: `U kunt uw bestelling doorgeven via mail, fax, telefoon of online. Telefonisch bereikt u ons op ${COMPANY.phone}, ${COMPANY.mobile} (${COMPANY.mobileName}) of ${COMPANY.mobile2} (${COMPANY.mobile2Name}), via mail op ${COMPANY.email}.`,
   },
   {
     question: "Wanneer wordt mijn bestelling geleverd?",

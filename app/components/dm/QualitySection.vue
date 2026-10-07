@@ -49,7 +49,7 @@
 
       <!-- Rij 2: contactkanalen naast elkaar. Hele kaart is klikbaar. -->
       <ul
-        class="list-none p-0 m-0 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6"
+        class="list-none p-0 m-0 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6"
       >
         <li v-for="point in qualityPoints" :key="point.title">
           <a
@@ -124,9 +124,18 @@ const qualityPoints = [
     icon: svgPoint(
       "M10 3h12a2 2 0 012 2v22a2 2 0 01-2 2H10a2 2 0 01-2-2V5a2 2 0 012-2zM14 25h4",
     ),
-    title: "GSM & WhatsApp",
+    title: `GSM & WhatsApp ${COMPANY.mobileName}`,
     value: COMPANY.mobile,
     href: `https://wa.me/${COMPANY.mobileIntl.replace(/[^\d]/g, "")}`,
+    text: "Stuur gerust een bericht, ook voor een bestelling.",
+  },
+  {
+    icon: svgPoint(
+      "M10 3h12a2 2 0 012 2v22a2 2 0 01-2 2H10a2 2 0 01-2-2V5a2 2 0 012-2zM14 25h4",
+    ),
+    title: `GSM & WhatsApp ${COMPANY.mobile2Name}`,
+    value: COMPANY.mobile2,
+    href: `https://wa.me/${COMPANY.mobile2Intl.replace(/[^\d]/g, "")}`,
     text: "Stuur gerust een bericht, ook voor een bestelling.",
   },
   {
