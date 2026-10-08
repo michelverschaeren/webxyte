@@ -80,6 +80,7 @@ const links = [
   { to: "/admin/bestellingen", label: "Bestellingen" },
   { to: "/admin/producten", label: "Producten" },
   { to: "/admin/klanten", label: "Klanten" },
+  { to: "/admin/bezoekers", label: "Bezoekers" },
 ];
 
 function isActive(path: string) {

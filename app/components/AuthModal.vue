@@ -303,10 +303,18 @@ function switchMode(next: AuthModalMode) {
   nextTick(() => firstInputRef.value?.focus());
 }
 
-/** Beheerders gaan na het inloggen meteen naar de adminzone. */
-async function redirectAdmin() {
-  if (!auth.isAdmin.value || route.path.startsWith("/admin")) return;
-  await navigateTo("/admin");
+/**
+ * Na het inloggen: beheerders naar de adminzone, klanten meteen naar de
+ * producten om te bestellen.
+ */
+function afterLoginPath(): string | null {
+  if (auth.isAdmin.value) return route.path.startsWith("/admin") ? null : "/admin";
+  return route.path === "/producten" ? null : "/producten";
+}
+
+async function redirectAfterLogin() {
+  const target = afterLoginPath();
+  if (target) await navigateTo(target);
 }
 
 async function submitLogin() {
@@ -328,7 +336,7 @@ async function submitLogin() {
     authModal.close();
     // Mag het inloggen zelf nooit laten mislukken.
     cart.syncAfterLogin().catch(() => {});
-    await redirectAdmin();
+    await redirectAfterLogin();
   } catch {
     error.value = "Er ging iets mis. Probeer het later opnieuw.";
   } finally {
@@ -452,7 +460,7 @@ watch(authModal.isOpen, (open) => {
 
 /**
  * Terugkeer vanuit de maillink: `?login=ok` (ingelogd; beheerders gaan door
- * naar de adminzone), `?wachtwoord=nieuw` (herstellen) of
+ * naar de adminzone, klanten naar de producten), `?wachtwoord=nieuw` (herstellen) of
  * `?login=fout&error=…` (verlopen/gebruikte link). De parameters gaan
  * meteen uit de URL, zodat een refresh de popup niet opnieuw opent.
  */
@@ -460,8 +468,9 @@ function handleLinkReturn() {
   const { wachtwoord, login, error: linkError, ...rest } = route.query;
   if (!wachtwoord && !login) return;
 
-  if (login === "ok" && auth.isAdmin.value && !route.path.startsWith("/admin")) {
-    navigateTo("/admin", { replace: true });
+  const target = login === "ok" && auth.isLoggedIn.value ? afterLoginPath() : null;
+  if (target) {
+    navigateTo(target, { replace: true });
     return;
   }
 

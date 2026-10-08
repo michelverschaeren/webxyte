@@ -9,7 +9,6 @@ import { requireUser } from "~~/server/utils/session";
  */
 const bodySchema = z.object({
   companyName: z.string().trim().min(1).max(200),
-  vatNumber: z.string().trim().max(32).optional().or(z.literal("")),
   phone: z.string().trim().max(40).optional(),
   invoiceEmail: z.email().max(200),
 });
@@ -21,7 +20,6 @@ export default defineEventHandler(async (event) => {
 
   const values = {
     ...body,
-    vatNumber: body.vatNumber?.trim() ? body.vatNumber.trim() : null,
     phone: body.phone || null,
     userId: user.id,
   };
@@ -33,7 +31,6 @@ export default defineEventHandler(async (event) => {
       target: billingDetails.userId,
       set: {
         companyName: values.companyName,
-        vatNumber: values.vatNumber,
         phone: values.phone,
         invoiceEmail: values.invoiceEmail,
       },

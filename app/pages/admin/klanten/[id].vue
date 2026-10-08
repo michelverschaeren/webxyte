@@ -173,9 +173,6 @@
               <dt class="text-sm text-(--color-text-muted)">Facturatie: bedrijf</dt>
               <dd class="text-(--color-text-strong)">
                 {{ data.billing.companyName }}
-                <span v-if="data.billing.vatNumber" class="text-(--color-text-muted)">
-                  · BTW {{ data.billing.vatNumber }}
-                </span>
               </dd>
             </div>
           </template>

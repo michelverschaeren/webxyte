@@ -40,7 +40,7 @@
           </ul>
         </section>
 
-        <!-- Klant + facturatie -->
+        <!-- Klant -->
         <section class="space-y-8">
           <div>
             <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
@@ -59,22 +59,6 @@
               >
                 Klantprofiel bekijken →
               </NuxtLink>
-            </div>
-          </div>
-
-          <div>
-            <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
-              — Gefactureerd aan —
-            </h2>
-            <div class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)">
-              <p class="font-semibold text-(--color-text-strong)">{{ order.billing.companyName }}</p>
-              <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
-                BTW {{ order.billing.vatNumber }}
-              </p>
-              <p v-if="order.billing.phone" class="pt-2 text-(--color-text-muted)">
-                {{ order.billing.phone }}
-              </p>
-              <p class="text-(--color-text-muted)">{{ order.billing.invoiceEmail }}</p>
             </div>
           </div>
         </section>

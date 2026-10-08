@@ -134,7 +134,6 @@ export async function sendOrderNotification({
     ``,
     `— Facturatiegegevens —`,
     billing.companyName,
-    billing.vatNumber ? `BTW: ${billing.vatNumber}` : null,
     billing.phone ? `Tel: ${billing.phone}` : null,
     `Factuur-e-mail: ${billing.invoiceEmail}`,
     ``,
@@ -203,7 +202,6 @@ function orderMailContent(
 
   const billingLines = [
     `<strong>${e(billing.companyName)}</strong>`,
-    billing.vatNumber ? `BTW: ${e(billing.vatNumber)}` : null,
     billing.phone ? `Tel: ${e(billing.phone)}` : null,
     `Factuur-e-mail: ${e(billing.invoiceEmail)}`,
   ].filter((line) => line !== null);

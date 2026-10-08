@@ -172,7 +172,6 @@ export async function generateOrderPdf({
   y -= 14;
   const billingLines = [
     billing.companyName,
-    billing.vatNumber ? `BTW: ${billing.vatNumber}` : null,
     billing.phone ? `Tel: ${billing.phone}` : null,
     `Factuur-e-mail: ${billing.invoiceEmail}`,
   ].filter((line): line is string => line !== null);

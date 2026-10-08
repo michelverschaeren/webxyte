@@ -23,17 +23,6 @@
             class="acc-input"
           >
         </label>
-
-        <label class="block">
-          <span class="acc-label">BTW-nummer</span>
-          <input
-            v-model="form.vatNumber"
-            type="text"
-            maxlength="32"
-            placeholder="bv. BE0123.456.789 (optioneel)"
-            class="acc-input"
-          >
-        </label>
       </fieldset>
 
       <fieldset class="space-y-5">
@@ -72,6 +61,18 @@
         </div>
       </fieldset>
 
+      <p
+        class="rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4 text-base leading-relaxed text-(--color-text-muted)"
+      >
+        Wijzigingen aan uw leveradres, facturatieadres of btw-nummer kunt u
+        steeds doorgeven via
+        <a
+          href="mailto:vleeswarenvermeir@telenet.be"
+          class="text-(--color-accent) hover:underline"
+          >vleeswarenvermeir@telenet.be</a
+        >.
+      </p>
+
       <p v-if="error" class="text-base text-[#e06a6a]">{{ error }}</p>
       <p v-if="saved" class="text-base text-[#8fc98f]">
         Uw gegevens zijn opgeslagen.
@@ -93,6 +94,34 @@
         </NuxtLink>
       </div>
     </form>
+
+    <section class="max-w-2xl mx-auto mt-12 space-y-4 border-t border-(--color-border) pt-8">
+      <h2
+        class="text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+      >
+        — Wachtwoord —
+      </h2>
+      <p class="text-base leading-relaxed text-(--color-text-muted)">
+        Wij mailen een link naar
+        <strong class="text-(--color-text-strong)">{{ auth.user.value?.email }}</strong
+        >. Via die link kiest u een nieuw wachtwoord; de link is 15 minuten
+        geldig.
+      </p>
+
+      <p v-if="passwordError" class="text-base text-[#e06a6a]">{{ passwordError }}</p>
+      <p v-if="passwordSent" class="text-base text-[#8fc98f]">
+        De mail is onderweg. Check uw mailbox.
+      </p>
+
+      <button
+        type="button"
+        :disabled="passwordPending || passwordSent"
+        class="rounded-lg border border-(--color-border-strong) px-6 py-3 text-sm font-semibold tracking-widest text-(--color-text-strong) uppercase transition-colors hover:border-[#c89868] disabled:cursor-not-allowed disabled:opacity-50"
+        @click="requestPasswordLink()"
+      >
+        {{ passwordPending ? "Even geduld…" : "Wachtwoord wijzigen" }}
+      </button>
+    </section>
   </AccountShell>
 </template>
 
@@ -106,7 +135,6 @@ const { data: existing, refresh } = await useFetch("/api/account/billing");
 const auth = useAuth();
 const form = reactive({
   companyName: auth.user.value?.name ?? "",
-  vatNumber: "",
   phone: "",
   invoiceEmail: auth.user.value?.email ?? "",
 });
@@ -114,7 +142,6 @@ const form = reactive({
 watchEffect(() => {
   if (!existing.value) return;
   form.companyName = existing.value.companyName;
-  form.vatNumber = existing.value.vatNumber ?? "";
   form.phone = existing.value.phone ?? "";
   form.invoiceEmail = existing.value.invoiceEmail;
 });
@@ -139,6 +166,43 @@ async function save() {
       "Opslaan mislukt. Controleer de ingevulde gegevens.";
   } finally {
     pending.value = false;
+  }
+}
+
+const passwordPending = ref(false);
+const passwordError = ref("");
+const passwordSent = ref(false);
+
+/**
+ * Zelfde herstellink als "Wachtwoord vergeten" in de login-popup: na de klik
+ * opent `?wachtwoord=nieuw` het scherm "new-password" (zie AuthModal).
+ */
+async function requestPasswordLink() {
+  const email = auth.user.value?.email;
+  if (passwordPending.value || !email) return;
+  passwordPending.value = true;
+  passwordError.value = "";
+
+  try {
+    const { error: linkError } = await authClient.signIn.magicLink({
+      email,
+      callbackURL: "/account/gegevens?wachtwoord=nieuw",
+      errorCallbackURL: "/account/gegevens?login=fout",
+      metadata: { purpose: "reset" },
+    });
+
+    if (linkError) {
+      passwordError.value =
+        linkError.status === 429
+          ? "Te veel aanvragen. Probeer het over een minuutje opnieuw."
+          : "Er ging iets mis. Probeer het later opnieuw.";
+      return;
+    }
+    passwordSent.value = true;
+  } catch {
+    passwordError.value = "Er ging iets mis. Probeer het later opnieuw.";
+  } finally {
+    passwordPending.value = false;
   }
 }
 </script>
