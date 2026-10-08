@@ -6,7 +6,7 @@ import { isUniqueViolation } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
- * PATCH /api/admin/customers/:id — naam, contact- en levergegevens van een
+ * PATCH /api/admin/customers/:id — naam en contactgegevens van een
  * CRM-klant aanvullen of wijzigen. Lege velden worden als `null` opgeslagen.
  *
  * Het klantnummer is de sleutel naar het CRM-pakket (import en bestelmails
@@ -35,10 +35,6 @@ const bodySchema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value || null)),
   phone: optionalText(40),
-  deliveryStreet: optionalText(200),
-  deliveryPostalCode: optionalText(16),
-  deliveryCity: optionalText(120),
-  deliveryCountry: z.string().trim().min(1).max(120).optional(),
 });
 
 export default defineEventHandler(async (event) => {

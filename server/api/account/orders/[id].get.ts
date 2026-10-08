@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { orderItems, orders } from "~~/server/database/schema";
-import type { BillingDetails } from "~~/server/database/schema";
+import type { BillingSnapshot } from "~~/server/database/schema";
 import { requireUser } from "~~/server/utils/session";
 
 /**
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     name: order.name,
     note: order.note,
     createdAt: order.createdAt,
-    billing: order.billingSnapshot as BillingDetails,
+    billing: order.billingSnapshot as BillingSnapshot,
     items: order.items.map((item) => ({
       id: item.id,
       productId: item.productId,

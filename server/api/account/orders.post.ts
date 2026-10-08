@@ -6,6 +6,7 @@ import {
   customers,
   orderItems,
   orders,
+  type BillingSnapshot,
 } from "~~/server/database/schema";
 import { requireUser } from "~~/server/utils/session";
 
@@ -37,19 +38,31 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (data) => bodySchema.parse(data));
   const requested = mergeQuantitiesByArticleNr(body.items);
 
-  const [billing] = await db
-    .select()
-    .from(billingDetails)
-    .where(eq(billingDetails.userId, user.id))
-    .limit(1);
+  const [[details], [crmCustomer]] = await Promise.all([
+    db
+      .select()
+      .from(billingDetails)
+      .where(eq(billingDetails.userId, user.id))
+      .limit(1),
+    db
+      .select({
+        customerNr: customers.customerNr,
+        name: customers.name,
+        phone: customers.phone,
+      })
+      .from(customers)
+      .where(eq(customers.userId, user.id))
+      .limit(1),
+  ]);
 
-  if (!billing) {
-    throw createError({
-      statusCode: 422,
-      statusMessage: "FACTURATIEGEGEVENS_ONTBREKEN",
-      message: "Vul eerst uw facturatiegegevens in.",
-    });
-  }
+  // Facturatiegegevens zijn optioneel: wat de klant niet invulde, komt uit
+  // het CRM en de login. Bestellen wordt er nooit door tegengehouden.
+  const billing: BillingSnapshot = {
+    companyName: details?.companyName ?? crmCustomer?.name ?? user.name,
+    vatNumber: details?.vatNumber ?? null,
+    phone: details?.phone ?? crmCustomer?.phone ?? null,
+    invoiceEmail: details?.invoiceEmail ?? user.email,
+  };
 
   const byArticleNr = await resolveProductsByArticleNr(
     requested.map((i) => i.articleNr),
@@ -103,12 +116,6 @@ export default defineEventHandler(async (event) => {
 
   // De bestelling staat vast; een mislukte mail mag dat niet ongedaan maken.
   try {
-    const [crmCustomer] = await db
-      .select({ customerNr: customers.customerNr })
-      .from(customers)
-      .where(eq(customers.userId, user.id))
-      .limit(1);
-
     await sendOrderNotification({
       order,
       billing,

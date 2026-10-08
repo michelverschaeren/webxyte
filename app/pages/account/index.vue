@@ -3,22 +3,6 @@
     :title="greeting"
     subtitle="Beheer hier uw bestellingen, lijsten en facturatiegegevens."
   >
-    <div
-      v-if="!billing"
-      class="mb-8 flex flex-wrap items-center gap-4 rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface) px-5 py-4"
-    >
-      <p class="flex-1 text-base text-(--color-text)">
-        Vul uw facturatiegegevens in — die hebben wij nodig voor u kunt
-        bestellen.
-      </p>
-      <NuxtLink
-        to="/account/gegevens"
-        class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#8b1f1f]"
-      >
-        Nu invullen
-      </NuxtLink>
-    </div>
-
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <NuxtLink to="/account/bestellingen" class="acc-card">
         <span class="acc-card-value">{{ orderCount }}</span>

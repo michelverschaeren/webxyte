@@ -13,8 +13,8 @@ import { user } from "./auth";
 import { products } from "./catalog";
 
 /**
- * Klanten zoals ze in het CRM staan. Facturatie blijft in het CRM; hier
- * enkel wat de webshop nodig heeft om te leveren.
+ * Klanten zoals ze in het CRM staan. Facturatie en adressen blijven in het
+ * CRM; hier enkel wat de webshop nodig heeft om de klant te herkennen.
  *
  * Eén klantnummer = één e-mailadres = één login. Het contactadres is ook het
  * login-adres: bij de uitnodiging wordt er een `user` mee aangemaakt (zie
@@ -30,10 +30,6 @@ export const customers = pgTable(
     /** Ook het login-adres; altijd in kleine letters opgeslagen. */
     contactEmail: text(),
     phone: text(),
-    deliveryStreet: text(),
-    deliveryPostalCode: text(),
-    deliveryCity: text(),
-    deliveryCountry: text().default("België").notNull(),
     /** De login van deze klant; null zolang de klant niet uitgenodigd is. */
     userId: text().references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),

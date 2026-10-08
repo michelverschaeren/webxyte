@@ -1,0 +1,1 @@
+ALTER TABLE "billing_details" ALTER COLUMN "phone" DROP NOT NULL;

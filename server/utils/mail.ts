@@ -1,4 +1,4 @@
-import type { BillingDetails, Order } from "~~/server/database/schema";
+import type { BillingSnapshot, Order } from "~~/server/database/schema";
 import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
 import { renderLaunchMail } from "./mail-launch";
 import { generateOrderPdf } from "./order-pdf";
@@ -13,7 +13,7 @@ interface OrderMailItem {
 
 interface OrderNotification {
   order: Order;
-  billing: BillingDetails;
+  billing: BillingSnapshot;
   items: OrderMailItem[];
   customerEmail: string;
   /** Klantnummer uit het CRM; null voor een login zonder klant (bv. test). */
@@ -135,8 +135,7 @@ export async function sendOrderNotification({
     `— Facturatiegegevens —`,
     billing.companyName,
     billing.vatNumber ? `BTW: ${billing.vatNumber}` : null,
-    `${billing.street}, ${billing.postalCode} ${billing.city}, ${billing.country}`,
-    `Tel: ${billing.phone}`,
+    billing.phone ? `Tel: ${billing.phone}` : null,
     `Factuur-e-mail: ${billing.invoiceEmail}`,
     ``,
     `— Bestelde artikelen —`,
@@ -205,8 +204,7 @@ function orderMailContent(
   const billingLines = [
     `<strong>${e(billing.companyName)}</strong>`,
     billing.vatNumber ? `BTW: ${e(billing.vatNumber)}` : null,
-    `${e(billing.street)}, ${e(billing.postalCode)} ${e(billing.city)}, ${e(billing.country)}`,
-    `Tel: ${e(billing.phone)}`,
+    billing.phone ? `Tel: ${e(billing.phone)}` : null,
     `Factuur-e-mail: ${e(billing.invoiceEmail)}`,
   ].filter((line) => line !== null);
 
@@ -288,6 +286,46 @@ export async function sendContactMail({ name, company, email, phone, message }: 
 </table>
 <h2 style="margin:0 0 8px;font-size:16px">Bericht</h2>
 <p style="margin:0;font-size:14px;white-space:pre-line">${e(message)}</p>`,
+    }),
+  });
+  return true;
+}
+
+/** Adres van de zaak dat de aanvragen "klant worden" ontvangt. */
+function customerRequestRecipient() {
+  return process.env.CUSTOMER_REQUEST_EMAIL || "vleeswarenvermeir@telenet.be";
+}
+
+/**
+ * Stuurt een aanvraag "klant worden" (enkel een e-mailadres) door naar de
+ * zaak. Geeft `false` terug als de mail in productie niet ingesteld is: de
+ * aanvraag wordt nergens bewaard, dus de aanroeper mag dan geen succes
+ * melden. Lokaal komt de aanvraag in de serverlog, zodat de flow te testen is.
+ */
+export async function sendCustomerRequestMail({ email }: { email: string }) {
+  if (!mailConfigured()) {
+    if (process.env.NODE_ENV === "production") return false;
+    console.info(`[mail] Aanvraag "klant worden" van ${email} (niet verstuurd: mail niet ingesteld).`);
+    return true;
+  }
+
+  const intro = "Iemand vroeg via de website aan om klant te worden. Dit e-mailadres is nog niet gekend in de klantenzone.";
+  const outro =
+    "Beantwoord deze mail om contact op te nemen. Wordt dit een klant? Voeg hem dan toe via Beheer → Klanten; hij krijgt dan automatisch een uitnodiging om in te loggen.";
+
+  await sendMail({
+    fromName: "Website Vermeir",
+    to: customerRequestRecipient(),
+    // Antwoorden gaat rechtstreeks naar de aanvrager.
+    replyTo: email,
+    subject: `Aanvraag klant worden — ${email}`,
+    text: withTextFooter([intro, "", `E-mail: ${email}`, "", outro].join("\n")),
+    html: renderMailLayout({
+      title: "Aanvraag: klant worden",
+      preheader: email,
+      content: `<p style="margin:0 0 16px">${intro}</p>
+<p style="margin:0 0 16px;font-size:16px"><strong>${escapeHtml(email)}</strong></p>
+<p style="margin:0;color:#666;font-size:13px">${outro}</p>`,
     }),
   });
   return true;

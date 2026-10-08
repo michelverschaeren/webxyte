@@ -71,10 +71,9 @@
               <p v-if="order.billing.vatNumber" class="text-(--color-text-muted)">
                 BTW {{ order.billing.vatNumber }}
               </p>
-              <p class="pt-2">{{ order.billing.street }}</p>
-              <p>{{ order.billing.postalCode }} {{ order.billing.city }}</p>
-              <p>{{ order.billing.country }}</p>
-              <p class="pt-2 text-(--color-text-muted)">{{ order.billing.phone }}</p>
+              <p v-if="order.billing.phone" class="pt-2 text-(--color-text-muted)">
+                {{ order.billing.phone }}
+              </p>
               <p class="text-(--color-text-muted)">{{ order.billing.invoiceEmail }}</p>
             </div>
           </div>
@@ -101,11 +100,7 @@ interface OrderDetail {
   billing: {
     companyName: string;
     vatNumber: string | null;
-    street: string;
-    postalCode: string;
-    city: string;
-    country: string;
-    phone: string;
+    phone: string | null;
     invoiceEmail: string;
   };
   items: {

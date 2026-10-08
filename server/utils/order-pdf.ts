@@ -1,5 +1,5 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
-import type { BillingDetails, Order } from "~~/server/database/schema";
+import type { BillingSnapshot, Order } from "~~/server/database/schema";
 
 export interface OrderPdfItem {
   articleNr: string;
@@ -11,7 +11,7 @@ export interface OrderPdfItem {
 
 interface OrderPdfInput {
   order: Order;
-  billing: BillingDetails;
+  billing: BillingSnapshot;
   /** Klantnummer uit het CRM; null voor een login zonder klant (bv. test). */
   customerNr: string | null;
   customerEmail: string;
@@ -173,9 +173,7 @@ export async function generateOrderPdf({
   const billingLines = [
     billing.companyName,
     billing.vatNumber ? `BTW: ${billing.vatNumber}` : null,
-    billing.street,
-    `${billing.postalCode} ${billing.city}, ${billing.country}`,
-    `Tel: ${billing.phone}`,
+    billing.phone ? `Tel: ${billing.phone}` : null,
     `Factuur-e-mail: ${billing.invoiceEmail}`,
   ].filter((line): line is string => line !== null);
   for (const line of billingLines) {

@@ -94,50 +94,6 @@
             </label>
           </div>
 
-          <label class="block">
-            <span class="adm-label">Straat en nummer</span>
-            <input
-              v-model="form.deliveryStreet"
-              type="text"
-              maxlength="200"
-              placeholder="bv. Schoolstraat 51"
-              class="adm-input w-full"
-            >
-          </label>
-
-          <div class="grid gap-5 sm:grid-cols-[1fr_2fr_2fr]">
-            <label class="block">
-              <span class="adm-label">Postcode</span>
-              <input
-                v-model="form.deliveryPostalCode"
-                type="text"
-                maxlength="16"
-                placeholder="1980"
-                class="adm-input w-full"
-              >
-            </label>
-            <label class="block">
-              <span class="adm-label">Gemeente</span>
-              <input
-                v-model="form.deliveryCity"
-                type="text"
-                maxlength="120"
-                placeholder="Zemst"
-                class="adm-input w-full"
-              >
-            </label>
-            <label class="block">
-              <span class="adm-label">Land <span aria-hidden="true">*</span></span>
-              <input
-                v-model="form.deliveryCountry"
-                type="text"
-                required
-                maxlength="120"
-                class="adm-input w-full"
-              >
-            </label>
-          </div>
-
           <p v-if="saveError" class="text-base text-[#e06a6a]">{{ saveError }}</p>
 
           <div class="flex flex-wrap items-center gap-3">
@@ -167,10 +123,6 @@
           <div>
             <dt class="text-sm text-(--color-text-muted)">Telefoon</dt>
             <dd class="text-(--color-text-strong)">{{ data.customer.phone ?? "—" }}</dd>
-          </div>
-          <div class="sm:col-span-2">
-            <dt class="text-sm text-(--color-text-muted)">Leveradres</dt>
-            <dd class="text-(--color-text-strong)">{{ deliveryAddress ?? "—" }}</dd>
           </div>
         </dl>
         <p v-if="saved && !editing" class="mt-3 text-base text-[#8fc98f]">
@@ -224,13 +176,6 @@
                 <span v-if="data.billing.vatNumber" class="text-(--color-text-muted)">
                   · BTW {{ data.billing.vatNumber }}
                 </span>
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm text-(--color-text-muted)">Facturatie: adres</dt>
-              <dd class="text-(--color-text-strong)">
-                {{ data.billing.street }}, {{ data.billing.postalCode }}
-                {{ data.billing.city }}, {{ data.billing.country }}
               </dd>
             </div>
           </template>
@@ -365,20 +310,12 @@ interface CustomerDetail {
     name: string;
     contactEmail: string | null;
     phone: string | null;
-    deliveryStreet: string | null;
-    deliveryPostalCode: string | null;
-    deliveryCity: string | null;
-    deliveryCountry: string;
     loginStatus: CustomerLoginStatus;
   };
   account: { id: string; name: string; email: string } | null;
   billing: {
     companyName: string;
     vatNumber: string | null;
-    street: string;
-    postalCode: string;
-    city: string;
-    country: string;
   } | null;
   orders: {
     id: string;
@@ -413,10 +350,6 @@ const form = reactive({
   customerNr: "",
   contactEmail: "",
   phone: "",
-  deliveryStreet: "",
-  deliveryPostalCode: "",
-  deliveryCity: "",
-  deliveryCountry: "België",
 });
 
 function startEdit() {
@@ -427,10 +360,6 @@ function startEdit() {
   customerNrUnlocked.value = false;
   form.contactEmail = c.contactEmail ?? "";
   form.phone = c.phone ?? "";
-  form.deliveryStreet = c.deliveryStreet ?? "";
-  form.deliveryPostalCode = c.deliveryPostalCode ?? "";
-  form.deliveryCity = c.deliveryCity ?? "";
-  form.deliveryCountry = c.deliveryCountry;
   saveError.value = "";
   saved.value = false;
   editing.value = true;
@@ -454,10 +383,6 @@ async function saveContact() {
           : {}),
         contactEmail: form.contactEmail.trim(),
         phone: form.phone.trim(),
-        deliveryStreet: form.deliveryStreet.trim(),
-        deliveryPostalCode: form.deliveryPostalCode.trim(),
-        deliveryCity: form.deliveryCity.trim(),
-        deliveryCountry: form.deliveryCountry.trim(),
       },
     });
     await refresh();
@@ -498,13 +423,6 @@ async function invite() {
     inviting.value = false;
   }
 }
-
-const deliveryAddress = computed(() => {
-  const c = data.value?.customer;
-  if (!c?.deliveryStreet) return null;
-  const city = [c.deliveryPostalCode, c.deliveryCity].filter(Boolean).join(" ");
-  return [c.deliveryStreet, city, c.deliveryCountry].filter(Boolean).join(", ");
-});
 
 const historySearch = ref("");
 const filteredHistory = computed(() => {

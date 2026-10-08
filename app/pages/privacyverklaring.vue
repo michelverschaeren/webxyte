@@ -116,7 +116,7 @@ const sections: Section[] = [
       "Klantenzone. Een account wordt door ons aangemaakt voor bestaande klanten; u kan zich niet zelf registreren. Voor uw account verwerken wij:",
       [
         "uw klantnummer, bedrijfsnaam, e-mailadres en telefoonnummer;",
-        "uw lever- en facturatiegegevens, waaronder adres en btw-nummer;",
+        "uw facturatiegegevens, waaronder uw btw-nummer;",
         "uw wachtwoord, dat enkel versleuteld (gehasht) wordt bewaard en door niemand kan worden gelezen;",
         "uw bestellingen, uw winkelmandje en uw bewaarde bestellijstjes;",
         "een overzicht van de producten die u eerder bij ons afnam, zodat u ze snel opnieuw kan bestellen.",

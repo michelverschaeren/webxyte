@@ -3,7 +3,8 @@ import { user } from "./auth";
 
 /**
  * Facturatiegegevens — één profiel per klant, aangemaakt zodra de klant
- * dit voor het eerst invult (bv. bij zijn eerste bestelling).
+ * dit voor het eerst invult. Optioneel: bestellen kan ook zonder (zie
+ * `BillingSnapshot`). Bewust zonder adres; dat staat in het CRM.
  */
 export const billingDetails = pgTable(
   "billing_details",
@@ -15,11 +16,7 @@ export const billingDetails = pgTable(
     companyName: text().notNull(),
     /** Optioneel: niet elke klant heeft meteen een BTW-nummer klaar. */
     vatNumber: text(),
-    street: text().notNull(),
-    postalCode: text().notNull(),
-    city: text().notNull(),
-    country: text().default("België").notNull(),
-    phone: text().notNull(),
+    phone: text(),
     invoiceEmail: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true })
@@ -29,6 +26,19 @@ export const billingDetails = pgTable(
   },
   (table) => [uniqueIndex("billing_details_user_id_idx").on(table.userId)],
 );
+
+/**
+ * Wat er van de klant op een bestelling bevroren wordt (`orders.billingSnapshot`).
+ * Komt uit de facturatiegegevens als de klant die invulde, anders uit het
+ * CRM en de login. Oudere bestellingen bevatten daarnaast nog een adres; dat
+ * wordt nergens meer getoond.
+ */
+export interface BillingSnapshot {
+  companyName: string;
+  vatNumber: string | null;
+  phone: string | null;
+  invoiceEmail: string;
+}
 
 export type BillingDetails = typeof billingDetails.$inferSelect;
 export type NewBillingDetails = typeof billingDetails.$inferInsert;

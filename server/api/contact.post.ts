@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { sendContactMail } from "~~/server/utils/mail";
+import { createRateLimiter } from "~~/server/utils/rate-limit";
 
 /**
  * POST /api/contact — bericht van het contactformulier, doorgestuurd naar de
@@ -27,33 +28,8 @@ const bodySchema = z.object({
   website: z.string().max(200).optional(),
 });
 
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 5;
-
-/**
- * IP → tijdstippen van recente berichten. In het geheugen van de instantie:
- * genoeg om een script af te remmen, zonder een tabel voor een formulier.
- */
-const recent = new Map<string, number[]>();
-
-function rateLimited(ip: string) {
-  const now = Date.now();
-  const hits = (recent.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (hits.length >= MAX_PER_WINDOW) {
-    recent.set(ip, hits);
-    return true;
-  }
-  hits.push(now);
-  recent.set(ip, hits);
-
-  // Hou de map klein: verlopen IP's opruimen zodra ze zich opstapelen.
-  if (recent.size > 1000) {
-    for (const [key, times] of recent) {
-      if (times.every((t) => now - t >= WINDOW_MS)) recent.delete(key);
-    }
-  }
-  return false;
-}
+/** Per IP: 5 berichten per 10 minuten. */
+const rateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 5 });
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (data) => bodySchema.parse(data));

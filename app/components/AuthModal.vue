@@ -134,14 +134,20 @@
             </button>
           </form>
 
-          <!-- Inloggen / inloglink / wachtwoord vergeten -->
+          <!-- Inloggen / inloglink / wachtwoord vergeten / klant worden -->
           <form
             v-else
             class="space-y-4 px-5 pt-5 pb-5 sm:px-6"
-            @submit.prevent="mode === 'login' ? submitLogin() : submitLink()"
+            @submit.prevent="submit()"
           >
             <p v-if="mode === 'magic'" class="text-sm text-(--color-text-muted)">
               We mailen u een link waarmee u zonder wachtwoord inlogt.
+            </p>
+            <p v-else-if="mode === 'request'" class="text-sm text-(--color-text-muted)">
+              Vul uw e-mailadres in. Bent u al klant, dan mailen we u meteen de
+              info om in te loggen. Bent u nog geen klant, dan sturen we uw
+              aanvraag door naar Vleeswaren Vermeir en nemen zij contact met u
+              op.
             </p>
             <p v-else-if="mode === 'forgot'" class="text-sm text-(--color-text-muted)">
               We mailen u een link. Daarmee bent u meteen ingelogd en kiest u
@@ -212,6 +218,26 @@
             >
               ← Terug naar inloggen met wachtwoord
             </button>
+
+            <!-- Klant worden: aanvraag naar de zaak (geen publieke registratie) -->
+            <div
+              v-if="mode === 'login'"
+              class="space-y-3 border-t border-(--color-border) pt-4"
+            >
+              <p class="text-sm text-(--color-text-muted)">
+                <span class="font-semibold text-(--color-text-strong)"
+                  >Nog geen klant of nog geen login?</span
+                >
+                Vraag uw toegang aan met uw e-mailadres.
+              </p>
+              <button
+                type="button"
+                class="w-full rounded-lg border border-(--color-border-strong) px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-strong) uppercase transition-colors hover:border-[#c89868]"
+                @click="switchMode('request')"
+              >
+                Klant worden
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -249,6 +275,8 @@ const title = computed(() => {
       return "Inloggen via e-mail";
     case "forgot":
       return "Wachtwoord vergeten";
+    case "request":
+      return "Klant worden";
     case "sent":
       return noticeTitle.value;
     case "new-password":
@@ -258,9 +286,15 @@ const title = computed(() => {
   }
 });
 
-const submitLabel = computed(() =>
-  mode.value === "login" ? "Inloggen" : "Stuur mij een link",
-);
+const submitLabel = computed(() => {
+  if (mode.value === "login") return "Inloggen";
+  return mode.value === "request" ? "Verzenden" : "Stuur mij een link";
+});
+
+function submit() {
+  if (mode.value === "login") return submitLogin();
+  return mode.value === "request" ? submitRequest() : submitLink();
+}
 
 function switchMode(next: AuthModalMode) {
   mode.value = next;
@@ -337,6 +371,41 @@ async function submitLink() {
     mode.value = "sent";
   } catch {
     error.value = "Er ging iets mis. Probeer het later opnieuw.";
+  } finally {
+    pending.value = false;
+  }
+}
+
+/**
+ * "Klant worden": een gekend adres krijgt een mail met de info om in te
+ * loggen; een onbekend adres gaat als aanvraag naar de zaak (zie
+ * /api/customer-request).
+ */
+async function submitRequest() {
+  if (pending.value) return;
+  pending.value = true;
+  error.value = "";
+
+  try {
+    const { known } = await $fetch("/api/customer-request", {
+      method: "POST",
+      body: { email: email.value },
+    });
+
+    if (known) {
+      noticeTitle.value = "Check uw mailbox";
+      notice.value = `${email.value} is bij ons gekend. U ontvangt binnen enkele minuten een mail met de info om in te loggen.`;
+    } else {
+      noticeTitle.value = "Aanvraag verstuurd";
+      notice.value =
+        "Uw aanvraag is verstuurd naar Vleeswaren Vermeir. Zij nemen zo snel mogelijk contact met u op.";
+    }
+    mode.value = "sent";
+  } catch (e) {
+    error.value =
+      (e as { statusCode?: number }).statusCode === 429
+        ? "Te veel aanvragen. Probeer het over enkele minuten opnieuw."
+        : "De aanvraag kon niet verstuurd worden. Probeer het later opnieuw.";
   } finally {
     pending.value = false;
   }

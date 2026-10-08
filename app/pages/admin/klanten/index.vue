@@ -225,6 +225,17 @@
               >
             </label>
             <label class="block">
+              <span class="adm-label">Bedrijfsnaam</span>
+              <input
+                v-model="form.name"
+                type="text"
+                maxlength="200"
+                autocomplete="off"
+                placeholder="bv. Restaurant De Kroon"
+                class="adm-input w-full"
+              >
+            </label>
+            <label class="block">
               <span class="adm-label">E-mailadres</span>
               <input
                 v-model="form.email"
@@ -318,11 +329,12 @@ const createOpen = ref(false);
 const creating = ref(false);
 const createError = ref("");
 const createNotice = ref("");
-const form = reactive({ customerNr: "", email: "" });
+const form = reactive({ customerNr: "", name: "", email: "" });
 const customerNrInput = ref<HTMLInputElement | null>(null);
 
 function openCreate() {
   form.customerNr = "";
+  form.name = "";
   form.email = "";
   createError.value = "";
   createOpen.value = true;
@@ -341,7 +353,11 @@ async function submitCreate() {
   try {
     const result = await $fetch<CreateCustomerResponse>("/api/admin/customers", {
       method: "POST",
-      body: { customerNr: form.customerNr, email: form.email },
+      body: {
+        customerNr: form.customerNr,
+        name: form.name.trim() || undefined,
+        email: form.email,
+      },
     });
 
     createNotice.value = result.invited

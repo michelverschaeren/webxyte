@@ -10,9 +10,10 @@ import { requireAdmin } from "~~/server/utils/session";
  * meteen uitnodigen. Het e-mailadres wordt de login (zonder wachtwoord; de
  * klant kiest er zelf een via de uitnodiging).
  *
- * - Klantnummer al in het CRM → die klant krijgt dit adres en de login.
- * - Klantnummer onbekend → nieuwe klant met een voorlopige naam
- *   ("Klant 100145"), zoals de CRM-import dat ook doet.
+ * - Klantnummer al in het CRM → die klant krijgt dit adres en de login;
+ *   een ingevulde bedrijfsnaam vervangt de naam uit het CRM.
+ * - Klantnummer onbekend → nieuwe klant. Zonder bedrijfsnaam krijgt hij een
+ *   voorlopige naam ("Klant 100145"), zoals de CRM-import dat ook doet.
  * - Eén e-mailadres hoort bij één klant: een adres dat al in gebruik is,
  *   wordt geweigerd.
  */
@@ -24,12 +25,13 @@ const bodySchema = z.object({
     .toLowerCase()
     .pipe(z.email().max(200)),
   customerNr: z.string().trim().min(1).max(32),
+  name: z.string().trim().max(200).optional(),
 });
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { email, customerNr } = await readValidatedBody(event, (data) =>
+  const { email, customerNr, name } = await readValidatedBody(event, (data) =>
     bodySchema.parse(data),
   );
 
@@ -75,13 +77,13 @@ export default defineEventHandler(async (event) => {
     if (existingCustomer) {
       await db
         .update(customers)
-        .set({ contactEmail: email })
+        .set({ contactEmail: email, ...(name ? { name } : {}) })
         .where(eq(customers.id, existingCustomer.id));
       customerId = existingCustomer.id;
     } else {
       const [created] = await db
         .insert(customers)
-        .values({ customerNr, name: `Klant ${customerNr}`, contactEmail: email })
+        .values({ customerNr, name: name || `Klant ${customerNr}`, contactEmail: email })
         .returning({ id: customers.id });
       customerId = created!.id;
     }

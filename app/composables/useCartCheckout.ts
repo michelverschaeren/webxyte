@@ -1,8 +1,8 @@
 /**
  * Bestellen + "lijst opslaan"-flow rond het winkelmandje, dat volledig op de
  * productenpagina leeft (zie CartCheckoutModals.vue). Losstaand van useCart
- * zodat de foutafhandeling (ontbrekende facturatiegegevens, niet meer
- * beschikbare producten) op één plek blijft.
+ * zodat de foutafhandeling (niet meer beschikbare producten) op één plek
+ * blijft.
  *
  * State via `useState` i.p.v. lokale `ref`s: de knoppen (producten-pagina)
  * en de modals (CartCheckoutModals.vue) roepen deze composable elk apart
@@ -54,21 +54,6 @@ export function useCartCheckout() {
     orderModalOpen.value = false;
   }
 
-  /**
-   * Pikt de bestelling weer op nadat de klant zijn facturatiegegevens heeft
-   * aangevuld: mandje tonen en het bestelvenster opnieuw openen, mét de naam
-   * en notitie die hij al had ingevuld. Bewust geen automatische verzending —
-   * de klant bevestigt zelf nog één keer.
-   */
-  async function resumeOrder() {
-    await cart.ensureLoaded();
-    cart.showCartOnly.value = true;
-    if (cart.items.value.length === 0) return;
-    orderError.value = "";
-    if (!orderName.value.trim()) orderName.value = defaultOrderName();
-    orderModalOpen.value = true;
-  }
-
   async function placeOrder() {
     if (placing.value || cart.items.value.length === 0) return;
     orderError.value = "";
@@ -98,15 +83,6 @@ export function useCartCheckout() {
         data?: { statusMessage?: string; data?: { names?: string[] } };
       };
       const code = error.data?.statusMessage ?? error.statusMessage;
-
-      if (code === "FACTURATIEGEGEVENS_ONTBREKEN") {
-        cart.isOpen.value = false;
-        // Naam en notitie blijven bewaard; resumeOrder() opent het venster
-        // opnieuw zodra de gegevens zijn opgeslagen.
-        orderModalOpen.value = false;
-        await navigateTo("/account/gegevens?next=cart");
-        return;
-      }
 
       if (code === "PRODUCTEN_NIET_BESCHIKBAAR") {
         const names = error.data?.data?.names ?? [];
@@ -206,6 +182,5 @@ export function useCartCheckout() {
     confirmClear,
     openOrderModal,
     closeOrderModal,
-    resumeOrder,
   };
 }
