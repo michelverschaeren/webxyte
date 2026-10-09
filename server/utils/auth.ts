@@ -136,8 +136,12 @@ const INVITE_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000;
  *
  * Bewust níét via `auth.api.signInMagicLink`: die volgt de korte `expiresIn`
  * van de plugin. We schrijven het token zelf weg in hetzelfde formaat als de
- * plugin (SHA-256/base64url door `storeToken: "hashed"`, value `{ email }`),
- * zodat Better Auth's eigen /magic-link/verify het gewoon inwisselt.
+ * plugin, zodat Better Auth's eigen /magic-link/verify het gewoon inwisselt:
+ * identifier `magic-link:<SHA-256/base64url>` (door `storeToken: "hashed"`)
+ * en value `{ type: "magic-link", email }`. Dat formaat is intern aan Better
+ * Auth: wijkt het af, dan krijgt de klant "link verlopen of al gebruikt".
+ * Na een update van better-auth dus nakijken in
+ * node_modules/better-auth/dist/plugins/magic-link/index.mjs.
  */
 export async function sendCustomerInvite(
   email: string,
@@ -148,8 +152,8 @@ export async function sendCustomerInvite(
   const token = generateRandomString(32, "a-z", "A-Z");
 
   await ctx.internalAdapter.createVerificationValue({
-    identifier: createHash("sha256").update(token).digest("base64url"),
-    value: JSON.stringify({ email }),
+    identifier: `magic-link:${createHash("sha256").update(token).digest("base64url")}`,
+    value: JSON.stringify({ type: "magic-link", email }),
     expiresAt: new Date(Date.now() + INVITE_EXPIRES_MS),
   });
 
