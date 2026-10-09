@@ -37,8 +37,13 @@ export default defineNuxtConfig({
     'nuxt-lettermint'
   ],
 
+  // Off: @nuxt/devtools 3.4.2's internal "config-retriever" plugin still uses
+  // Vite's pre-Environment-API hook shape, which Vite 8 logs a warning about
+  // on every dev-server start. No stable devtools release fixes this yet (only
+  // an unreleased 4.0.0-beta.1) — turning the panel off is the trade made here
+  // instead of pinning a beta into a repo every client site is cloned from.
   devtools: {
-    enabled: true
+    enabled: false
   },
 
   css: ['~/assets/css/main.css'],
@@ -91,6 +96,15 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  // No page declares a custom font-family, so @nuxt/fonts has nothing of ours
+  // to resolve. Its DevTools "Fonts" panel still phones fonts.google.com for
+  // Material Symbols + previews on every dev-server start regardless, and
+  // that host isn't reachable from here — hence the retry warnings. This only
+  // switches off the DevTools tab, not font resolution for the site itself.
+  fonts: {
+    devtools: false
   },
 
   image: {
