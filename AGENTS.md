@@ -32,6 +32,7 @@ what the task needs. Read the matching file **before** editing:
 | any `.vue` file | [`.claude/rules/images.md`](.claude/rules/images.md) — the @nuxt/image `sizes` trap and the image rules. Non-negotiable before writing a `<NuxtImg>`. |
 | `nuxt.config.ts` | [`.claude/rules/nuxt-config.md`](.claude/rules/nuxt-config.md) — Nitro compression and prerender, cache `routeRules`, security headers. |
 | `Dockerfile` | [`.claude/rules/deploy.md`](.claude/rules/deploy.md) — same base image in both stages, pinned Node. |
+| env vars, email, database | [`.claude/rules/integrations.md`](.claude/rules/integrations.md) — Vercel Analytics/Speed Insights, Lettermint email, opt-in Neon. |
 
 Claude Code loads these three automatically via `paths:` frontmatter and reads
 [`CLAUDE.md`](CLAUDE.md) for its own workflow and hook conventions. Other agents

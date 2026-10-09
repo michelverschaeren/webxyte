@@ -45,6 +45,10 @@ not repeated here:
   before writing a single `<NuxtImg>`.
 - `.claude/rules/nuxt-config.md` (`nuxt.config.ts`) — Nitro, routeRules, headers.
 - `.claude/rules/deploy.md` (`Dockerfile`) — base image and sharp.
+- `.claude/rules/integrations.md` (`nuxt.config.ts`, `.env.example`,
+  `server/**`) — Vercel Analytics/Speed Insights, Lettermint email, opt-in
+  Neon. The Vercel and Neon MCP servers are linked at the project level in
+  `.mcp.json`.
 
 ## Workflow
 

@@ -29,7 +29,12 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/fonts',
     '@vueuse/nuxt',
-    '@vueuse/motion/nuxt'
+    '@vueuse/motion/nuxt',
+    // Vercel-only; no-op (and Speed Insights collects nothing) off Vercel and
+    // in dev, so these are safe to leave on for every clone.
+    '@vercel/analytics',
+    '@vercel/speed-insights',
+    'nuxt-lettermint'
   ],
 
   devtools: {
@@ -53,6 +58,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-06-30',
 
   nitro: {
+    // TEMPORARY Windows-only fix for nuxt/nuxt#36467: Nitro's externals
+    // plugin matches the renderer path with a forward-slash string, but on
+    // Windows the resolved id uses backslashes, so the match fails and the
+    // renderer is left external with a stub manifest -> every SSR page 500s
+    // with "Either manifest or precomputed data must be provided". A
+    // separator-agnostic RegExp fixes the match. Remove this once nitrojs/
+    // nitro#4732 lands and ships in a Nuxt release (tracked as hotfixed
+    // upstream in commit 21657c6, expected in the next 4.x).
+    externals: {
+      inline: [/[\\/]node_modules[\\/]nuxt[\\/]dist[\\/]/]
+    },
+
     // The Nitro node server does not compress anything itself. Without a proxy
     // in front that does, every asset goes over the wire raw. This writes
     // .gz/.br next to each public asset at build time; the node server then
@@ -94,5 +111,12 @@ export default defineNuxtConfig({
       'xl': 1280,
       '2xl': 1536
     }
+  },
+
+  // autoEndpoint exposes POST /api/lettermint/send so a contact form can call
+  // useLettermint().send(...) from the client — the NUXT_LETTERMINT_API_KEY
+  // token itself is only ever read server-side. See .claude/rules/integrations.md.
+  lettermint: {
+    autoEndpoint: true
   }
 })

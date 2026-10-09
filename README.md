@@ -20,6 +20,12 @@ It is also meant for rebuilding outdated websites by reusing the text, context, 
 - `@vueuse/nuxt` — auto-imported [VueUse](https://vueuse.org) composables (scroll position, breakpoints, intersection observer, etc.)
 - `@vueuse/motion` — declarative scroll/entrance animations via the `v-motion` directive, for a "modern" feel without hand-rolled CSS animation
 
+**Deployment integrations (pre-installed, all sites run on Vercel)**
+- `@vercel/analytics` and `@vercel/speed-insights` — registered as Nuxt modules, zero config. Both no-op off Vercel.
+- `nuxt-lettermint` — official Lettermint module for transactional email, with a ready `POST /api/lettermint/send` endpoint. Needs `NUXT_LETTERMINT_API_KEY` (see `.env.example`).
+- Neon Postgres is **not** pre-installed — it's added per site, only when that site needs a database. See [`.claude/rules/integrations.md`](.claude/rules/integrations.md) for how.
+- The Vercel and Neon MCP servers are linked to this project in `.mcp.json`.
+
 **Fetching an existing site for a rebuild**
 - `scripts/fetch-site.mjs` — CLI that pulls a page's text (as Markdown), metadata, and images into `content-import/`
 - `playwright` (dev-only) — renders JS-heavy pages and captures a full-page screenshot
@@ -31,7 +37,12 @@ It is also meant for rebuilding outdated websites by reusing the text, context, 
 
 ```bash
 pnpm install
+cp .env.example .env
 ```
+
+Fill in `NUXT_LETTERMINT_API_KEY` once the site sends mail. Leave `DATABASE_URL`
+commented out unless this site uses Neon — see
+[`.claude/rules/integrations.md`](.claude/rules/integrations.md).
 
 If you'll use `--render` with the site-fetching script, install its browser once (not needed for plain fetches):
 
