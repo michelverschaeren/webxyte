@@ -42,16 +42,74 @@
       </template>
     </p>
 
+    <!-- Bulkacties: enkel voor de agency-admin -->
+    <div v-if="isAgencyAdmin" class="mb-3 flex items-center gap-3">
+      <span class="text-sm text-(--color-text-muted)">
+        {{ selected.size > 0 ? `${selected.size} geselecteerd` : "Niets geselecteerd" }}
+      </span>
+      <div ref="actionMenuRef" class="relative">
+        <button
+          type="button"
+          aria-haspopup="menu"
+          :aria-expanded="menuOpen"
+          aria-label="Acties voor geselecteerde klanten"
+          :disabled="selected.size === 0"
+          class="rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed"
+          :class="
+            selected.size === 0
+              ? 'border-(--color-border) text-(--color-text-muted) opacity-50'
+              : 'border-(--color-border-strong) text-(--color-accent) hover:bg-(--color-hover)'
+          "
+          @click="menuOpen = !menuOpen"
+        >
+          ⋮
+        </button>
+        <div
+          v-if="menuOpen"
+          role="menu"
+          class="absolute left-0 z-20 mt-1 w-64 overflow-hidden rounded-lg border border-(--color-border-strong) shadow-xl"
+          style="background: var(--color-surface)"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            :disabled="bulkInviting"
+            class="block w-full px-4 py-2.5 text-left text-sm text-(--color-text) transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-50"
+            @click="bulkInvite"
+          >
+            {{ bulkInviting ? "Versturen…" : "Lanceringsmail versturen" }}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            :disabled="bulkDeleting"
+            class="block w-full px-4 py-2.5 text-left text-sm text-[#e06a6a] transition-colors hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-50"
+            @click="bulkDelete"
+          >
+            {{ bulkDeleting ? "Verwijderen…" : "Klanten verwijderen" }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Kaarten (mobiel) -->
     <ul v-if="items.length > 0" class="space-y-2 sm:hidden">
       <li
         v-for="c in items"
         :key="c.id"
-        class="rounded-xl border border-(--color-border) bg-(--color-surface-2) overflow-hidden"
+        class="flex items-start gap-2 rounded-xl border border-(--color-border) bg-(--color-surface-2) overflow-hidden"
       >
+        <label v-if="isAgencyAdmin" class="py-3 pl-4">
+          <input
+            type="checkbox"
+            :checked="selected.has(c.id)"
+            aria-label="Klant selecteren"
+            @change="toggleSelect(c.id)"
+          >
+        </label>
         <NuxtLink
           :to="`/admin/klanten/${c.id}`"
-          class="flex flex-col gap-2 px-4 py-3"
+          class="flex min-w-0 flex-1 flex-col gap-2 px-4 py-3"
         >
           <div class="min-w-0">
             <p class="text-sm text-(--color-text-muted)">{{ c.customerNr }}</p>
@@ -82,6 +140,14 @@
           <tr
             class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
           >
+            <th v-if="isAgencyAdmin" class="w-10 px-4 py-3">
+              <input
+                type="checkbox"
+                :checked="allSelected"
+                aria-label="Alle klanten op deze pagina selecteren"
+                @change="toggleSelectAll()"
+              >
+            </th>
             <th class="px-4 py-3 text-left font-semibold">Klantnr.</th>
             <th class="px-4 py-3 text-left font-semibold">Naam</th>
             <th class="hidden px-4 py-3 text-left font-semibold md:table-cell">
@@ -103,6 +169,14 @@
             :key="c.id"
             class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
           >
+            <td v-if="isAgencyAdmin" class="px-4 py-2.5">
+              <input
+                type="checkbox"
+                :checked="selected.has(c.id)"
+                aria-label="Klant selecteren"
+                @change="toggleSelect(c.id)"
+              >
+            </td>
             <td class="px-4 py-2.5 font-mono text-sm text-(--color-text-muted)">{{ c.customerNr }}</td>
             <td class="px-4 py-2.5 text-(--color-text-strong)">{{ c.name }}</td>
             <td class="hidden px-4 py-2.5 text-(--color-text-muted) md:table-cell">
@@ -149,7 +223,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td colspan="7" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td :colspan="isAgencyAdmin ? 8 : 7" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen klanten gevonden.
             </td>
           </tr>
@@ -276,6 +350,14 @@
 definePageMeta({ layout: "main", middleware: "admin" });
 useHead({ title: "Klanten — Vleeswaren Vermeir" });
 
+const auth = useAuth();
+/**
+ * Bulkacties (lanceringsmail/verwijderen) zijn voorbehouden aan de
+ * agency-admin — zelfde adres als server/utils/session.ts requireAgencyAdmin.
+ * De server herhaalt deze check: dit is enkel om de UI te verbergen.
+ */
+const isAgencyAdmin = computed(() => auth.user.value?.email === "web.xyte@outlook.com");
+
 interface CustomerDto {
   id: string;
   customerNr: string;
@@ -390,6 +472,110 @@ onMounted(() => {
 
 const items = computed(() => data.value?.items ?? []);
 const summary = computed(() => data.value?.summary ?? { notInvited: 0, noEmail: 0 });
+
+// Selectie + bulkacties (enkel bruikbaar door de agency-admin, zie isAgencyAdmin).
+const selected = ref<Set<string>>(new Set());
+const allSelected = computed(
+  () => items.value.length > 0 && items.value.every((c) => selected.value.has(c.id)),
+);
+
+function toggleSelect(id: string) {
+  if (selected.value.has(id)) selected.value.delete(id);
+  else selected.value.add(id);
+}
+
+function toggleSelectAll() {
+  if (allSelected.value) {
+    selected.value.clear();
+  } else {
+    for (const c of items.value) selected.value.add(c.id);
+  }
+}
+
+// Een andere pagina of zoekopdracht toont andere klanten: selectie erop
+// laten staan zou ongemerkt de verkeerde klanten raken.
+watch([page, debouncedSearch], () => selected.value.clear());
+
+const menuOpen = ref(false);
+const actionMenuRef = ref<HTMLElement | null>(null);
+watch(
+  () => selected.value.size,
+  (n) => {
+    if (n === 0) menuOpen.value = false;
+  },
+);
+
+onMounted(() => {
+  const onClickOutside = (e: MouseEvent) => {
+    if (menuOpen.value && !actionMenuRef.value?.contains(e.target as Node)) {
+      menuOpen.value = false;
+    }
+  };
+  document.addEventListener("mousedown", onClickOutside);
+  onUnmounted(() => document.removeEventListener("mousedown", onClickOutside));
+});
+
+const bulkInviting = ref(false);
+async function bulkInvite() {
+  if (bulkInviting.value || selected.value.size === 0) return;
+  const ids = Array.from(selected.value);
+  if (
+    !window.confirm(
+      `Lanceringsmail versturen naar ${ids.length} klant${ids.length !== 1 ? "en" : ""}?`,
+    )
+  ) {
+    return;
+  }
+
+  menuOpen.value = false;
+  bulkInviting.value = true;
+  try {
+    const result = await $fetch<{
+      invited: number;
+      failed: { id: string; reason: string }[];
+    }>("/api/admin/customers/invite-selected", { method: "POST", body: { ids } });
+    createNotice.value =
+      `${result.invited} lanceringsmail${result.invited !== 1 ? "s" : ""} verstuurd.` +
+      (result.failed.length > 0
+        ? ` Niet gelukt voor ${result.failed.length} klant${result.failed.length !== 1 ? "en" : ""}.`
+        : "");
+    selected.value.clear();
+  } catch {
+    createNotice.value = "Versturen mislukt. Probeer het later opnieuw.";
+  } finally {
+    bulkInviting.value = false;
+    await refresh();
+  }
+}
+
+const bulkDeleting = ref(false);
+async function bulkDelete() {
+  if (bulkDeleting.value || selected.value.size === 0) return;
+  const ids = Array.from(selected.value);
+  if (
+    !window.confirm(
+      `${ids.length} klant${ids.length !== 1 ? "en" : ""} definitief verwijderen, inclusief hun login? Dit kan niet ongedaan gemaakt worden.`,
+    )
+  ) {
+    return;
+  }
+
+  menuOpen.value = false;
+  bulkDeleting.value = true;
+  try {
+    const result = await $fetch<{ deleted: number }>("/api/admin/customers/delete", {
+      method: "POST",
+      body: { ids },
+    });
+    createNotice.value = `${result.deleted} klant${result.deleted !== 1 ? "en" : ""} verwijderd.`;
+    selected.value.clear();
+  } catch {
+    createNotice.value = "Verwijderen mislukt. Probeer het later opnieuw.";
+  } finally {
+    bulkDeleting.value = false;
+    await refresh();
+  }
+}
 
 const invitingAll = ref(false);
 /**

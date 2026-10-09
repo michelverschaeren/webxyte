@@ -50,3 +50,26 @@ export async function requireAdmin(event: H3Event) {
 
   return user;
 }
+
+/**
+ * E-mailadres van de enige beheerder die gevoelige bulkacties op klanten mag
+ * gebruiken (massa-uitnodigen/verwijderen). De klant heeft zelf ook de rol
+ * "admin" op /admin/klanten, maar mag deze acties niet kunnen activeren.
+ */
+const AGENCY_ADMIN_EMAIL = "web.xyte@outlook.com";
+
+/**
+ * Zelfde als requireAdmin, maar enkel voor AGENCY_ADMIN_EMAIL (403 zo niet).
+ */
+export async function requireAgencyAdmin(event: H3Event) {
+  const user = await requireAdmin(event);
+
+  if (user.email !== AGENCY_ADMIN_EMAIL) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Deze actie is voorbehouden aan de beheerder van de website.",
+    });
+  }
+
+  return user;
+}
