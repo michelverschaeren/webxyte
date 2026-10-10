@@ -17,8 +17,10 @@ type AuthSession = Awaited<
 >["data"];
 
 export function useAuth() {
+  // `x-forwarded-for` gaat mee zodat Better Auth's rate limiter de SSR-call
+  // per bezoeker telt; zonder IP belanden alle bezoekers in één gedeelde teller.
   const headers = import.meta.server
-    ? useRequestHeaders(["cookie"])
+    ? useRequestHeaders(["cookie", "x-forwarded-for"])
     : undefined;
 
   const {
