@@ -2,6 +2,9 @@ export type Theme = "dark" | "light";
 
 export const THEME_STORAGE_KEY = "theme";
 
+/** Thema zonder bewaarde keuze; ook in het inline script in nuxt.config.ts. */
+export const DEFAULT_THEME: Theme = "light";
+
 /**
  * Donker/licht thema, client-side onthouden in `localStorage`.
  *
@@ -10,7 +13,7 @@ export const THEME_STORAGE_KEY = "theme";
  * gedeelde cache bewaard worden. Het thema is puur een weergavekeuze — de
  * server hoeft die niet te kennen.
  *
- * Gevolg: tijdens SSR is deze waarde altijd `"dark"`. Wat van het thema
+ * Gevolg: tijdens SSR is deze waarde altijd de default (`"light"`). Wat van het thema
  * afhangt én zichtbaar is bij de eerste paint (logo's, het icoon van de
  * themaknop) mag dus NIET op deze reactieve waarde schakelen, maar via CSS op
  * `[data-theme]`. Dat attribuut zet een inline script in <head> (zie
@@ -18,7 +21,7 @@ export const THEME_STORAGE_KEY = "theme";
  * trekt deze state daarna gelijk.
  */
 export function useTheme() {
-  const theme = useState<Theme>("theme", () => "dark");
+  const theme = useState<Theme>("theme", () => DEFAULT_THEME);
 
   function set(next: Theme) {
     theme.value = next;

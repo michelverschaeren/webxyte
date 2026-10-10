@@ -61,7 +61,7 @@
 
 /* ── Thema-afhankelijke elementen ────────────────────────────────────
  * Sinds het thema in localStorage zit (en niet meer in een cookie) kent de
- * server het niet meer: tijdens SSR is `theme` altijd "dark". Alles wat per
+ * server het niet meer: tijdens SSR is `theme` altijd "light". Alles wat per
  * thema verschilt én meteen zichtbaar is, wordt daarom in beide varianten
  * gerenderd en hier geschakeld op `data-theme` — dat attribuut staat er al
  * vóór de eerste paint, dus zo is er geen flits.
