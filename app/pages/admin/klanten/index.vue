@@ -156,10 +156,11 @@
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
               Login
             </th>
-            <th class="px-4 py-3 text-right font-semibold">Producten</th>
+            <th class="px-4 py-3 text-left font-semibold whitespace-nowrap">CRM data</th>
             <th class="hidden px-4 py-3 text-left font-semibold whitespace-nowrap lg:table-cell">
-              Laatste aankoop
+              Laatste bestelling
             </th>
+            <th class="hidden px-4 py-3 text-right font-semibold lg:table-cell">Aantal</th>
             <th class="px-4 py-3"/>
           </tr>
         </thead>
@@ -185,11 +186,24 @@
             <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
               {{ loginStatusLabel[c.loginStatus] }}
             </td>
-            <td class="px-4 py-2.5 text-right text-(--color-text-strong)">
-              {{ c.productCount }}
+            <td class="px-4 py-2.5 whitespace-nowrap text-(--color-text-muted)">
+              <template v-if="c.lastPurchasedAt">
+                {{ formatDate(c.lastPurchasedAt) }}
+                <span class="text-sm">
+                  · {{ c.productCount }} product{{ c.productCount !== 1 ? "en" : "" }}
+                </span>
+              </template>
+              <template v-else>—</template>
             </td>
             <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
-              {{ c.lastPurchasedAt ? formatDate(c.lastPurchasedAt) : "—" }}
+              <template v-if="c.lastOrderedAt">
+                {{ formatDate(c.lastOrderedAt) }}
+                <span class="text-sm">· #{{ c.orderCount }}</span>
+              </template>
+              <template v-else>—</template>
+            </td>
+            <td class="hidden px-4 py-2.5 text-right text-(--color-text-strong) lg:table-cell">
+              {{ c.orderCount ? c.orderedQuantity : "—" }}
             </td>
             <td class="px-4 py-2.5">
               <div class="flex items-center justify-end gap-3 whitespace-nowrap">
@@ -223,7 +237,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td :colspan="isAgencyAdmin ? 8 : 7" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td :colspan="isAgencyAdmin ? 9 : 8" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen klanten gevonden.
             </td>
           </tr>
@@ -367,6 +381,9 @@ interface CustomerDto {
   loginStatus: CustomerLoginStatus;
   productCount: number;
   lastPurchasedAt: string | null;
+  orderCount: number;
+  lastOrderedAt: string | null;
+  orderedQuantity: number;
 }
 
 interface CustomersResponse {

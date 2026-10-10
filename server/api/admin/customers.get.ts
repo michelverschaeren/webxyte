@@ -1,13 +1,19 @@
 import { asc, count, eq, ilike, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { customerPurchaseHistory, customers } from "~~/server/database/schema";
+import {
+  customerPurchaseHistory,
+  customers,
+  orderItems,
+  orders,
+} from "~~/server/database/schema";
 import { loginStatusSql } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/customers — klanten uit het CRM, gepagineerd, met hun
- * loginstatus en een samenvatting van hun aankoophistoriek. `summary` telt
+ * loginstatus en een samenvatting van hun aankoophistoriek (CRM) en hun
+ * webshopbestellingen. `summary` telt
  * over alle klanten heen (los van zoeken/paginering), voor "alle klanten
  * uitnodigen".
  */
@@ -46,6 +52,25 @@ export default defineEventHandler(async (event) => {
     .groupBy(customerPurchaseHistory.customerId)
     .as("history");
 
+  // Webshopbestellingen per login, om dezelfde reden apart geaggregeerd. De
+  // laatste bestelling als kalenderdag in Belgische tijd, zoals het CRM.
+  const web = db
+    .select({
+      userId: orders.userId,
+      orderCount: raw<number>`count(distinct ${orders.id})::int`.as("order_count"),
+      lastOrderedAt:
+        raw<string>`(max(${orders.createdAt}) at time zone 'Europe/Brussels')::date::text`.as(
+          "last_ordered_at",
+        ),
+      orderedQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`.as(
+        "ordered_quantity",
+      ),
+    })
+    .from(orders)
+    .leftJoin(orderItems, eq(orderItems.orderId, orders.id))
+    .groupBy(orders.userId)
+    .as("web");
+
   const [items, [total], [summary]] = await Promise.all([
     db
       .select({
@@ -57,9 +82,13 @@ export default defineEventHandler(async (event) => {
         loginStatus: loginStatusSql,
         productCount: raw<number>`coalesce(${history.productCount}, 0)::int`,
         lastPurchasedAt: history.lastPurchasedAt,
+        orderCount: raw<number>`coalesce(${web.orderCount}, 0)::int`,
+        lastOrderedAt: web.lastOrderedAt,
+        orderedQuantity: raw<number>`coalesce(${web.orderedQuantity}, 0)::int`,
       })
       .from(customers)
       .leftJoin(history, eq(history.customerId, customers.id))
+      .leftJoin(web, eq(web.userId, customers.userId))
       .where(where)
       .orderBy(asc(customers.customerNr))
       .limit(perPage)
