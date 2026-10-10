@@ -14,7 +14,7 @@
     "playwright:install": "playwright install chromium"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.141",
+    "@iconify-json/lucide": "^1.2.142",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/image": "^2.1.0",
     "@nuxt/ui": "^4.11.3",
@@ -22,7 +22,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "@vueuse/motion": "^3.0.3",
     "@vueuse/nuxt": "^14.4.0",
-    "nuxt": "^4.6.0",
+    "nuxt": "^4.6.1",
     "nuxt-lettermint": "^2.0.1",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3"
