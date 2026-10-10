@@ -21,15 +21,15 @@
     "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/client-s3": "^3.1149.0",
     "@nuxt/image": "^2.1.0",
     "@nuxtjs/seo": "5.3.12",
     "@takumi-rs/core": "^2.14.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "better-auth": "^1.7.7",
-    "drizzle-orm": "^0.45.3",
-    "nuxt": "4.5.2",
+    "drizzle-orm": "^0.45.4",
+    "nuxt": "4.6.1",
     "pdf-lib": "^1.17.1",
     "postgres": "^3.4.9",
     "vue": "^3.5.43",
@@ -42,7 +42,7 @@
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/fonts": "^0.14.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.12.0",
@@ -52,7 +52,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "^3.3.12"
+    "vue-tsc": "^3.3.13"
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
 }

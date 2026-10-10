@@ -22,7 +22,7 @@
         <h2
           class="mb-6 font-['Playfair_Display',serif] text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-bold text-(--color-text-strong)"
         >
-          Onze eigen<br />
+          Onze eigen<br >
           <span
             class="font-['Dancing_Script',cursive] font-normal text-[#b8252a]"
             >in-huis chauffeurs</span
