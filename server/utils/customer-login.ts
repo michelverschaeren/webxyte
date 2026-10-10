@@ -20,7 +20,7 @@ import { sendCustomerInvite } from "./auth";
 export type CustomerLoginStatus = "no-email" | "not-invited" | "invited" | "active";
 
 export const loginStatusSql = raw<CustomerLoginStatus>`case
-  when ${customers.contactEmail} is null then 'no-email'
+  when nullif(btrim(${customers.contactEmail}), '') is null then 'no-email'
   when ${customers.userId} is null then 'not-invited'
   when exists (select 1 from ${account} where ${account.userId} = ${customers.userId} and ${account.password} is not null)
     or exists (select 1 from ${session} where ${session.userId} = ${customers.userId}) then 'active'

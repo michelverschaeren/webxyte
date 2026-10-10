@@ -3,7 +3,12 @@
     <div class="mb-6 flex flex-wrap items-center gap-3">
       <input
         v-model="search"
-        type="text"
+        type="search"
+        name="klanten-zoeken"
+        autocomplete="off"
+        data-protonpass-ignore="true"
+        data-1p-ignore
+        data-lpignore="true"
         placeholder="Zoek op klantnr, naam of e-mail…"
         class="adm-input max-w-sm flex-1"
       >
