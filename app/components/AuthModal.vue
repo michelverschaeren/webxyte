@@ -105,6 +105,7 @@
                 ref="firstInputRef"
                 v-model="password"
                 type="password"
+                name="new-password"
                 required
                 :minlength="8"
                 autocomplete="new-password"
@@ -120,6 +121,7 @@
               <input
                 v-model="passwordRepeat"
                 type="password"
+                name="confirm-password"
                 required
                 :minlength="8"
                 autocomplete="new-password"
