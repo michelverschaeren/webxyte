@@ -549,10 +549,16 @@ async function bulkInvite() {
   try {
     const result = await $fetch<{
       invited: number;
+      skipped: { noEmail: number; active: number };
       failed: { id: string; reason: string }[];
     }>("/api/admin/customers/invite-selected", { method: "POST", body: { ids } });
+    const skippedParts = [
+      result.skipped.noEmail > 0 ? `${result.skipped.noEmail} zonder e-mailadres` : "",
+      result.skipped.active > 0 ? `${result.skipped.active} al actief` : "",
+    ].filter(Boolean);
     createNotice.value =
       `${result.invited} lanceringsmail${result.invited !== 1 ? "s" : ""} verstuurd.` +
+      (skippedParts.length > 0 ? ` Overgeslagen: ${skippedParts.join(", ")}.` : "") +
       (result.failed.length > 0
         ? ` Niet gelukt voor ${result.failed.length} klant${result.failed.length !== 1 ? "en" : ""}.`
         : "");
