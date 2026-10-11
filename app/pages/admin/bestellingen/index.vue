@@ -9,7 +9,7 @@
         data-protonpass-ignore="true"
         data-1p-ignore
         data-lpignore="true"
-        placeholder="Zoek op klant, e-mail of bedrijf…"
+        placeholder="Zoek op bestelnr., klant, e-mail of bedrijf…"
         class="adm-input max-w-sm flex-1"
       >
     </div>
@@ -38,6 +38,9 @@
                 {{ o.customerEmail }}
               </p>
             </div>
+            <span class="shrink-0 font-mono text-sm text-(--color-accent)">
+              {{ orderNumber(o.id) }}
+            </span>
           </div>
           <div
             class="flex items-center justify-between gap-3 text-sm text-(--color-text-muted)"
@@ -63,6 +66,7 @@
           <tr
             class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
           >
+            <th class="px-4 py-3 text-left font-semibold">Bestelnr.</th>
             <th class="px-4 py-3 text-left font-semibold">Datum</th>
             <th class="px-4 py-3 text-left font-semibold">Klant</th>
             <th class="hidden px-4 py-3 text-left font-semibold md:table-cell">
@@ -80,6 +84,9 @@
             :key="o.id"
             class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
           >
+            <td class="px-4 py-2.5 font-mono text-sm text-(--color-accent)">
+              {{ orderNumber(o.id) }}
+            </td>
             <td class="px-4 py-2.5 text-(--color-text)">
               {{ formatDate(o.createdAt) }}
             </td>
@@ -105,7 +112,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td colspan="5" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td colspan="6" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen bestellingen gevonden.
             </td>
           </tr>
@@ -189,6 +196,11 @@ const { data } = await useFetch<OrdersResponse>("/api/admin/orders", {
 
 const items = computed(() => data.value?.items ?? []);
 const pagination = computed(() => data.value?.pagination);
+
+/** Kort bestelnummer: de eerste 8 tekens van de id, zoals op de bestelbon. */
+function orderNumber(id: string): string {
+  return id.slice(0, 8).toUpperCase();
+}
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString("nl-BE", {

@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
           ilike(user.name, `%${search}%`),
           ilike(user.email, `%${search}%`),
           ilike(billingDetails.companyName, `%${search}%`),
+          // Bestelnummer: het begin van de id (kort of volledig geplakt).
+          ilike(raw`${orders.id}::text`, `${search}%`),
         )
       : undefined,
   ].filter((filter) => filter !== undefined);
