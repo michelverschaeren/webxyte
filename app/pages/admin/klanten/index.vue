@@ -47,8 +47,8 @@
       </template>
     </p>
 
-    <!-- Bulkacties: enkel voor de agency-admin -->
-    <div v-if="isAgencyAdmin" class="mb-3 flex items-center gap-3">
+    <!-- Bulkacties: lanceringsmail voor elke beheerder, verwijderen enkel voor de agency-admin -->
+    <div class="mb-3 flex items-center gap-3">
       <span class="text-sm text-(--color-text-muted)">
         {{ selected.size > 0 ? `${selected.size} geselecteerd` : "Niets geselecteerd" }}
       </span>
@@ -85,6 +85,7 @@
             {{ bulkInviting ? "Versturen…" : "Lanceringsmail versturen" }}
           </button>
           <button
+            v-if="isAgencyAdmin"
             type="button"
             role="menuitem"
             :disabled="bulkDeleting"
@@ -104,7 +105,7 @@
         :key="c.id"
         class="flex items-start gap-2 rounded-xl border border-(--color-border) bg-(--color-surface-2) overflow-hidden"
       >
-        <label v-if="isAgencyAdmin" class="py-3 pl-4">
+        <label class="py-3 pl-4">
           <input
             type="checkbox"
             :checked="selected.has(c.id)"
@@ -145,7 +146,7 @@
           <tr
             class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
           >
-            <th v-if="isAgencyAdmin" class="w-10 px-4 py-3">
+            <th class="w-10 px-4 py-3">
               <input
                 type="checkbox"
                 :checked="allSelected"
@@ -175,7 +176,7 @@
             :key="c.id"
             class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
           >
-            <td v-if="isAgencyAdmin" class="px-4 py-2.5">
+            <td class="px-4 py-2.5">
               <input
                 type="checkbox"
                 :checked="selected.has(c.id)"
@@ -242,7 +243,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td :colspan="isAgencyAdmin ? 9 : 8" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td colspan="9" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen klanten gevonden.
             </td>
           </tr>
@@ -371,8 +372,9 @@ useHead({ title: "Klanten — Vleeswaren Vermeir" });
 
 const auth = useAuth();
 /**
- * Bulkacties (lanceringsmail/verwijderen) zijn voorbehouden aan de
- * agency-admin — zelfde adres als server/utils/session.ts requireAgencyAdmin.
+ * Klanten verwijderen is voorbehouden aan de agency-admin — zelfde adres als
+ * server/utils/session.ts requireAgencyAdmin. De lanceringsmail naar een
+ * selectie mag elke beheerder versturen.
  * De server herhaalt deze check: dit is enkel om de UI te verbergen.
  */
 const isAgencyAdmin = computed(() => auth.user.value?.email === "web.xyte@outlook.com");
@@ -495,7 +497,7 @@ onMounted(() => {
 const items = computed(() => data.value?.items ?? []);
 const summary = computed(() => data.value?.summary ?? { notInvited: 0, noEmail: 0 });
 
-// Selectie + bulkacties (enkel bruikbaar door de agency-admin, zie isAgencyAdmin).
+// Selectie + bulkacties (verwijderen enkel voor de agency-admin, zie isAgencyAdmin).
 const selected = ref<Set<string>>(new Set());
 const allSelected = computed(
   () => items.value.length > 0 && items.value.every((c) => selected.value.has(c.id)),

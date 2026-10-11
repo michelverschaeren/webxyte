@@ -53,7 +53,7 @@ export async function requireAdmin(event: H3Event) {
 
 /**
  * E-mailadres van de enige beheerder die gevoelige bulkacties op klanten mag
- * gebruiken (massa-uitnodigen/verwijderen). De klant heeft zelf ook de rol
+ * gebruiken (klanten verwijderen). De klant heeft zelf ook de rol
  * "admin" op /admin/klanten, maar mag deze acties niet kunnen activeren.
  */
 const AGENCY_ADMIN_EMAIL = "web.xyte@outlook.com";

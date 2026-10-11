@@ -3,12 +3,12 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers } from "~~/server/database/schema";
 import { inviteCustomer, loginStatusSql } from "~~/server/utils/customer-login";
-import { requireAgencyAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * POST /api/admin/customers/invite-selected — stuurt de lanceringsmail naar
  * een door de beheerder gekozen selectie klanten, i.p.v. in één keer naar
- * iedereen (zie invite-all.post.ts). Voorbehouden aan de agency-admin.
+ * iedereen (zie invite-all.post.ts). Voor elke beheerder (rol "admin").
  *
  * Klanten zonder e-mailadres en klanten die al actief zijn (wachtwoord
  * gekozen of al eens ingelogd) worden overgeslagen en apart geteld. Wie
@@ -19,7 +19,7 @@ import { requireAgencyAdmin } from "~~/server/utils/session";
 const bodySchema = z.object({ ids: z.array(z.uuid()).min(1).max(200) });
 
 export default defineEventHandler(async (event) => {
-  await requireAgencyAdmin(event);
+  await requireAdmin(event);
 
   const { ids } = await readValidatedBody(event, (data) => bodySchema.parse(data));
 
