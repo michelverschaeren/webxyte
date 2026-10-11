@@ -50,23 +50,55 @@
       <section v-if="stats.perDay.length > 0" class="mt-12">
         <h2 class="adm-heading">— Bezoekers per dag —</h2>
         <div class="rounded-xl border border-(--color-border) bg-(--color-surface) px-4 pt-6 pb-3">
-          <div class="flex h-48 items-end gap-0.5 sm:gap-1">
+          <div class="flex gap-2">
             <div
-              v-for="day in stats.perDay"
-              :key="day.date"
-              class="group relative flex h-full flex-1 items-end"
-              :title="`${formatDay(day.date)}: ${day.visitors} bezoekers, ${day.pageviews} weergaven`"
+              class="relative h-48 w-9 shrink-0 text-right text-[0.75rem] text-(--color-text-muted) tabular-nums"
+              aria-hidden="true"
             >
-              <div
-                class="w-full rounded-t-sm bg-[#c89868] transition-colors group-hover:bg-[#b8252a]"
-                :style="{ height: `${barHeight(day.visitors)}%` }"
-              />
+              <span
+                v-for="tick in yTicks"
+                :key="tick"
+                class="absolute right-0 translate-y-1/2 leading-none"
+                :style="{ bottom: `${(tick / axisMax) * 100}%` }"
+              >
+                {{ format(tick) }}
+              </span>
             </div>
-          </div>
-          <div class="mt-2 flex justify-between text-[0.8rem] text-(--color-text-muted)">
-            <span>{{ formatDay(stats.perDay[0]!.date) }}</span>
-            <span>Hoogste dag: {{ format(maxVisitors) }} bezoekers</span>
-            <span>{{ formatDay(stats.perDay[stats.perDay.length - 1]!.date) }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="relative h-48">
+                <div
+                  v-for="tick in yTicks"
+                  :key="tick"
+                  class="absolute inset-x-0 border-t border-(--color-border)"
+                  :style="{ bottom: `${(tick / axisMax) * 100}%` }"
+                />
+                <div class="absolute inset-0 flex items-end gap-0.5 sm:gap-1">
+                  <div
+                    v-for="day in stats.perDay"
+                    :key="day.date"
+                    class="group flex h-full min-w-0 flex-1 flex-col items-center justify-end"
+                    :title="`${formatDay(day.date)}: ${day.visitors} bezoekers, ${day.pageviews} weergaven`"
+                  >
+                    <span
+                      v-if="showValues && day.visitors > 0"
+                      class="mb-1 text-[0.75rem] leading-none font-semibold text-(--color-text-strong) tabular-nums"
+                      :class="{ 'hidden sm:block': stats.perDay.length > 7 }"
+                    >
+                      {{ format(day.visitors) }}
+                    </span>
+                    <div
+                      class="w-full shrink-0 rounded-t-sm bg-[#c89868] transition-colors group-hover:bg-[#b8252a]"
+                      :style="{ height: `${barHeight(day.visitors)}%` }"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 flex justify-between text-[0.8rem] text-(--color-text-muted)">
+                <span>{{ formatDay(stats.perDay[0]!.date) }}</span>
+                <span>Hoogste dag: {{ format(maxVisitors) }} bezoekers</span>
+                <span>{{ formatDay(stats.perDay[stats.perDay.length - 1]!.date) }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -145,10 +177,31 @@ const tables = computed(() => [
   { title: "Toestellen", label: "Toestel", empty: "Onbekend", rows: ok.value?.devices ?? [] },
 ]);
 
+/** Ronde stap (1, 2, 5, 10, …) zodat de y-as een viertal leesbare streepjes krijgt. */
+const tickStep = computed(() => {
+  const rough = maxVisitors.value / 4;
+  if (rough <= 1) return 1;
+  const pow = 10 ** Math.floor(Math.log10(rough));
+  return [1, 2, 5, 10].map((m) => m * pow).find((step) => step >= rough)!;
+});
+
+const axisMax = computed(() =>
+  Math.max(tickStep.value, Math.ceil(maxVisitors.value / tickStep.value) * tickStep.value),
+);
+
+const yTicks = computed(() => {
+  const ticks: number[] = [];
+  for (let tick = 0; tick <= axisMax.value; tick += tickStep.value) ticks.push(tick);
+  return ticks;
+});
+
+/** Bij 90 dagen zijn de balken te smal voor een getal erboven. */
+const showValues = computed(() => (ok.value?.perDay.length ?? 0) <= 31);
+
 /** Minstens 2% zodat ook een dag met weinig bezoek zichtbaar blijft. */
 function barHeight(visitors: number): number {
-  if (maxVisitors.value === 0 || visitors === 0) return 0;
-  return Math.max(2, (visitors / maxVisitors.value) * 100);
+  if (visitors === 0) return 0;
+  return Math.max(2, (visitors / axisMax.value) * 100);
 }
 
 function format(value: number): string {
