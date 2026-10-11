@@ -2,6 +2,7 @@ import { eq, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers, user } from "~~/server/database/schema";
+import { addressSchema, createAddress } from "~~/server/utils/customer-addresses";
 import { inviteCustomer, isUniqueViolation } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
@@ -16,6 +17,8 @@ import { requireAdmin } from "~~/server/utils/session";
  *   voorlopige naam ("Klant 100145"), zoals de CRM-import dat ook doet.
  * - Eén e-mailadres hoort bij één klant: een adres dat al in gebruik is,
  *   wordt geweigerd.
+ * - Een leveringsadres is optioneel: ingevuld staat het al klaar bij de
+ *   klant (primair als het zijn eerste is), die het zelf nog kan wijzigen.
  */
 const bodySchema = z.object({
   // Better Auth bewaart e-mailadressen in kleine letters.
@@ -26,12 +29,13 @@ const bodySchema = z.object({
     .pipe(z.email().max(200)),
   customerNr: z.string().trim().min(1).max(32),
   name: z.string().trim().max(200).optional(),
+  address: addressSchema.omit({ isPrimary: true }).optional(),
 });
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { email, customerNr, name } = await readValidatedBody(event, (data) =>
+  const { email, customerNr, name, address } = await readValidatedBody(event, (data) =>
     bodySchema.parse(data),
   );
 
@@ -96,6 +100,15 @@ export default defineEventHandler(async (event) => {
       });
     }
     throw err;
+  }
+
+  // Net als de uitnodiging: een mislukt adres mag de klant niet terugdraaien.
+  if (address) {
+    try {
+      await createAddress(customerId, address);
+    } catch (err) {
+      console.error(`[admin] Leveringsadres voor klant ${customerNr} niet opgeslagen:`, err);
+    }
   }
 
   // De klant staat er al; een mislukte uitnodiging mag dat niet terugdraaien.

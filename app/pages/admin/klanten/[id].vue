@@ -125,8 +125,32 @@
             <dd class="text-(--color-text-strong)">{{ data.customer.phone ?? "—" }}</dd>
           </div>
         </dl>
+        <p class="mt-3 text-sm text-(--color-text-muted)">
+          De klant ziet en wijzigt ditzelfde telefoonnummer onder Mijn account →
+          Gegevens; het komt ook op de bestelbon.
+        </p>
         <p v-if="saved && !editing" class="mt-3 text-base text-[#8fc98f]">
           Wijzigingen opgeslagen.
+        </p>
+      </section>
+
+      <!-- Leveringsadressen -->
+      <section>
+        <h2
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+        >
+          — Leveringsadressen —
+        </h2>
+        <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5">
+          <DeliveryAddresses
+            :endpoint="`/api/admin/customers/${data.customer.id}/addresses`"
+            :addresses="data.addresses"
+            @changed="refresh()"
+          />
+        </div>
+        <p class="mt-3 text-sm text-(--color-text-muted)">
+          Dezelfde adressen die de klant zelf ziet en beheert. Bij een bestelling
+          kiest de klant het leveradres; standaard is dat het primaire.
         </p>
       </section>
 
@@ -173,6 +197,12 @@
               <dt class="text-sm text-(--color-text-muted)">Facturatie: bedrijf</dt>
               <dd class="text-(--color-text-strong)">
                 {{ data.billing.companyName }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm text-(--color-text-muted)">Facturatie: e-mail</dt>
+              <dd class="text-(--color-text-strong)">
+                {{ data.billing.invoiceEmail }}
               </dd>
             </div>
           </template>
@@ -296,6 +326,8 @@
 </template>
 
 <script setup lang="ts">
+import type { DeliveryAddress } from "#shared/address";
+
 const route = useRoute();
 definePageMeta({ layout: "main", middleware: "admin" });
 useHead({ title: "Klant — Vleeswaren Vermeir" });
@@ -309,10 +341,12 @@ interface CustomerDetail {
     phone: string | null;
     loginStatus: CustomerLoginStatus;
   };
+  addresses: DeliveryAddress[];
   account: { id: string; name: string; email: string } | null;
   billing: {
     companyName: string;
     vatNumber: string | null;
+    invoiceEmail: string;
   } | null;
   orders: {
     id: string;

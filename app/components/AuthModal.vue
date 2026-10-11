@@ -78,6 +78,9 @@
           >
             <p class="text-sm text-(--color-text-muted)">
               U bent ingelogd. Kies nu een nieuw wachtwoord.
+              <template v-if="askPhone || askAddress">
+                Vul meteen ook uw gegevens aan; die komen op uw bestellingen.
+              </template>
             </p>
 
             <!-- Gebruikersnaam voor wachtwoordmanagers: zonder dit veld weten
@@ -129,10 +132,70 @@
               >
             </label>
 
+            <!-- Enkel voor een klant zonder gekend nummer (typisch de eerste
+                 login na de uitnodiging). -->
+            <label v-if="askPhone" class="block">
+              <span class="mb-1.5 block text-xs font-medium text-(--color-text-muted)"
+                >Telefoonnummer (optioneel)</span
+              >
+              <input
+                v-model="phone"
+                type="tel"
+                name="tel"
+                maxlength="40"
+                autocomplete="tel"
+                placeholder="015 61 15 39"
+                :class="inputClass"
+              >
+              <span class="mt-1.5 block text-xs text-(--color-text-muted)"
+                >Zo kunnen wij u bereiken bij vragen over een bestelling.</span
+              >
+            </label>
+
+            <!-- Leveringsadres: enkel zolang de klant er nog geen heeft. -->
+            <fieldset v-if="askAddress" class="space-y-4">
+              <legend class="mb-1.5 text-xs font-medium text-(--color-text-muted)">
+                Leveringsadres (optioneel)
+              </legend>
+              <input
+                v-model="street"
+                type="text"
+                name="street"
+                maxlength="200"
+                autocomplete="address-line1"
+                placeholder="Straat en nummer"
+                aria-label="Straat en nummer"
+                :class="inputClass"
+              >
+              <div class="grid grid-cols-[1fr_2fr] gap-3">
+                <input
+                  v-model="postalCode"
+                  type="text"
+                  name="postal-code"
+                  inputmode="numeric"
+                  maxlength="4"
+                  autocomplete="postal-code"
+                  placeholder="Postcode"
+                  aria-label="Postcode"
+                  :class="inputClass"
+                >
+                <input
+                  v-model="city"
+                  type="text"
+                  name="city"
+                  maxlength="100"
+                  autocomplete="address-level2"
+                  placeholder="Gemeente"
+                  aria-label="Gemeente"
+                  :class="inputClass"
+                >
+              </div>
+            </fieldset>
+
             <p v-if="error" class="text-xs text-[#e06a6a]">{{ error }}</p>
 
             <button type="submit" :disabled="pending" :class="primaryButtonClass">
-              {{ pending ? "Even geduld…" : "Wachtwoord opslaan" }}
+              {{ pending ? "Even geduld…" : askPhone || askAddress ? "Opslaan" : "Wachtwoord opslaan" }}
             </button>
           </form>
 
@@ -249,6 +312,8 @@
 
 <script setup lang="ts">
 import type { AuthModalMode } from "~/composables/useAuthModal";
+import { addressError } from "#shared/address";
+import { PHONE_ERROR, isValidPhone } from "#shared/phone";
 
 const authModal = useAuthModal();
 const auth = useAuth();
@@ -260,6 +325,14 @@ const mode = authModal.mode;
 const email = ref("");
 const password = ref("");
 const passwordRepeat = ref("");
+const phone = ref("");
+// Vraagt het scherm "new-password" ook naar een telefoonnummer?
+const askPhone = ref(false);
+// …en naar een leveringsadres?
+const askAddress = ref(false);
+const street = ref("");
+const postalCode = ref("");
+const city = ref("");
 const error = ref("");
 const notice = ref("");
 const noticeTitle = ref("");
@@ -430,21 +503,53 @@ async function submitNewPassword() {
     return;
   }
 
+  const newPhone = askPhone.value ? phone.value.trim() : "";
+  if (newPhone && !isValidPhone(newPhone)) {
+    error.value = PHONE_ERROR;
+    return;
+  }
+
+  // Het adres is optioneel, maar een half adres heeft geen zin op de bon.
+  const address = {
+    street: street.value.trim(),
+    postalCode: postalCode.value.trim(),
+    city: city.value.trim(),
+  };
+  const hasAddress =
+    askAddress.value && Boolean(address.street || address.postalCode || address.city);
+  if (hasAddress) {
+    const invalid = addressError(address);
+    if (invalid) {
+      error.value = invalid;
+      return;
+    }
+  }
+
   pending.value = true;
   try {
     await $fetch("/api/account/password", {
       method: "POST",
-      body: { newPassword: password.value },
+      body: {
+        newPassword: password.value,
+        phone: newPhone || undefined,
+        address: hasAddress ? address : undefined,
+      },
     });
     noticeTitle.value = "Wachtwoord opgeslagen";
     notice.value = "Uw nieuwe wachtwoord is opgeslagen. Voortaan logt u daarmee in.";
     mode.value = "sent";
   } catch (e) {
-    const status = (e as { statusCode?: number }).statusCode;
+    const { statusCode: status, data } = e as {
+      statusCode?: number;
+      data?: { statusMessage?: string };
+    };
     error.value =
       status === 403 || status === 401
         ? "Deze link is te oud. Vraag via 'Wachtwoord vergeten' een nieuwe aan."
-        : "Opslaan mislukt. Probeer het later opnieuw.";
+        : status === 400
+          ? // Telefoon of adres: de server zegt welk veld niet klopt.
+            data?.statusMessage || "Controleer de ingevulde gegevens."
+          : "Opslaan mislukt. Probeer het later opnieuw.";
   } finally {
     pending.value = false;
   }
@@ -455,10 +560,33 @@ watch(authModal.isOpen, (open) => {
     error.value = "";
     password.value = "";
     passwordRepeat.value = "";
+    phone.value = "";
+    askPhone.value = false;
+    askAddress.value = false;
+    street.value = "";
+    postalCode.value = "";
+    city.value = "";
     return;
   }
   nextTick(() => firstInputRef.value?.focus());
+  if (mode.value === "new-password") loadContactQuestions();
 });
+
+/**
+ * Bij een nieuw wachtwoord vragen we een klant meteen ook naar het
+ * telefoonnummer en leveringsadres die nog ontbreken (typisch de eerste
+ * login). Mislukt het ophalen, dan blijft het bij het wachtwoord.
+ */
+async function loadContactQuestions() {
+  try {
+    const contact = await $fetch("/api/account/contact");
+    askPhone.value = contact.isCustomer && !contact.phone;
+    askAddress.value = contact.isCustomer && contact.addresses.length === 0;
+  } catch {
+    askPhone.value = false;
+    askAddress.value = false;
+  }
+}
 
 /**
  * Terugkeer vanuit de maillink: `?login=ok` (ingelogd; beheerders gaan door

@@ -59,6 +59,26 @@
         </ul>
       </section>
 
+      <!-- Leveringsadres zoals gekozen bij het bestellen -->
+      <section>
+        <h2
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+        >
+          — Leveringsadres —
+        </h2>
+        <div
+          class="space-y-1 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)"
+        >
+          <template v-if="order.billing.street || order.billing.city">
+            <p class="text-(--color-text-strong)">{{ order.billing.street }}</p>
+            <p class="text-(--color-text-strong)">
+              {{ order.billing.postalCode }} {{ order.billing.city }}
+            </p>
+          </template>
+          <p v-else class="text-(--color-text-muted)">Niet ingevuld</p>
+        </div>
+      </section>
+
       <!-- Billing snapshot -->
       <section>
         <h2
@@ -76,7 +96,7 @@
           Dit zijn de gegevens zoals ze golden op het moment van bestellen.
           Wijzigingen aanpassen doet u bij
           <NuxtLink to="/account/gegevens" class="text-(--color-accent) hover:underline"
-            >uw facturatiegegevens</NuxtLink
+            >uw gegevens</NuxtLink
           >.
         </p>
       </section>

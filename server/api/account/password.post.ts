@@ -1,5 +1,18 @@
 import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { db } from "~~/server/database/client";
+import { customers } from "~~/server/database/schema";
 import { auth } from "~~/server/utils/auth";
+import {
+  addressSchema,
+  createAddress,
+  listAddresses,
+} from "~~/server/utils/customer-addresses";
+import {
+  contactFields,
+  parseContactBody,
+  saveCustomerContact,
+} from "~~/server/utils/customer-contact";
 import { getAuthSession } from "~~/server/utils/session";
 
 /**
@@ -13,11 +26,18 @@ import { getAuthSession } from "~~/server/utils/session";
  * Een klant zonder e-mailbevestiging verliest bij de eerste magic-link-login
  * zijn wachtwoord-account (Better Auth-beveiliging) — vandaar dat we het
  * credential-account zo nodig opnieuw aanmaken i.p.v. enkel bij te werken.
+ *
+ * Telefoon en leveringsadres komen mee als de popup er ook naar vroeg (klant
+ * bij wie ze nog ontbreken, typisch bij de eerste login) en worden bij de
+ * klant opgeslagen. Een leeg telefoonveld laat het bestaande nummer
+ * ongemoeid; het adres wordt enkel toegevoegd als de klant er nog geen heeft.
  */
 const FRESH_SESSION_MS = 15 * 60 * 1000;
 
 const bodySchema = z.object({
   newPassword: z.string().min(8).max(128),
+  ...contactFields,
+  address: addressSchema.omit({ isPrimary: true }).optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -36,8 +56,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { newPassword } = await readValidatedBody(event, (data) =>
-    bodySchema.parse(data),
+  const { newPassword, address, ...contact } = await readValidatedBody(event, (data) =>
+    parseContactBody(bodySchema, data),
   );
 
   const ctx = await auth.$context;
@@ -54,6 +74,23 @@ export default defineEventHandler(async (event) => {
       accountId: userId,
       password: hash,
     });
+  }
+
+  // Enkel wat ingevuld is: de popup vraagt alleen naar wat nog ontbrak.
+  const filled = Object.fromEntries(
+    Object.entries(contact).filter(([, value]) => value),
+  );
+  await saveCustomerContact(userId, filled);
+
+  if (address) {
+    const [customer] = await db
+      .select({ id: customers.id })
+      .from(customers)
+      .where(eq(customers.userId, userId))
+      .limit(1);
+    if (customer && (await listAddresses(customer.id)).length === 0) {
+      await createAddress(customer.id, address);
+    }
   }
 
   // Andere toestellen uitloggen: wie het oude wachtwoord kende, is eruit.

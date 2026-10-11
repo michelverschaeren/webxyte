@@ -18,6 +18,27 @@ interface OrderPdfInput {
   items: OrderPdfItem[];
 }
 
+/**
+ * De extra klantregels bovenaan bestelbon en bestelmail: telefoon, en het
+ * factuuradres enkel als het afwijkt van het account (anders staat het er al).
+ */
+export function contactDetails(billing: BillingSnapshot, customerEmail: string) {
+  const details: [string, string][] = [["Telefoon", billing.phone || "—"]];
+  if (billing.invoiceEmail.toLowerCase() !== customerEmail.toLowerCase()) {
+    details.push(["Factuur-e-mail", billing.invoiceEmail]);
+  }
+  return details;
+}
+
+/** Het leveringsadres in regels: straat + nummer, dan postcode en gemeente. */
+export function deliveryAddressLines(billing: BillingSnapshot): string[] {
+  const lines = [
+    billing.street,
+    [billing.postalCode, billing.city].filter(Boolean).join(" "),
+  ].filter((line): line is string => Boolean(line));
+  return lines.length > 0 ? lines : ["Niet ingevuld"];
+}
+
 // A4 in punten.
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -156,8 +177,11 @@ export async function generateOrderPdf({
     ["Klant", billing.companyName],
     ["Klantnummer", customerNr ?? "—"],
     ["Account", customerEmail],
-    ["Naam bestelling", order.name || "—"],
-    ["Bestelnummer", order.id],
+    ...contactDetails(billing, customerEmail),
+    // Bewust zonder `order.name`: dat is een persoonlijk geheugensteuntje van
+    // de klant, niet bedoeld voor de zaak.
+    // Korte vorm, zoals in het beheer (Bestellingen → Bestelnr.).
+    ["Bestelnummer", order.id.slice(0, 8).toUpperCase()],
   ];
 
   for (const [label, value] of details) {
@@ -166,16 +190,11 @@ export async function generateOrderPdf({
     y -= 15;
   }
 
-  // — Facturatiegegevens —
+  // — Leveringsadres —
   y -= 10;
-  text("Facturatiegegevens", MARGIN, { font: bold, size: 9, color: MUTED });
+  text("Leveringsadres", MARGIN, { font: bold, size: 9, color: MUTED });
   y -= 14;
-  const billingLines = [
-    billing.companyName,
-    billing.phone ? `Tel: ${billing.phone}` : null,
-    `Factuur-e-mail: ${billing.invoiceEmail}`,
-  ].filter((line): line is string => line !== null);
-  for (const line of billingLines) {
+  for (const line of deliveryAddressLines(billing)) {
     text(line, MARGIN);
     y -= 13;
   }

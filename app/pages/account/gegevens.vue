@@ -1,7 +1,7 @@
 <template>
   <AccountShell
-    title="Facturatiegegevens"
-    subtitle="Optioneel: deze gegevens vermelden wij op uw bestellingen."
+    title="Gegevens"
+    subtitle="Deze gegevens vermelden wij op uw bestellingen."
   >
     <form class="max-w-2xl mx-auto space-y-6" @submit.prevent="save()">
       <fieldset class="space-y-5">
@@ -33,7 +33,9 @@
         </legend>
 
         <div class="grid gap-5 sm:grid-cols-2">
-          <label class="block">
+          <!-- Het nummer hoort bij de klant; een login zonder klant
+               (beheerder) heeft er geen. -->
+          <label v-if="contact?.isCustomer" class="block">
             <span class="acc-label">Telefoon</span>
             <input
               v-model="form.phone"
@@ -61,10 +63,26 @@
         </div>
       </fieldset>
 
+      <!-- Net als het telefoonnummer: hoort bij de klant, dus niet voor een
+           login zonder klant (beheerder). Elk adres wordt meteen opgeslagen,
+           los van de knop onderaan. -->
+      <fieldset v-if="contact?.isCustomer" class="space-y-5">
+        <legend
+          class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
+        >
+          — Leveringsadres —
+        </legend>
+        <DeliveryAddresses
+          endpoint="/api/account/addresses"
+          :addresses="contact.addresses"
+          @changed="refreshContact()"
+        />
+      </fieldset>
+
       <p
         class="rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4 text-base leading-relaxed text-(--color-text-muted)"
       >
-        Wijzigingen aan uw leveradres, facturatieadres of btw-nummer kunt u
+        Wijzigingen aan uw facturatieadres of btw-nummer kunt u
         steeds doorgeven via
         <a
           href="mailto:vleeswarenvermeir@telenet.be"
@@ -126,10 +144,16 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: "main", middleware: "account" });
-useHead({ title: "Facturatiegegevens — Vleeswaren Vermeir" });
+import { PHONE_ERROR, isValidPhone } from "#shared/phone";
 
-const { data: existing, refresh } = await useFetch("/api/account/billing");
+definePageMeta({ layout: "main", middleware: "account" });
+useHead({ title: "Gegevens — Vleeswaren Vermeir" });
+
+const [{ data: existing, refresh }, { data: contact, refresh: refreshContact }] =
+  await Promise.all([
+    useFetch("/api/account/billing"),
+    useFetch("/api/account/contact"),
+  ]);
 
 // Nog niets opgeslagen? Dan staat klaar wat we al van de klant weten.
 const auth = useAuth();
@@ -142,8 +166,12 @@ const form = reactive({
 watchEffect(() => {
   if (!existing.value) return;
   form.companyName = existing.value.companyName;
-  form.phone = existing.value.phone ?? "";
   form.invoiceEmail = existing.value.invoiceEmail;
+});
+
+// Zelfde nummer als de beheerder ziet in het klantprofiel.
+watchEffect(() => {
+  form.phone = contact.value?.phone ?? "";
 });
 
 const pending = ref(false);
@@ -152,17 +180,26 @@ const saved = ref(false);
 
 async function save() {
   if (pending.value) return;
-  pending.value = true;
   error.value = "";
   saved.value = false;
 
+  const phone = form.phone.trim();
+  if (phone && !isValidPhone(phone)) {
+    error.value = PHONE_ERROR;
+    return;
+  }
+
+  pending.value = true;
   try {
-    await $fetch("/api/account/billing", { method: "PUT", body: { ...form } });
-    await refresh();
+    await $fetch("/api/account/billing", {
+      method: "PUT",
+      body: { ...form, phone: contact.value?.isCustomer ? phone : undefined },
+    });
+    await Promise.all([refresh(), refreshContact()]);
     saved.value = true;
   } catch (err) {
     error.value =
-      (err as { statusMessage?: string })?.statusMessage ||
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
       "Opslaan mislukt. Controleer de ingevulde gegevens.";
   } finally {
     pending.value = false;

@@ -10,11 +10,13 @@ import {
   products,
   user,
 } from "~~/server/database/schema";
+import { listAddresses } from "~~/server/utils/customer-addresses";
 import { loginStatusSql } from "~~/server/utils/customer-login";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/customers/:id — één CRM-klant, admin-only: contactgegevens,
+ * leveringsadressen (het primaire eerst),
  * loginstatus, aankoophistoriek uit het CRM en — als de klant een login
  * heeft — diens facturatiegegevens en webshopbestellingen.
  */
@@ -97,6 +99,7 @@ export default defineEventHandler(async (event) => {
       phone: customer.phone,
       loginStatus: customer.loginStatus,
     },
+    addresses: await listAddresses(customer.id),
     account,
     billing,
     orders: accountOrders,

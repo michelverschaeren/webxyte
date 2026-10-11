@@ -1,5 +1,7 @@
 <template>
-  <AdminShell title="Bestelling" :subtitle="order ? formatDate(order.createdAt) : ''">
+  <AdminShell
+    :title="order ? `Bestelling ${order.id.slice(0, 8).toUpperCase()}` : 'Bestelling'"
+    :subtitle="order ? formatDate(order.createdAt) : ''">
     <template v-if="order">
       <div class="mb-6 flex flex-wrap items-center gap-4">
         <NuxtLink
@@ -61,6 +63,23 @@
               </NuxtLink>
             </div>
           </div>
+
+          <!-- Zoals bevroren op de bestelling, niet het huidige adres. -->
+          <div>
+            <h2 class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
+              — Leveringsadres —
+            </h2>
+            <div class="rounded-xl border border-(--color-border) bg-(--color-surface-2) px-5 py-5 text-base text-(--color-text)">
+              <template v-if="order.billing.street || order.billing.city">
+                <p>{{ order.billing.street }}</p>
+                <p>{{ order.billing.postalCode }} {{ order.billing.city }}</p>
+              </template>
+              <p v-else class="text-(--color-text-muted)">Niet ingevuld</p>
+              <p v-if="order.billing.phone" class="mt-2 text-sm text-(--color-text-muted)">
+                Tel. {{ order.billing.phone }}
+              </p>
+            </div>
+          </div>
         </section>
       </div>
     </template>
@@ -86,6 +105,9 @@ interface OrderDetail {
     vatNumber: string | null;
     phone: string | null;
     invoiceEmail: string;
+    street?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
   };
   items: {
     id: string;

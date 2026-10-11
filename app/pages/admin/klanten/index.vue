@@ -155,10 +155,7 @@
               >
             </th>
             <th class="px-4 py-3 text-left font-semibold">Klantnr.</th>
-            <th class="px-4 py-3 text-left font-semibold">Naam</th>
-            <th class="hidden px-4 py-3 text-left font-semibold md:table-cell">
-              Contact
-            </th>
+            <th class="w-full max-w-0 px-4 py-3 text-left font-semibold">Naam</th>
             <th class="hidden px-4 py-3 text-left font-semibold lg:table-cell">
               Login
             </th>
@@ -166,7 +163,6 @@
             <th class="hidden px-4 py-3 text-left font-semibold whitespace-nowrap lg:table-cell">
               Laatste bestelling
             </th>
-            <th class="hidden px-4 py-3 text-right font-semibold lg:table-cell">Aantal</th>
             <th class="px-4 py-3"/>
           </tr>
         </thead>
@@ -185,9 +181,22 @@
               >
             </td>
             <td class="px-4 py-2.5 font-mono text-sm text-(--color-text-muted)">{{ c.customerNr }}</td>
-            <td class="px-4 py-2.5 text-(--color-text-strong)">{{ c.name }}</td>
-            <td class="hidden px-4 py-2.5 text-(--color-text-muted) md:table-cell">
-              {{ c.contactEmail ?? "—" }}
+            <!-- max-w-0 + w-full: neemt de restbreedte en kapt af i.p.v. de tabel te verbreden -->
+            <td class="w-full max-w-0 px-4 py-2.5">
+              <NuxtLink
+                :to="`/admin/klanten/${c.id}`"
+                :title="c.name"
+                class="block truncate text-(--color-text-strong) hover:text-(--color-accent)"
+              >
+                {{ c.name }}
+              </NuxtLink>
+              <p
+                v-if="c.contactEmail"
+                :title="c.contactEmail"
+                class="truncate text-sm text-(--color-text-muted)"
+              >
+                {{ c.contactEmail }}
+              </p>
             </td>
             <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
               {{ loginStatusLabel[c.loginStatus] }}
@@ -195,8 +204,8 @@
             <td class="px-4 py-2.5 whitespace-nowrap text-(--color-text-muted)">
               <template v-if="c.lastPurchasedAt">
                 {{ formatDate(c.lastPurchasedAt) }}
-                <span class="text-sm">
-                  · {{ c.productCount }} product{{ c.productCount !== 1 ? "en" : "" }}
+                <span class="block text-sm">
+                  {{ c.productCount }} product{{ c.productCount !== 1 ? "en" : "" }}
                 </span>
               </template>
               <template v-else>—</template>
@@ -204,21 +213,14 @@
             <td class="hidden px-4 py-2.5 whitespace-nowrap text-(--color-text-muted) lg:table-cell">
               <template v-if="c.lastOrderedAt">
                 {{ formatDate(c.lastOrderedAt) }}
-                <span class="text-sm">· #{{ c.orderCount }}</span>
+                <span class="block text-sm">
+                  #{{ c.orderCount }} · aantal {{ c.orderedQuantity }}
+                </span>
               </template>
               <template v-else>—</template>
             </td>
-            <td class="hidden px-4 py-2.5 text-right text-(--color-text-strong) lg:table-cell">
-              {{ c.orderCount ? c.orderedQuantity : "—" }}
-            </td>
             <td class="px-4 py-2.5">
-              <div class="flex items-center justify-end gap-3 whitespace-nowrap">
-                <NuxtLink
-                  :to="`/admin/klanten/${c.id}`"
-                  class="text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase hover:text-[#e8c97a]"
-                >
-                  Bekijken
-                </NuxtLink>
+              <div class="flex items-center justify-end whitespace-nowrap">
                 <NuxtLink
                   :to="`/admin/klanten/${c.id}?bewerken=1`"
                   :aria-label="`${c.name} bewerken`"
@@ -243,7 +245,7 @@
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td colspan="9" class="px-4 py-10 text-center text-(--color-text-muted)">
+            <td colspan="7" class="px-4 py-10 text-center text-(--color-text-muted)">
               Geen klanten gevonden.
             </td>
           </tr>
@@ -341,6 +343,41 @@
               >
             </label>
 
+            <!-- Optioneel: staat dan al klaar bij de klant. -->
+            <fieldset class="space-y-3">
+              <legend class="adm-label">Leveringsadres (optioneel)</legend>
+              <input
+                v-model="form.street"
+                type="text"
+                maxlength="200"
+                autocomplete="off"
+                placeholder="Straat en nummer"
+                aria-label="Straat en nummer"
+                class="adm-input w-full"
+              >
+              <div class="grid grid-cols-[1fr_2fr] gap-3">
+                <input
+                  v-model="form.postalCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="4"
+                  autocomplete="off"
+                  placeholder="Postcode"
+                  aria-label="Postcode"
+                  class="adm-input w-full"
+                >
+                <input
+                  v-model="form.city"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="off"
+                  placeholder="Gemeente"
+                  aria-label="Gemeente"
+                  class="adm-input w-full"
+                >
+              </div>
+            </fieldset>
+
             <p v-if="createError" class="text-sm text-[#e06a6a]">{{ createError }}</p>
 
             <div class="flex items-center justify-end gap-3 pt-1">
@@ -367,6 +404,8 @@
 </template>
 
 <script setup lang="ts">
+import { addressError } from "#shared/address";
+
 definePageMeta({ layout: "main", middleware: "admin" });
 useHead({ title: "Klanten — Vleeswaren Vermeir" });
 
@@ -435,13 +474,23 @@ const createOpen = ref(false);
 const creating = ref(false);
 const createError = ref("");
 const createNotice = ref("");
-const form = reactive({ customerNr: "", name: "", email: "" });
+const form = reactive({
+  customerNr: "",
+  name: "",
+  email: "",
+  street: "",
+  postalCode: "",
+  city: "",
+});
 const customerNrInput = ref<HTMLInputElement | null>(null);
 
 function openCreate() {
   form.customerNr = "";
   form.name = "";
   form.email = "";
+  form.street = "";
+  form.postalCode = "";
+  form.city = "";
   createError.value = "";
   createOpen.value = true;
   nextTick(() => customerNrInput.value?.focus());
@@ -453,9 +502,24 @@ function closeCreate() {
 
 async function submitCreate() {
   if (creating.value) return;
-  creating.value = true;
   createError.value = "";
 
+  // Het adres is optioneel, maar een half adres heeft geen zin op de bon.
+  const address = {
+    street: form.street.trim(),
+    postalCode: form.postalCode.trim(),
+    city: form.city.trim(),
+  };
+  const hasAddress = Boolean(address.street || address.postalCode || address.city);
+  if (hasAddress) {
+    const invalid = addressError(address);
+    if (invalid) {
+      createError.value = invalid;
+      return;
+    }
+  }
+
+  creating.value = true;
   try {
     const result = await $fetch<CreateCustomerResponse>("/api/admin/customers", {
       method: "POST",
@@ -463,6 +527,7 @@ async function submitCreate() {
         customerNr: form.customerNr,
         name: form.name.trim() || undefined,
         email: form.email,
+        address: hasAddress ? address : undefined,
       },
     });
 

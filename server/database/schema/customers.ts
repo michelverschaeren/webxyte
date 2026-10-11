@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   index,
   pgTable,
@@ -13,8 +14,11 @@ import { user } from "./auth";
 import { products } from "./catalog";
 
 /**
- * Klanten zoals ze in het CRM staan. Facturatie en adressen blijven in het
- * CRM; hier enkel wat de webshop nodig heeft om de klant te herkennen.
+ * Klanten zoals ze in het CRM staan. Facturatie blijft in het CRM; hier
+ * enkel wat de webshop nodig heeft om de klant te herkennen en te beleveren.
+ * Telefoon en leveringsadressen (`customerAddresses`) staan enkel hier: de
+ * klant (Mijn account) en de beheerder (klantprofiel) zien en wijzigen
+ * dezelfde gegevens.
  *
  * Eén klantnummer = één e-mailadres = één login. Het contactadres is ook het
  * login-adres: bij de uitnodiging wordt er een `user` mee aangemaakt (zie
@@ -42,6 +46,38 @@ export const customers = pgTable(
     uniqueIndex("customers_customer_nr_idx").on(table.customerNr),
     uniqueIndex("customers_contact_email_idx").on(sql`lower(${table.contactEmail})`),
     uniqueIndex("customers_user_id_idx").on(table.userId),
+  ],
+);
+
+/**
+ * Leveringsadressen van een klant: straat + huisnummer, postcode en gemeente.
+ * Een klant kan er meerdere hebben; precies één is primair, de standaard bij
+ * een bestelling (zie server/utils/customer-addresses.ts). Een bestelling
+ * bewaart haar eigen kopie van het gekozen adres (`BillingSnapshot`).
+ */
+export const customerAddresses = pgTable(
+  "customer_addresses",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    customerId: uuid()
+      .notNull()
+      .references(() => customers.id, { onDelete: "cascade" }),
+    street: text().notNull(),
+    postalCode: text().notNull(),
+    city: text().notNull(),
+    isPrimary: boolean().default(false).notNull(),
+    createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("customer_addresses_customer_id_idx").on(table.customerId),
+    // Hoogstens één primair adres per klant.
+    uniqueIndex("customer_addresses_primary_idx")
+      .on(table.customerId)
+      .where(sql`is_primary`),
   ],
 );
 
@@ -86,5 +122,6 @@ export const customerPurchaseHistoryRelations = relations(
 );
 
 export type Customer = typeof customers.$inferSelect;
+export type CustomerAddress = typeof customerAddresses.$inferSelect;
 export type NewCustomer = typeof customers.$inferInsert;
 export type CustomerPurchaseHistory = typeof customerPurchaseHistory.$inferSelect;

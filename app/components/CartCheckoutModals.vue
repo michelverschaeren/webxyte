@@ -84,10 +84,10 @@
     <transition name="modal-pop">
       <div
         v-if="checkout.orderModalOpen.value"
-        class="pointer-events-none fixed inset-0 z-211 flex items-center justify-center p-4"
+        class="pointer-events-none fixed inset-0 z-211 flex items-center justify-center overflow-y-auto p-4"
       >
         <div
-          class="pointer-events-auto w-full max-w-md rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
+          class="pointer-events-auto my-auto w-full max-w-md rounded-2xl border border-[#c89868]/30 shadow-2xl overflow-hidden"
           style="background: var(--color-surface)"
         >
           <div
@@ -130,6 +130,20 @@
                 class="w-full resize-none rounded-lg border border-(--color-border-strong) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-strong) placeholder-(--color-text-muted)/60 focus:border-[#c89868] focus:outline-none"
               />
             </label>
+            <!-- Enkel voor klanten: een login zonder klant (beheerder) heeft
+                 geen leveringsadressen. -->
+            <div v-if="checkout.orderIsCustomer.value">
+              <p class="mb-2 text-xs font-medium text-(--color-text-muted)">
+                Leveringsadres
+              </p>
+              <DeliveryAddresses
+                v-model:selected="checkout.orderAddressId.value"
+                endpoint="/api/account/addresses"
+                :addresses="checkout.orderAddresses.value"
+                selectable
+                @changed="checkout.loadOrderAddresses()"
+              />
+            </div>
             <p v-if="checkout.orderError.value" class="text-xs text-[#e06a6a]">
               {{ checkout.orderError.value }}
             </p>

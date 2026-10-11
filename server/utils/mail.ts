@@ -1,7 +1,7 @@
 import type { BillingSnapshot, Order } from "~~/server/database/schema";
 import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
 import { renderLaunchMail } from "./mail-launch";
-import { generateOrderPdf } from "./order-pdf";
+import { contactDetails, deliveryAddressLines, generateOrderPdf } from "./order-pdf";
 
 interface OrderMailItem {
   articleNr: string;
@@ -131,19 +131,16 @@ export async function sendOrderNotification({
     `Geplaatst op: ${placedAt}`,
     `Klantnummer: ${customerNr ?? "—"}`,
     `Account: ${customerEmail}`,
+    ...contactDetails(billing, customerEmail).map(([k, v]) => `${k}: ${v}`),
     ``,
-    `— Facturatiegegevens —`,
-    billing.companyName,
-    billing.phone ? `Tel: ${billing.phone}` : null,
-    `Factuur-e-mail: ${billing.invoiceEmail}`,
+    `— Leveringsadres —`,
+    ...deliveryAddressLines(billing),
     ``,
     `— Bestelde artikelen —`,
     lines,
     ``,
     `Referentie: ${order.id}`,
-  ]
-    .filter((line) => line !== null)
-    .join("\n");
+  ].join("\n");
 
   const html = renderMailLayout({
     title: `Nieuwe bestelling van ${billing.companyName}`,
@@ -197,14 +194,10 @@ function orderMailContent(
     ["Geplaatst op", placedAt],
     ["Klantnummer", customerNr ?? "—"],
     ["Account", customerEmail],
+    ...contactDetails(billing, customerEmail),
   ];
-  if (order.name) details.push(["Naam bestelling", order.name]);
-
-  const billingLines = [
-    `<strong>${e(billing.companyName)}</strong>`,
-    billing.phone ? `Tel: ${e(billing.phone)}` : null,
-    `Factuur-e-mail: ${e(billing.invoiceEmail)}`,
-  ].filter((line) => line !== null);
+  // Bewust zonder `order.name`: dat is een persoonlijk geheugensteuntje van
+  // de klant, niet bedoeld voor de zaak.
 
   const rows = items.map(
     (i) => `<tr>
@@ -218,8 +211,8 @@ function orderMailContent(
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px">
   ${details.map(([k, v]) => `<tr><td style="${label}">${k}</td><td style="padding:2px 0;font-size:14px">${e(v)}</td></tr>`).join("\n  ")}
 </table>
-<h2 style="${h2}">Facturatiegegevens</h2>
-<p style="margin:0 0 24px;font-size:14px">${billingLines.join("<br>")}</p>
+<h2 style="${h2}">Leveringsadres</h2>
+<p style="margin:0 0 24px;font-size:14px">${deliveryAddressLines(billing).map(e).join("<br>")}</p>
 ${order.note ? `<h2 style="${h2}">Opmerking</h2>
 <p style="margin:0 0 24px;font-size:14px;white-space:pre-line">${e(order.note)}</p>` : ""}
 <h2 style="${h2}">Bestelde artikelen</h2>

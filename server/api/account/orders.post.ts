@@ -8,6 +8,7 @@ import {
   orders,
   type BillingSnapshot,
 } from "~~/server/database/schema";
+import { listAddresses } from "~~/server/utils/customer-addresses";
 import { requireUser } from "~~/server/utils/session";
 
 /**
@@ -21,6 +22,8 @@ import { requireUser } from "~~/server/utils/session";
 const bodySchema = z.object({
   name: z.string().trim().max(200).optional(),
   note: z.string().trim().max(2000).optional(),
+  /** Leveringsadres voor deze bestelling; zonder: het primaire adres. */
+  addressId: z.uuid().optional(),
   items: z
     .array(
       z.object({
@@ -46,6 +49,7 @@ export default defineEventHandler(async (event) => {
       .limit(1),
     db
       .select({
+        id: customers.id,
         customerNr: customers.customerNr,
         name: customers.name,
         phone: customers.phone,
@@ -55,13 +59,31 @@ export default defineEventHandler(async (event) => {
       .limit(1),
   ]);
 
+  // Het primaire adres staat eerst; de klant mag er in de bestelpopup een
+  // ander van zichzelf kiezen.
+  const addresses = crmCustomer ? await listAddresses(crmCustomer.id) : [];
+  const address = body.addressId
+    ? addresses.find((a) => a.id === body.addressId)
+    : addresses[0];
+
+  if (body.addressId && !address) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "LEVERINGSADRES_ONBEKEND",
+      message: "Dit leveringsadres bestaat niet meer.",
+    });
+  }
+
   // Facturatiegegevens zijn optioneel: wat de klant niet invulde, komt uit
   // het CRM en de login. Bestellen wordt er nooit door tegengehouden.
   const billing: BillingSnapshot = {
     companyName: details?.companyName ?? crmCustomer?.name ?? user.name,
     vatNumber: details?.vatNumber ?? null,
-    phone: details?.phone ?? crmCustomer?.phone ?? null,
+    phone: crmCustomer?.phone ?? null,
     invoiceEmail: details?.invoiceEmail ?? user.email,
+    street: address?.street ?? null,
+    postalCode: address?.postalCode ?? null,
+    city: address?.city ?? null,
   };
 
   const byArticleNr = await resolveProductsByArticleNr(
