@@ -3,6 +3,16 @@
     :title="product ? product.name : 'Product bewerken'"
     :subtitle="product ? `Artikelnr ${product.articleNr} · ${product.soldQuantity} stuks ooit verkocht` : undefined"
   >
+    <div class="mb-6 flex flex-wrap items-center gap-4">
+      <button
+        type="button"
+        class="cursor-pointer text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
+        @click="goBack()"
+      >
+        ← Ga terug
+      </button>
+    </div>
+
     <form v-if="form" class="max-w-2xl space-y-6" @submit.prevent="save()">
       <label class="block">
         <span class="adm-label">Naam <span aria-hidden="true">*</span></span>
@@ -30,7 +40,7 @@
         <span class="adm-label">Categorie <span aria-hidden="true">*</span></span>
         <select v-model="form.categoryId" required class="adm-input">
           <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
+            {{ cat.code }} — {{ cat.name }}
           </option>
         </select>
       </label>
@@ -142,6 +152,7 @@ useHead({ title: "Product bewerken — Vleeswaren Vermeir" });
 
 interface CategoryDto {
   id: string;
+  code: string;
   name: string;
 }
 
@@ -186,6 +197,14 @@ watchEffect(() => {
   form.notes = product.value.notes ?? "";
   form.isActive = product.value.isActive;
 });
+
+const router = useRouter();
+
+/** Vorige pagina; bij een rechtstreeks geopende link is er geen, dan het overzicht. */
+function goBack() {
+  if (window.history.state?.back) router.back();
+  else navigateTo("/admin/producten");
+}
 
 const pending = ref(false);
 const error = ref("");

@@ -40,7 +40,7 @@
         <select v-model="form.categoryId" required class="adm-input">
           <option value="" disabled>Kies een categorie</option>
           <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
+            {{ cat.code }} — {{ cat.name }}
           </option>
         </select>
       </label>
@@ -107,6 +107,7 @@ useHead({ title: "Nieuw product — Vleeswaren Vermeir" });
 
 interface CategoryDto {
   id: string;
+  code: string;
   name: string;
 }
 
