@@ -129,6 +129,7 @@
                 >
               </th>
               <th class="w-full">Product</th>
+              <th class="hidden sm:table-cell">Eenheid</th>
               <th>Korting</th>
               <th>Periode</th>
               <th>Status</th>
@@ -162,11 +163,12 @@
                   {{ p.product.name }}
                 </NuxtLink>
                 <p class="truncate text-[0.8125rem] text-(--color-text-muted)">
-                  {{ p.product.articleNr }} · {{ p.product.supplier }}<template v-if="p.product.unit"> · {{ p.product.unit }}</template>
+                  {{ p.product.articleNr }} · {{ p.product.supplier }}<span v-if="p.product.unit" class="sm:hidden"> · {{ p.product.unit }}</span>
                   <template v-if="p.product.price !== null"> · {{ formatEuro(p.product.price) }}</template>
                   <template v-if="!p.product.isActive"> · niet actief</template>
                 </p>
               </td>
+              <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">{{ p.product.unit ?? "—" }}</td>
               <td class="whitespace-nowrap font-medium text-(--color-text-strong)">
                 {{ promotionLabel(p) }}
               </td>
@@ -236,7 +238,7 @@
               </td>
             </tr>
             <tr v-if="items.length === 0">
-              <td colspan="7" class="adm-card-empty">{{ emptyText }}</td>
+              <td colspan="8" class="adm-card-empty">{{ emptyText }}</td>
             </tr>
           </tbody>
         </table>

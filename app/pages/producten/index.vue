@@ -133,33 +133,6 @@
 
         <!-- Main area -->
         <div class="flex-1 min-w-0">
-          <!-- Search bar -->
-          <div class="relative mb-8">
-            <svg
-              class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-accent)"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              v-model="search"
-              type="text"
-              :placeholder="
-                auth.isLoggedIn.value
-                  ? 'Zoek op naam, artikelnr of fabrikant…'
-                  : 'Zoek op productnaam…'
-              "
-              class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-base focus:outline-none focus:border-[#c89868] transition-colors"
-            >
-          </div>
-
           <!-- Gasten zien enkel het gamma: geen mandje, filters of details. -->
           <div
             v-if="!auth.isLoggedIn.value"
@@ -181,7 +154,7 @@
 
           <!-- Filters: naast de categorieën links zijn dit extra filters die
                samen bepalen welke producten hieronder verschijnen. -->
-          <div v-else class="mb-8">
+          <div v-else id="productfilters" class="mb-8 scroll-mt-24">
             <!-- Mobiel: één horizontaal scrollbare rij die tot aan de schermrand
                  loopt (de afgesneden chip verraadt dat er meer is); vanaf sm
                  gewoon wrappen zoals voorheen. -->
@@ -189,11 +162,12 @@
               class="-mx-4 flex flex-nowrap items-center gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-2.5 sm:overflow-visible sm:px-0 sm:pb-0"
             >
               <!-- Alle producten: heft mandje, eerder afgenomen en vorige
-                   bestelling/lijstje op (categorie en zoekterm blijven). -->
+                   bestelling/lijstje op (en wist categorie, fabrikant en
+                   zoekterm, zie resetFiltersOnModeChange). -->
               <button
                 type="button"
                 :aria-pressed="showingAll"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 h-8 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:h-10 sm:text-xs"
                 :class="
                   showingAll
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -209,7 +183,7 @@
                 type="button"
                 role="switch"
                 :aria-checked="cart.showCartOnly.value"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-sm"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 h-8 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:h-10 sm:text-xs"
                 :class="
                   cart.showCartOnly.value
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -231,7 +205,7 @@
                   />
                 </svg>
                 <span class="sm:hidden">Mandje</span>
-                <span class="hidden sm:inline">Mijn winkelmandje</span>
+                <span class="hidden sm:inline">Winkelmandje</span>
                 <span
                   v-if="cart.totalItems.value > 0"
                   class="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[0.6rem] font-bold sm:min-w-4.5 sm:h-4.5 sm:text-[0.65rem]"
@@ -245,8 +219,8 @@
                 type="button"
                 role="switch"
                 :aria-checked="purchasedOnly"
-                :aria-describedby="purchasedOnly ? 'mijn-producten-uitleg' : undefined"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+                :aria-describedby="purchasedOnly ? 'modus-uitleg' : undefined"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 h-8 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:h-10 sm:text-xs"
                 :class="
                   purchasedOnly
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -263,7 +237,7 @@
                 type="button"
                 role="switch"
                 :aria-checked="promotionsOnly"
-                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-sm"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 h-8 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:h-10 sm:text-xs"
                 :class="
                   promotionsOnly
                     ? 'border-[#b8252a] bg-[#b8252a] text-white'
@@ -310,32 +284,12 @@
               />
             </div>
             <p
-              v-if="purchasedOnly"
-              id="mijn-producten-uitleg"
-              class="mt-2.5 text-[0.85rem] text-(--color-text-muted)"
+              v-if="modeDescription"
+              id="modus-uitleg"
+              class="mt-4 text-center text-[0.85rem] font-bold text-(--color-text-muted)"
             >
-              Overzicht van de producten die u bestelde de afgelopen 18 maanden
+              {{ modeDescription }}
             </p>
-            <div class="flex items-center gap-2 mt-4">
-              <svg
-                class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3 4.5h18M6 9.75h12M10.5 15h3"
-                />
-              </svg>
-              <span
-                class="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-(--color-accent) whitespace-nowrap"
-                >Filters</span
-              >
-              <div class="flex-1 h-px bg-(--color-border)" />
-            </div>
           </div>
 
           <!-- Mobile category select -->
@@ -350,66 +304,33 @@
             />
           </div>
 
-          <!-- Active filter chips -->
+          <!-- Filterlijn: enkel als er een categorie, fabrikant of zoekterm
+               actief is, met de chips meteen achter "Filters". De modi
+               (winkelmandje, mijn producten, promoties, bestelling/lijstje)
+               krijgen geen chip: de actieve knop en de uitleg tonen die al. -->
           <div
-            v-if="
-              search ||
-              selectedCategorySlug ||
-              selectedSupplier ||
-              purchasedOnly ||
-              promotionsOnly ||
-              cart.showCartOnly.value ||
-              selectedOrderId
-            "
-            class="flex flex-wrap gap-2 mb-5"
+            v-if="search || selectedCategorySlug || selectedSupplier"
+            class="flex flex-wrap items-center gap-2 mb-5"
           >
-            <span
-              v-if="purchasedOnly"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
-            >
-              Mijn producten
-              <button
-                class="hover:text-(--color-accent) transition-colors"
-                @click="purchasedOnly = false"
+            <span class="inline-flex items-center gap-2 mr-1">
+              <svg
+                class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
               >
-                ✕
-              </button>
-            </span>
-            <span
-              v-if="promotionsOnly"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
-            >
-              Promoties
-              <button
-                class="hover:text-(--color-accent) transition-colors"
-                @click="promotionsOnly = false"
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 4.5h18M6 9.75h12M10.5 15h3"
+                />
+              </svg>
+              <span
+                class="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-(--color-accent) whitespace-nowrap"
+                >Filters:</span
               >
-                ✕
-              </button>
-            </span>
-            <span
-              v-if="cart.showCartOnly.value"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
-            >
-              Enkel winkelmandje
-              <button
-                class="hover:text-(--color-accent) transition-colors"
-                @click="cart.showCartOnly.value = false"
-              >
-                ✕
-              </button>
-            </span>
-            <span
-              v-if="selectedOrderId"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#c89868]/15 text-(--color-text) border border-[#c89868]/40"
-            >
-              {{ selectedOrderLabel }}
-              <button
-                class="hover:text-(--color-accent) transition-colors"
-                @click="selectPreviousOrder('')"
-              >
-                ✕
-              </button>
             </span>
             <span
               v-if="selectedCategorySlug"
@@ -447,6 +368,34 @@
                 ✕
               </button>
             </span>
+            <div class="flex-1 min-w-8 h-px bg-(--color-border)" />
+          </div>
+
+          <!-- Search bar: vlak boven de producten -->
+          <div class="relative mb-5">
+            <svg
+              class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-accent)"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input
+              v-model="search"
+              type="text"
+              :placeholder="
+                auth.isLoggedIn.value
+                  ? 'Zoek op naam, artikelnr of fabrikant…'
+                  : 'Zoek op productnaam…'
+              "
+              class="w-full pl-12 pr-5 py-4 bg-(--color-surface) border border-(--color-border) rounded-xl text-(--color-text) placeholder-(--color-text-muted) text-base focus:outline-none focus:border-[#c89868] transition-colors"
+            >
           </div>
 
           <!-- Empty state -->
@@ -484,15 +433,15 @@
           <!-- Table layout -->
           <div
             v-else
-            class="border border-(--color-border) rounded-xl overflow-hidden"
+            class="overflow-hidden rounded-[0.875rem] border border-(--color-border) bg-(--color-surface) shadow-[0_1px_2px_rgb(0_0_0/0.04)]"
           >
             <div class="overflow-x-auto">
             <table class="w-full text-base border-collapse">
               <thead>
                 <tr
-                  class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-[0.12em]"
+                  class="border-b border-(--color-border) bg-(--color-surface-2) text-[0.8rem] uppercase tracking-[0.12em]"
                 >
-                  <th class="text-left py-3 px-3 font-semibold">
+                  <th class="text-left py-3 px-4 font-semibold">
                     <button
                       type="button"
                       class="inline-flex items-center gap-1.5 group"
@@ -516,7 +465,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-3 font-semibold hidden sm:table-cell"
+                    class="text-left py-3 px-4 font-semibold hidden sm:table-cell"
                   >
                     <button
                       type="button"
@@ -541,7 +490,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-3 font-semibold hidden md:table-cell"
+                    class="text-left py-3 px-4 font-semibold hidden md:table-cell"
                   >
                     <button
                       type="button"
@@ -566,7 +515,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-3 font-semibold hidden lg:table-cell"
+                    class="text-left py-3 px-4 font-semibold hidden lg:table-cell"
                   >
                     <button
                       type="button"
@@ -590,7 +539,7 @@
                     </button>
                   </th>
                   <th
-                    class="text-left py-3 px-3 font-semibold"
+                    class="text-left py-3 px-4 font-semibold"
                     :class="auth.isLoggedIn.value ? 'hidden xl:table-cell' : ''"
                   >
                     <button
@@ -616,7 +565,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="py-3 px-3 font-semibold w-36 text-center text-(--color-text-muted)"
+                    class="py-3 px-4 font-semibold w-36 text-center text-(--color-text-muted)"
                   >
                     Aantal
                   </th>
@@ -626,9 +575,9 @@
                 <tr
                   v-for="product in items"
                   :key="product.id"
-                  class="border-b border-(--color-border) hover:bg-(--color-hover) transition-colors group"
+                  class="border-b border-(--color-border) last:border-b-0 hover:bg-(--color-hover) transition-colors group"
                 >
-                  <td class="py-3 px-3">
+                  <td class="py-3 px-4">
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span
                         class="text-(--color-text) font-medium group-hover:text-(--color-text-strong) transition-colors"
@@ -693,7 +642,7 @@
                   </td>
                   <td
                     v-if="auth.isLoggedIn.value"
-                    class="py-3 px-3 hidden sm:table-cell"
+                    class="py-3 px-4 hidden sm:table-cell"
                   >
                     <span
                       class="text-[0.85rem] text-(--color-accent) border border-[#c89868]/40 rounded-md px-2 py-0.5 uppercase tracking-[0.08em]"
@@ -702,7 +651,7 @@
                   </td>
                   <td
                     v-if="auth.isLoggedIn.value"
-                    class="py-3 px-3 text-[0.95rem] hidden md:table-cell"
+                    class="py-3 px-4 text-[0.95rem] hidden md:table-cell"
                   >
                     <button
                       type="button"
@@ -715,12 +664,12 @@
                   </td>
                   <td
                     v-if="auth.isLoggedIn.value"
-                    class="py-3 px-3 text-(--color-accent) text-[0.95rem] hidden lg:table-cell"
+                    class="py-3 px-4 text-(--color-accent) text-[0.95rem] hidden lg:table-cell"
                   >
                     {{ product.unit ?? "—" }}
                   </td>
                   <td
-                    class="py-3 px-3"
+                    class="py-3 px-4"
                     :class="auth.isLoggedIn.value ? 'hidden xl:table-cell' : ''"
                   >
                     <button
@@ -732,7 +681,7 @@
                       {{ product.category.name }}
                     </button>
                   </td>
-                  <td v-if="auth.isLoggedIn.value" class="py-2 px-3">
+                  <td v-if="auth.isLoggedIn.value" class="py-2 px-4">
                     <div class="flex items-center justify-center">
                       <div
                         class="flex items-center border rounded-lg overflow-hidden transition-colors"
@@ -856,13 +805,25 @@
             <span class="sm:hidden">Lijst</span>
             <span class="hidden sm:inline">Lijst opslaan</span>
           </button>
+          <!-- Bestellen kan enkel vanuit het winkelmandje: elders brengt deze
+               knop de klant eerst naar het volledige mandje om na te kijken. -->
           <button
+            v-if="cart.showCartOnly.value"
             type="button"
             class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold whitespace-nowrap tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] sm:px-6 sm:py-2.5 sm:text-[0.85rem]"
             @click="checkout.openOrderModal()"
           >
             <span class="sm:hidden">Bestellen</span>
             <span class="hidden sm:inline">Bestelling plaatsen</span>
+          </button>
+          <button
+            v-else
+            type="button"
+            class="rounded-lg bg-[#b8252a] px-4 py-2 text-[0.8rem] font-semibold whitespace-nowrap tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] sm:px-6 sm:py-2.5 sm:text-[0.85rem]"
+            @click="viewCart()"
+          >
+            <span class="sm:hidden">Mandje</span>
+            <span class="hidden sm:inline">Winkelmandje bekijken</span>
           </button>
         </div>
       </div>
@@ -992,8 +953,9 @@ function togglePromotionsOnly() {
 
 // "Enkel winkelmandje", "Mijn producten", "Promoties" en "Vorige bestelling"
 // beperken de lijst alle vier tot een vaste set producten — samen zetten zou geen
-// zinnig resultaat geven, dus ze sluiten elkaar uit. De categoriefilter valt
-// hier bewust buiten: die mag altijd gecombineerd blijven.
+// zinnig resultaat geven, dus ze sluiten elkaar uit. Bij elke wissel van modus
+// gaan categorie, fabrikant en zoekterm terug op nul (zie
+// resetFiltersOnModeChange), zodat de klant de volledige lijst ziet.
 function toggleCartOnly() {
   cart.showCartOnly.value = !cart.showCartOnly.value;
   if (cart.showCartOnly.value) {
@@ -1026,11 +988,20 @@ const listScopeLabel = computed(() => {
   return "deze bestelling";
 });
 
+/** Onderste balk: naar het volledige winkelmandje, bovenaan de lijst. */
+function viewCart() {
+  cart.showCartOnly.value = true;
+  nextTick(() =>
+    document.getElementById("productfilters")?.scrollIntoView({ behavior: "smooth" }),
+  );
+}
+
 // Categorienaam = verder winkelen: alle producten van die categorie, zodat de
 // klant meteen kan toevoegen zonder eerst zelf de lijst-filter af te zetten.
 // Filteren bínnen de lijst gaat via de trechter naast de naam.
 function pickCategory(slug: string | null) {
   showAllProducts();
+  // Na showAllProducts: de moduswissel heeft de filters net gewist.
   selectedCategorySlug.value = slug;
 }
 
@@ -1134,10 +1105,11 @@ const loadingOrderSources = computed(
 const selectedOrderId = ref("");
 const previousOrderTriggerClass = computed(
   () =>
-    "max-w-[60vw] justify-between px-3 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] bg-(--color-surface) focus:outline-none disabled:opacity-60 disabled:cursor-wait sm:max-w-56 sm:px-4 sm:py-2.5 sm:text-sm " +
+    "max-w-[60vw] justify-between px-3 h-8 rounded-lg border text-[0.65rem] font-semibold uppercase tracking-[0.08em] focus:outline-none disabled:opacity-60 disabled:cursor-wait sm:max-w-56 sm:px-4 sm:h-10 sm:text-xs " +
+    // Actief: rood zoals de andere modusknoppen (ook het pijltje wit).
     (selectedOrderId.value
-      ? "border-[#b8252a] text-(--color-text)"
-      : "border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text)"),
+      ? "border-[#b8252a] bg-[#b8252a] text-white [&_svg]:text-white"
+      : "border-(--color-border-strong) bg-(--color-surface) text-(--color-text-muted) hover:text-(--color-text)"),
 );
 // Losstaand van `selectedOrderId` zodat de query pas herlaadt zodra de
 // artikelnummers van de bestelling ook echt binnen zijn — anders flitst de
@@ -1184,21 +1156,54 @@ watch(
   },
 );
 
-const selectedOrderLabel = computed(() => {
+// Wissel van modus (alle producten, winkelmandje, mijn producten, promoties,
+// vorige bestelling/lijstje) = filters wissen, van waar de wissel ook komt
+// (knoppen, navbalk-icoon, ✕ op een chip). `sync`, zodat pickCategory de
+// categorie meteen na de wissel opnieuw kan zetten.
+const viewMode = computed(() =>
+  cart.showCartOnly.value
+    ? "cart"
+    : purchasedOnly.value
+      ? "purchased"
+      : promotionsOnly.value
+        ? "promotions"
+        : selectedOrderId.value || "all",
+);
+watch(
+  viewMode,
+  function resetFiltersOnModeChange() {
+    selectedCategorySlug.value = null;
+    selectedSupplier.value = null;
+    search.value = "";
+    debouncedSearch.value = "";
+  },
+  { flush: "sync" },
+);
+
+/** Uitleg onder de modusknoppen; leeg bij alle producten en het winkelmandje. */
+const modeDescription = computed(() => {
+  if (purchasedOnly.value) {
+    return "Overzicht van de producten die u bestelde de afgelopen 18 maanden";
+  }
+  if (promotionsOnly.value) return "Alle lopende promoties van deze week";
   const key = selectedOrderId.value;
   if (key.startsWith(LIST_PREFIX)) {
     const list = orderLists.getList(key.slice(LIST_PREFIX.length));
-    return `Lijst: ${list?.name ?? "onbekend"}`;
+    if (!list) return "";
+    return `Hieronder vindt u de producten van lijstje „${list.name}”, aangemaakt op ${formatOrderDate(list.createdAt)}`;
   }
-  const order = previousOrders.value.find(
-    (o) => `${ORDER_PREFIX}${o.id}` === key,
-  );
-  if (!order) return "Vorige bestelling";
-  const name = order.name || `Bestelling van ${formatOrderDate(order.createdAt)}`;
-  return `Vorige bestelling: ${name}`;
+  if (key) {
+    const order = previousOrders.value.find((o) => `${ORDER_PREFIX}${o.id}` === key);
+    if (!order) return "";
+    const date = formatOrderDate(order.createdAt);
+    return order.name
+      ? `Hieronder vindt u de producten van bestelling „${order.name}” van ${date}`
+      : `Hieronder vindt u de producten van uw bestelling van ${date}`;
+  }
+  return "";
 });
 
-function formatOrderDate(value: string): string {
+function formatOrderDate(value: string | number): string {
   return new Date(value).toLocaleDateString("nl-BE", {
     day: "2-digit",
     month: "short",

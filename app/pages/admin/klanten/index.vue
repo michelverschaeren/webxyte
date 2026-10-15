@@ -103,11 +103,31 @@
                   @change="toggleSelectAll()"
                 >
               </th>
-              <th>Klantnr.</th>
-              <th class="w-full">Klant</th>
-              <th class="hidden lg:table-cell">Login</th>
-              <th>CRM-historiek</th>
-              <th class="hidden lg:table-cell">Laatste bestelling</th>
+              <th>
+                <button type="button" class="adm-sort" @click="toggleSort('customerNr')">
+                  Klantnr. {{ sortIndicator("customerNr") }}
+                </button>
+              </th>
+              <th class="w-full">
+                <button type="button" class="adm-sort" @click="toggleSort('name')">
+                  Klant {{ sortIndicator("name") }}
+                </button>
+              </th>
+              <th class="hidden lg:table-cell">
+                <button type="button" class="adm-sort" @click="toggleSort('login')">
+                  Login {{ sortIndicator("login") }}
+                </button>
+              </th>
+              <th>
+                <button type="button" class="adm-sort" @click="toggleSort('history')">
+                  CRM-historiek {{ sortIndicator("history") }}
+                </button>
+              </th>
+              <th class="hidden lg:table-cell">
+                <button type="button" class="adm-sort" @click="toggleSort('lastOrder')">
+                  Laatste bestelling {{ sortIndicator("lastOrder") }}
+                </button>
+              </th>
               <th class="adm-col-actions"><span class="sr-only">Acties</span></th>
             </tr>
           </thead>
@@ -173,6 +193,30 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M12 20h9" />
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </NuxtLink>
+                <NuxtLink
+                  :to="`/admin/bestellingen?klant=${c.id}`"
+                  :aria-label="`Bestellingen van ${c.name}`"
+                  title="Bestellingen"
+                  class="adm-row-btn"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                    <rect x="9" y="3" width="6" height="4" rx="1" />
+                    <path d="M9 12h6M9 16h4" />
+                  </svg>
+                </NuxtLink>
+                <NuxtLink
+                  :to="`/admin/klanten/${c.id}#producten`"
+                  :aria-label="`Producten van ${c.name}`"
+                  title="Mijn producten van deze klant"
+                  class="adm-row-btn"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 8l-9-5-9 5 9 5 9-5z" />
+                    <path d="M3 8v8l9 5 9-5V8" />
+                    <path d="M12 13v8" />
                   </svg>
                 </NuxtLink>
               </td>
@@ -363,12 +407,34 @@ watch(search, (value) => {
 const page = ref(1);
 const PAGE_SIZE = 25;
 
-watch(debouncedSearch, () => {
+type SortKey = "customerNr" | "name" | "login" | "history" | "lastOrder";
+// Datums: eerste klik toont de recentste bovenaan.
+const DESC_FIRST: SortKey[] = ["history", "lastOrder"];
+const sortKey = ref<SortKey | null>(null);
+const sortDir = ref<"asc" | "desc">("asc");
+
+function toggleSort(key: SortKey) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
+  } else {
+    sortKey.value = key;
+    sortDir.value = DESC_FIRST.includes(key) ? "desc" : "asc";
+  }
+}
+
+function sortIndicator(key: SortKey) {
+  if (sortKey.value !== key) return "";
+  return sortDir.value === "asc" ? "▲" : "▼";
+}
+
+watch([debouncedSearch, sortKey, sortDir], () => {
   page.value = 1;
 });
 
 const query = computed(() => ({
   search: debouncedSearch.value || undefined,
+  sort: sortKey.value || undefined,
+  sortDir: sortDir.value,
   page: page.value,
   perPage: PAGE_SIZE,
 }));

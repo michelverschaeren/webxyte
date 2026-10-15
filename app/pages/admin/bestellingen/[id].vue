@@ -60,6 +60,7 @@
                 <tr>
                   <th>Artikelnr.</th>
                   <th class="w-full">Product</th>
+                  <th class="hidden sm:table-cell">Eenheid</th>
                   <th class="hidden md:table-cell">Leverancier</th>
                   <th class="adm-num">Aantal</th>
                 </tr>
@@ -69,9 +70,9 @@
                   <td class="font-mono text-[0.8125rem] text-(--color-text-muted)">{{ item.articleNr }}</td>
                   <td>
                     <p class="font-medium text-(--color-text-strong)">{{ item.name }}</p>
-                    <p class="text-[0.8125rem] text-(--color-text-muted)">
-                      <template v-if="item.unit">{{ item.unit }}</template>
-                      <span class="md:hidden"><template v-if="item.unit"> · </template>{{ item.supplier }}</span>
+                    <!-- Smal scherm: eenheid en leverancier onder de naam i.p.v. in hun kolom -->
+                    <p class="text-[0.8125rem] text-(--color-text-muted) md:hidden">
+                      <span v-if="item.unit" class="sm:hidden">{{ item.unit }} · </span>{{ item.supplier }}
                     </p>
                     <!-- Promotie die gold bij het bestellen: rood = minimum gehaald -->
                     <p
@@ -88,6 +89,9 @@
                       Niet meer beschikbaar
                     </span>
                   </td>
+                  <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">
+                    {{ item.unit ?? "—" }}
+                  </td>
                   <td class="hidden whitespace-nowrap text-(--color-text-muted) md:table-cell">
                     {{ item.supplier }}
                   </td>
@@ -96,10 +100,13 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="3" class="hidden border-t border-(--color-border) text-right text-(--color-text-muted) md:table-cell">
+                  <td colspan="4" class="hidden border-t border-(--color-border) text-right text-(--color-text-muted) md:table-cell">
                     Totaal
                   </td>
-                  <td colspan="2" class="border-t border-(--color-border) text-right text-(--color-text-muted) md:hidden">
+                  <td colspan="3" class="hidden border-t border-(--color-border) text-right text-(--color-text-muted) sm:table-cell md:hidden">
+                    Totaal
+                  </td>
+                  <td colspan="2" class="border-t border-(--color-border) text-right text-(--color-text-muted) sm:hidden">
                     Totaal
                   </td>
                   <td class="adm-num border-t border-(--color-border) font-bold text-(--color-text-strong)">

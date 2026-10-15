@@ -103,6 +103,34 @@ export const customerPurchaseHistory = pgTable(
   ],
 );
 
+/**
+ * Handmatige correcties van de beheerder op "Mijn producten" van een klant,
+ * bovenop wat uit het CRM en de webshopbestellingen volgt:
+ * `included = true` toont het product altijd (ook zonder of na een te oude
+ * aankoop), `false` verbergt het altijd. Staat los van de CRM-historiek, zodat
+ * een nieuwe CRM-import de keuze van de beheerder niet terugdraait.
+ */
+export const customerProductOverrides = pgTable(
+  "customer_product_overrides",
+  {
+    customerId: uuid()
+      .notNull()
+      .references(() => customers.id, { onDelete: "cascade" }),
+    productId: uuid()
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    included: boolean().notNull(),
+    updatedAt: timestamp({ withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    primaryKey({ columns: [table.customerId, table.productId] }),
+    index("customer_product_overrides_product_id_idx").on(table.productId),
+  ],
+);
+
 export const customersRelations = relations(customers, ({ many }) => ({
   purchaseHistory: many(customerPurchaseHistory),
 }));

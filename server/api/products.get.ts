@@ -1,14 +1,8 @@
-import { and, asc, count, desc, eq, ilike, inArray, max, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import {
-  categories,
-  customerPurchaseHistory,
-  customers,
-  orderItems,
-  orders,
-  products,
-} from "~~/server/database/schema";
+import { categories, products } from "~~/server/database/schema";
+import { customerProducts } from "~~/server/utils/customer-products";
 import { activePromotionsForUser } from "~~/server/utils/customer-promotions";
 import { getAuthSession } from "~~/server/utils/session";
 
@@ -44,9 +38,6 @@ const querySchema = z.object({
    * beperken tot exact de inhoud van het winkelmandje. */
   articleNrs: z.string().trim().optional(),
 });
-
-/** "Mijn producten": aankopen van de laatste zoveel maanden. */
-const PURCHASED_MONTHS = 18;
 
 /** Sorteringen die ook een gast mag gebruiken. */
 const GUEST_SORTS = new Set(["name", "category"]);
@@ -87,57 +78,21 @@ export default defineEventHandler(async (event) => {
 
   if (promotionsOnly && promotionProductIds.length === 0) return emptyResult();
 
-  // "Mijn producten": beperkt tot artikelnummers die de laatste
-  // PURCHASED_MONTHS maanden in een bestelling van deze klant zaten (gasten:
-  // zie hierboven, genegeerd).
-  // Zonder bestelhistoriek kan er nooit een match zijn — dan meteen een leeg
+  // "Mijn producten": eerder afgenomen (webshop + CRM, de laatste
+  // PURCHASED_MONTHS maanden) plus de correcties van de beheerder — zie
+  // server/utils/customer-products.ts. Gasten: zie hierboven, genegeerd.
+  // Zonder producten kan er nooit een match zijn — dan meteen een leeg
   // resultaat teruggeven.
   let purchasedArticleNrs: string[] | undefined;
   /** Artikelnr → laatste aankoopdatum (JJJJ-MM-DD), enkel bij `purchased`. */
   const lastPurchased = new Map<string, string>();
   if (purchased && session) {
-    // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
-    // van de klant achter deze login. Per bron de laatste datum; de
-    // bestellingen als kalenderdag in Belgische tijd, zoals het CRM.
-    const [orderRows, crmRows] = await Promise.all([
-      db
-        .select({
-          articleNr: orderItems.articleNr,
-          last: sql<string>`(max(${orders.createdAt}) at time zone 'Europe/Brussels')::date::text`,
-        })
-        .from(orderItems)
-        .innerJoin(orders, eq(orderItems.orderId, orders.id))
-        .where(
-          and(
-            eq(orders.userId, session.user.id),
-            sql`${orders.createdAt} >= now() - make_interval(months => ${PURCHASED_MONTHS})`,
-          ),
-        )
-        .groupBy(orderItems.articleNr),
-      db
-        .select({
-          articleNr: products.articleNr,
-          last: sql<string>`${max(customerPurchaseHistory.lastPurchasedAt)}::text`,
-        })
-        .from(customerPurchaseHistory)
-        .innerJoin(customers, eq(customerPurchaseHistory.customerId, customers.id))
-        .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
-        .where(
-          and(
-            eq(customers.userId, session.user.id),
-            sql`${customerPurchaseHistory.lastPurchasedAt} >= current_date - make_interval(months => ${PURCHASED_MONTHS})`,
-          ),
-        )
-        .groupBy(products.articleNr),
-    ]);
-
-    // ISO-datums vergelijken als tekst = chronologisch.
-    for (const { articleNr, last } of [...orderRows, ...crmRows]) {
-      const current = lastPurchased.get(articleNr);
-      if (!current || last > current) lastPurchased.set(articleNr, last);
+    const mine = await customerProducts({ userId: session.user.id });
+    for (const [articleNr, entry] of mine) {
+      if (entry.lastPurchasedAt) lastPurchased.set(articleNr, entry.lastPurchasedAt);
     }
 
-    purchasedArticleNrs = [...lastPurchased.keys()];
+    purchasedArticleNrs = [...mine.keys()];
     if (purchasedArticleNrs.length === 0) return emptyResult();
   }
 

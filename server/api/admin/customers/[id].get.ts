@@ -1,9 +1,9 @@
-import { desc, eq, getTableColumns, sql as raw } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, inArray, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
   billingDetails,
-  customerPurchaseHistory,
+  customerProductOverrides,
   customers,
   orderItems,
   orders,
@@ -12,12 +12,14 @@ import {
 } from "~~/server/database/schema";
 import { listAddresses } from "~~/server/utils/customer-addresses";
 import { loginStatusSql } from "~~/server/utils/customer-login";
+import { customerProducts } from "~~/server/utils/customer-products";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/customers/:id — één CRM-klant, admin-only: contactgegevens,
  * leveringsadressen (het primaire eerst),
- * loginstatus, aankoophistoriek uit het CRM en — als de klant een login
+ * loginstatus, "Mijn producten" (zoals de klant ze ziet, met de bron per
+ * product) en de door de beheerder verborgen producten, en — als de klant een login
  * heeft — diens facturatiegegevens en webshopbestellingen.
  */
 const paramsSchema = z.object({ id: z.uuid() });
@@ -39,20 +41,49 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Klant niet gevonden." });
   }
 
-  const purchaseHistory = await db
-    .select({
-      productId: products.id,
-      articleNr: products.articleNr,
-      name: products.name,
-      supplier: products.supplier,
-      unit: products.unit,
-      isActive: products.isActive,
-      lastPurchasedAt: raw<string>`${customerPurchaseHistory.lastPurchasedAt}::text`,
-    })
-    .from(customerPurchaseHistory)
-    .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
-    .where(eq(customerPurchaseHistory.customerId, id))
-    .orderBy(desc(customerPurchaseHistory.lastPurchasedAt), products.articleNr);
+  // "Mijn producten" zoals de klant ze ziet, plus wat de beheerder verborg.
+  const [mine, hiddenProducts] = await Promise.all([
+    customerProducts({ userId: customer.userId, customerId: customer.id }),
+    db
+      .select({
+        productId: products.id,
+        articleNr: products.articleNr,
+        name: products.name,
+        supplier: products.supplier,
+      })
+      .from(customerProductOverrides)
+      .innerJoin(products, eq(customerProductOverrides.productId, products.id))
+      .where(
+        and(
+          eq(customerProductOverrides.customerId, id),
+          eq(customerProductOverrides.included, false),
+        ),
+      )
+      .orderBy(products.articleNr),
+  ]);
+
+  const myProductRows =
+    mine.size > 0
+      ? await db
+          .select({
+            productId: products.id,
+            articleNr: products.articleNr,
+            name: products.name,
+            supplier: products.supplier,
+            unit: products.unit,
+            isActive: products.isActive,
+          })
+          .from(products)
+          .where(inArray(products.articleNr, [...mine.keys()]))
+      : [];
+  // Recentst afgenomen eerst; handmatig toegevoegd zonder aankoop achteraan.
+  const myProducts = myProductRows
+    .map((p) => ({ ...p, ...mine.get(p.articleNr)! }))
+    .sort(
+      (a, b) =>
+        (b.lastPurchasedAt ?? "").localeCompare(a.lastPurchasedAt ?? "") ||
+        a.articleNr.localeCompare(b.articleNr),
+    );
 
   let account = null;
   let billing = null;
@@ -103,6 +134,7 @@ export default defineEventHandler(async (event) => {
     account,
     billing,
     orders: accountOrders,
-    purchaseHistory,
+    myProducts,
+    hiddenProducts,
   };
 });

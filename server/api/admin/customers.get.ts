@@ -1,4 +1,4 @@
-import { asc, count, eq, ilike, or, sql as raw } from "drizzle-orm";
+import { asc, count, eq, ilike, or, sql as raw, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
@@ -15,10 +15,12 @@ import { requireAdmin } from "~~/server/utils/session";
  * loginstatus en een samenvatting van hun aankoophistoriek (CRM) en hun
  * webshopbestellingen. `summary` telt
  * over alle klanten heen (los van zoeken/paginering), voor "alle klanten
- * uitnodigen".
+ * uitnodigen". Sorteerbaar via `sort` + `sortDir`; standaard op klantnummer.
  */
 const querySchema = z.object({
   search: z.string().trim().min(1).optional(),
+  sort: z.enum(["customerNr", "name", "login", "history", "lastOrder"]).optional(),
+  sortDir: z.enum(["asc", "desc"]).default("asc"),
   page: z.coerce.number().int().min(1).default(1),
   perPage: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -26,7 +28,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { search, page, perPage } = await getValidatedQuery(event, (data) =>
+  const { search, sort, sortDir, page, perPage } = await getValidatedQuery(event, (data) =>
     querySchema.parse(data),
   );
 
@@ -71,6 +73,27 @@ export default defineEventHandler(async (event) => {
     .groupBy(orders.userId)
     .as("web");
 
+  // Loginstatus in een logische volgorde i.p.v. alfabetisch op de code.
+  const loginRank = raw<number>`case ${loginStatusSql}
+    when 'active' then 0 when 'invited' then 1 when 'not-invited' then 2 else 3 end`;
+
+  const SORT_COLUMNS = {
+    customerNr: customers.customerNr,
+    name: customers.name,
+    login: loginRank,
+    history: history.lastPurchasedAt,
+    lastOrder: web.lastOrderedAt,
+  };
+
+  // Klanten zonder historiek/bestelling altijd achteraan, in beide richtingen;
+  // klantnummer als tiebreaker zodat de paginering stabiel blijft.
+  const orderBy: SQL[] = sort
+    ? [
+        raw`${SORT_COLUMNS[sort]} ${raw.raw(sortDir === "asc" ? "asc" : "desc")} nulls last`,
+        asc(customers.customerNr),
+      ]
+    : [asc(customers.customerNr)];
+
   const [items, [total], [summary]] = await Promise.all([
     db
       .select({
@@ -90,7 +113,7 @@ export default defineEventHandler(async (event) => {
       .leftJoin(history, eq(history.customerId, customers.id))
       .leftJoin(web, eq(web.userId, customers.userId))
       .where(where)
-      .orderBy(asc(customers.customerNr))
+      .orderBy(...orderBy)
       .limit(perPage)
       .offset((page - 1) * perPage),
 

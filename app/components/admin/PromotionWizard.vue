@@ -146,6 +146,7 @@
                         <span class="wiz-sort" :class="{ 'wiz-sort--active': productSort === 'name' }" aria-hidden="true">{{ sortIcon('name') }}</span>
                       </button>
                     </th>
+                    <th class="hidden sm:table-cell">Eenheid</th>
                     <th class="hidden md:table-cell" :aria-sort="ariaSort('supplier')">
                       <button type="button" class="adm-sort" @click="toggleProductSort('supplier')">
                         Leverancier
@@ -186,14 +187,14 @@
                         {{ p.name }}
                         <span v-if="!p.isActive" class="adm-badge adm-badge--neutral ml-1.5">Inactief</span>
                       </p>
-                      <p v-if="p.unit" class="truncate text-[0.8125rem] text-(--color-text-muted)">{{ p.unit }}</p>
                     </td>
+                    <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">{{ p.unit ?? "—" }}</td>
                     <td class="hidden whitespace-nowrap text-(--color-text-muted) md:table-cell">{{ p.supplier }}</td>
                     <td class="hidden whitespace-nowrap text-(--color-text-muted) lg:table-cell">{{ p.category.name }}</td>
                     <td class="adm-num whitespace-nowrap">{{ p.price !== null ? formatEuro(p.price) : "—" }}</td>
                   </tr>
                   <tr v-if="productResults.length === 0">
-                    <td colspan="6" class="adm-card-empty">
+                    <td colspan="7" class="adm-card-empty">
                       {{ productsPending ? "Zoeken…" : "Geen producten gevonden." }}
                     </td>
                   </tr>

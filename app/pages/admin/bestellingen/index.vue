@@ -8,6 +8,18 @@
           placeholder="Zoek op bestelnr., klant, bedrijf of adres…"
           class="w-full sm:w-80"
         />
+        <!-- Filter vanuit de klantenlijst (?klant=…) -->
+        <span v-if="data?.customer" class="adm-badge adm-badge--info gap-1.5">
+          Klant: {{ data.customer.name }} ({{ data.customer.customerNr }})
+          <NuxtLink
+            :to="{ query: { ...route.query, klant: undefined } }"
+            aria-label="Klantfilter wissen"
+            title="Klantfilter wissen"
+            class="hover:opacity-70"
+          >
+            ×
+          </NuxtLink>
+        </span>
       </div>
 
       <!-- Lijst (mobiel) -->
@@ -127,6 +139,7 @@ function hasAddress(o: OrderDto): boolean {
 
 interface OrdersResponse {
   items: OrderDto[];
+  customer: { id: string; customerNr: string; name: string } | null;
   pagination: { page: number; perPage: number; total: number; pageCount: number };
 }
 
@@ -148,12 +161,18 @@ watch(search, (value) => {
 const page = ref(1);
 const PAGE_SIZE = 25;
 
-watch(debouncedSearch, () => {
+// ?klant=<id>: enkel de bestellingen van die klant (icoon in de klantenlijst).
+const customerFilter = computed(() =>
+  typeof route.query.klant === "string" ? route.query.klant : undefined,
+);
+
+watch([debouncedSearch, customerFilter], () => {
   page.value = 1;
 });
 
 const query = computed(() => ({
   search: debouncedSearch.value || undefined,
+  customer: customerFilter.value,
   page: page.value,
   perPage: PAGE_SIZE,
 }));

@@ -1,8 +1,9 @@
-import { and, count, desc, eq, ilike, or, sql as raw } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNotNull, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
   billingDetails,
+  customers,
   orderItems,
   orders,
   user,
@@ -17,6 +18,8 @@ import { requireAdmin } from "~~/server/utils/session";
  */
 const querySchema = z.object({
   search: z.string().trim().min(1).optional(),
+  /** Enkel de bestellingen van deze CRM-klant (via diens login). */
+  customer: z.uuid().optional(),
   page: z.coerce.number().int().min(1).default(1),
   perPage: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -24,7 +27,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { search, page, perPage } = await getValidatedQuery(
+  const { search, customer: customerId, page, perPage } = await getValidatedQuery(
     event,
     (data) => querySchema.parse(data),
   );
@@ -35,7 +38,29 @@ export default defineEventHandler(async (event) => {
   const postalCode = raw<string | null>`${orders.billingSnapshot}->>'postalCode'`;
   const city = raw<string | null>`${orders.billingSnapshot}->>'city'`;
 
+  // Klant zonder login = nog geen bestellingen: inArray op een lege
+  // subquery geeft dan gewoon niets terug.
+  const [customer] = customerId
+    ? await db
+        .select({ id: customers.id, customerNr: customers.customerNr, name: customers.name })
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1)
+    : [];
+  if (customerId && !customer) {
+    throw createError({ statusCode: 404, statusMessage: "Klant niet gevonden." });
+  }
+
   const filters = [
+    customerId
+      ? inArray(
+          orders.userId,
+          db
+            .select({ userId: customers.userId })
+            .from(customers)
+            .where(and(eq(customers.id, customerId), isNotNull(customers.userId))),
+        )
+      : undefined,
     search
       ? or(
           ilike(user.name, `%${search}%`),
@@ -84,6 +109,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     items,
+    /** De klant achter de `customer`-filter, voor de filterchip. */
+    customer: customer ?? null,
     pagination: {
       page,
       perPage,

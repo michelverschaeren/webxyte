@@ -45,8 +45,8 @@
           </p>
         </div>
         <div class="adm-stat">
-          <p class="adm-stat-label">Eerder afgenomen (CRM)</p>
-          <p class="adm-stat-value">{{ data.purchaseHistory.length }}</p>
+          <p class="adm-stat-label">Mijn producten</p>
+          <p class="adm-stat-value">{{ data.myProducts.length }}</p>
           <p class="adm-stat-sub">producten</p>
         </div>
         <div class="adm-stat">
@@ -119,22 +119,66 @@
             </div>
           </section>
 
-          <section class="adm-card">
+          <section id="producten" class="adm-card scroll-mt-6">
             <div class="adm-card-head">
               <h2 class="adm-card-title">
-                Eerder afgenomen
-                <span class="adm-tab-count">{{ data.purchaseHistory.length }}</span>
+                Mijn producten
+                <span class="adm-tab-count">{{ data.myProducts.length }}</span>
               </h2>
               <AdminSearchField
-                v-if="data.purchaseHistory.length > 0"
+                v-if="data.myProducts.length > 0"
                 v-model="historySearch"
-                name="historiek-filteren"
+                name="producten-filteren"
                 placeholder="Filter op artikelnr, naam of leverancier…"
                 class="w-full sm:w-72"
               />
             </div>
-            <p v-if="data.purchaseHistory.length === 0" class="adm-card-empty">
-              Geen aankoophistoriek uit het CRM.
+
+            <!-- Product toevoegen -->
+            <div class="adm-card-body border-b border-(--color-border)">
+              <AdminSearchField
+                v-model="addSearch"
+                name="product-toevoegen"
+                placeholder="Product toevoegen: zoek op artikelnr of naam…"
+                class="w-full"
+              />
+              <ul
+                v-if="debouncedAddSearch.length >= 2"
+                class="mt-2 max-h-72 overflow-auto rounded-lg border border-(--color-border)"
+              >
+                <li
+                  v-for="p in addResults"
+                  :key="p.id"
+                  class="flex items-center gap-3 border-b border-(--color-border) px-3 py-2 last:border-b-0"
+                >
+                  <span class="font-mono text-[0.8125rem] text-(--color-text-muted)">{{ p.articleNr }}</span>
+                  <span class="min-w-0 flex-1 truncate">
+                    {{ p.name }}
+                    <span v-if="!p.isActive" class="adm-badge adm-badge--neutral ml-2">Inactief</span>
+                  </span>
+                  <span v-if="myArticleNrs.has(p.articleNr)" class="text-[0.8125rem] text-(--color-text-muted)">
+                    Staat er al
+                  </span>
+                  <button
+                    v-else
+                    type="button"
+                    :disabled="busyProductId !== null"
+                    class="adm-btn adm-btn--secondary adm-btn--sm"
+                    @click="setProduct(p.id, true)"
+                  >
+                    Toevoegen
+                  </button>
+                </li>
+                <li v-if="addPending" class="px-3 py-2 text-sm text-(--color-text-muted)">Zoeken…</li>
+                <li v-else-if="addResults.length === 0" class="px-3 py-2 text-sm text-(--color-text-muted)">
+                  Geen producten gevonden.
+                </li>
+              </ul>
+              <p v-if="productError" class="mt-2 text-sm text-(--color-error)">{{ productError }}</p>
+            </div>
+
+            <p v-if="data.myProducts.length === 0" class="adm-card-empty">
+              Deze klant heeft nog geen producten onder Mijn producten.
             </p>
             <div v-else class="max-h-[32rem] overflow-auto">
               <table class="adm-table">
@@ -142,12 +186,13 @@
                   <tr>
                     <th>Artikelnr.</th>
                     <th class="w-full">Product</th>
-                    <th class="hidden md:table-cell">Leverancier</th>
+                    <th class="hidden md:table-cell">Bron</th>
                     <th>Laatst gekocht</th>
+                    <th class="adm-col-actions"><span class="sr-only">Acties</span></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in filteredHistory" :key="item.productId">
+                  <tr v-for="item in filteredProducts" :key="item.productId">
                     <td class="font-mono text-[0.8125rem] text-(--color-text-muted)">
                       <NuxtLink :to="`/admin/producten/${item.productId}`" class="hover:text-(--color-accent)">
                         {{ item.articleNr }}
@@ -156,20 +201,73 @@
                     <td>
                       <span class="font-medium text-(--color-text-strong)">{{ item.name }}</span>
                       <span v-if="!item.isActive" class="adm-badge adm-badge--neutral ml-2">Inactief</span>
+                      <span class="block text-[0.8125rem] text-(--color-text-muted)">{{ item.supplier }}</span>
                     </td>
-                    <td class="hidden whitespace-nowrap text-(--color-text-muted) md:table-cell">
-                      {{ item.supplier }}
+                    <td class="hidden whitespace-nowrap md:table-cell">
+                      <span
+                        v-for="source in item.sources"
+                        :key="source"
+                        class="adm-badge mr-1"
+                        :class="SOURCE_BADGE[source]"
+                      >
+                        {{ SOURCE_LABEL[source] }}
+                      </span>
                     </td>
                     <td class="whitespace-nowrap text-(--color-text-muted)">
-                      {{ formatDate(item.lastPurchasedAt) }}
+                      {{ item.lastPurchasedAt ? formatDate(item.lastPurchasedAt) : "—" }}
+                    </td>
+                    <td class="adm-col-actions">
+                      <button
+                        type="button"
+                        :disabled="busyProductId !== null"
+                        :aria-label="`${item.name} verwijderen uit Mijn producten`"
+                        title="Verwijderen uit Mijn producten"
+                        class="adm-row-btn"
+                        @click="setProduct(item.productId, false)"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
-                  <tr v-if="filteredHistory.length === 0">
-                    <td colspan="4" class="adm-card-empty">Geen producten gevonden.</td>
+                  <tr v-if="filteredProducts.length === 0">
+                    <td colspan="5" class="adm-card-empty">Geen producten gevonden.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            <details v-if="data.hiddenProducts.length > 0" class="adm-card-body border-t border-(--color-border)">
+              <summary class="cursor-pointer text-sm text-(--color-text-muted)">
+                Verborgen voor deze klant ({{ data.hiddenProducts.length }})
+              </summary>
+              <ul class="mt-2 space-y-1">
+                <li
+                  v-for="item in data.hiddenProducts"
+                  :key="item.productId"
+                  class="flex items-center gap-3 text-sm"
+                >
+                  <span class="font-mono text-[0.8125rem] text-(--color-text-muted)">{{ item.articleNr }}</span>
+                  <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
+                  <button
+                    type="button"
+                    :disabled="busyProductId !== null"
+                    class="adm-btn adm-btn--ghost adm-btn--sm"
+                    @click="setProduct(item.productId, null)"
+                  >
+                    Terugzetten
+                  </button>
+                </li>
+              </ul>
+            </details>
+
+            <p class="adm-card-hint">
+              Wat de klant in de webshop onder Mijn producten ziet: aankopen van de
+              laatste 18 maanden (CRM en webshop), plus wat je hier toevoegt.
+              Toegevoegde producten blijven staan; verwijderde blijven weg, ook na
+              een nieuwe CRM-import.
+            </p>
           </section>
         </div>
 
@@ -362,16 +460,36 @@ interface CustomerDetail {
     lineCount: number;
     totalQuantity: number;
   }[];
-  purchaseHistory: {
+  myProducts: {
     productId: string;
     articleNr: string;
     name: string;
     supplier: string;
     unit: string | null;
     isActive: boolean;
-    lastPurchasedAt: string;
+    /** Null als enkel de beheerder het toevoegde. */
+    lastPurchasedAt: string | null;
+    sources: ProductSource[];
+  }[];
+  hiddenProducts: {
+    productId: string;
+    articleNr: string;
+    name: string;
+    supplier: string;
   }[];
 }
+
+type ProductSource = "webshop" | "crm" | "admin";
+const SOURCE_LABEL: Record<ProductSource, string> = {
+  webshop: "Webshop",
+  crm: "CRM",
+  admin: "Toegevoegd",
+};
+const SOURCE_BADGE: Record<ProductSource, string> = {
+  webshop: "adm-badge--info",
+  crm: "adm-badge--neutral",
+  admin: "adm-badge--success",
+};
 
 const { data, refresh } = await useFetch<CustomerDetail>(
   `/api/admin/customers/${route.params.id}`,
@@ -470,8 +588,8 @@ async function invite() {
 }
 
 const historySearch = ref("");
-const filteredHistory = computed(() => {
-  const items = data.value?.purchaseHistory ?? [];
+const filteredProducts = computed(() => {
+  const items = data.value?.myProducts ?? [];
   const term = historySearch.value.trim().toLowerCase();
   if (!term) return items;
   return items.filter((item) =>
@@ -480,6 +598,62 @@ const filteredHistory = computed(() => {
     ),
   );
 });
+
+const myArticleNrs = computed(
+  () => new Set((data.value?.myProducts ?? []).map((p) => p.articleNr)),
+);
+
+// Product toevoegen: zoeken in de volledige catalogus (ook inactieve).
+interface ProductHit {
+  id: string;
+  articleNr: string;
+  name: string;
+  isActive: boolean;
+}
+const addSearch = ref("");
+const debouncedAddSearch = ref("");
+let addTimer: ReturnType<typeof setTimeout> | undefined;
+watch(addSearch, (value) => {
+  if (addTimer) clearTimeout(addTimer);
+  addTimer = setTimeout(() => {
+    debouncedAddSearch.value = value.trim();
+  }, 300);
+});
+const { data: addData, pending: addPending, execute: searchProducts } = useFetch<{
+  items: ProductHit[];
+}>("/api/admin/products", {
+  query: computed(() => ({ search: debouncedAddSearch.value, perPage: 10 })),
+  immediate: false,
+  watch: false,
+  server: false,
+});
+watch(debouncedAddSearch, (term) => {
+  if (term.length >= 2) searchProducts();
+});
+const addResults = computed(() =>
+  debouncedAddSearch.value.length >= 2 ? (addData.value?.items ?? []) : [],
+);
+
+const busyProductId = ref<string | null>(null);
+const productError = ref("");
+
+/** true = toevoegen, false = verbergen, null = correctie wissen. */
+async function setProduct(productId: string, included: boolean | null) {
+  if (busyProductId.value || !data.value) return;
+  busyProductId.value = productId;
+  productError.value = "";
+  try {
+    await $fetch(`/api/admin/customers/${data.value.customer.id}/products/${productId}`, {
+      method: "PUT",
+      body: { included },
+    });
+    await refresh();
+  } catch {
+    productError.value = "Opslaan mislukt. Probeer het opnieuw.";
+  } finally {
+    busyProductId.value = null;
+  }
+}
 
 function formatDate(value: string, withWeekday = false): string {
   return new Date(value).toLocaleDateString("nl-BE", {
