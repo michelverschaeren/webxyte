@@ -8,7 +8,9 @@ import {
   orders,
   type BillingSnapshot,
 } from "~~/server/database/schema";
+import { promotionOutcome } from "#shared/promotion";
 import { listAddresses } from "~~/server/utils/customer-addresses";
+import { activePromotionsForUser } from "~~/server/utils/customer-promotions";
 import { requireUser } from "~~/server/utils/session";
 
 /**
@@ -107,6 +109,30 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Promoties die vandaag voor deze klant gelden, per regel bevroren op de
+  // bestelling. Ter info voor de zaak (bestelmail, bestelbon, beheer) en de
+  // klant (Mijn bestellingen); de webshop rekent zelf niets af.
+  const promoByProduct = await activePromotionsForUser(
+    user.id,
+    requested.map((item) => byArticleNr.get(item.articleNr)!.id),
+  );
+  const lines = requested.map((item) => {
+    const product = byArticleNr.get(item.articleNr)!;
+    const promotions = (promoByProduct.get(product.id) ?? []).map((promo) => ({
+      label: promo.label,
+      ...promotionOutcome(promo, item.quantity),
+    }));
+    return {
+      productId: product.id,
+      articleNr: product.articleNr,
+      name: product.name,
+      supplier: product.supplier,
+      unit: product.unit,
+      quantity: item.quantity,
+      promotions: promotions.length > 0 ? promotions : null,
+    };
+  });
+
   const order = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(orders)
@@ -119,18 +145,7 @@ export default defineEventHandler(async (event) => {
       .returning();
 
     await tx.insert(orderItems).values(
-      requested.map((item) => {
-        const product = byArticleNr.get(item.articleNr)!;
-        return {
-          orderId: created!.id,
-          productId: product.id,
-          articleNr: product.articleNr,
-          name: product.name,
-          supplier: product.supplier,
-          unit: product.unit,
-          quantity: item.quantity,
-        };
-      }),
+      lines.map((line) => ({ orderId: created!.id, ...line })),
     );
 
     return created!;
@@ -141,16 +156,7 @@ export default defineEventHandler(async (event) => {
     await sendOrderNotification({
       order,
       billing,
-      items: requested.map((item) => {
-        const product = byArticleNr.get(item.articleNr)!;
-        return {
-          articleNr: product.articleNr,
-          name: product.name,
-          supplier: product.supplier,
-          unit: product.unit,
-          quantity: item.quantity,
-        };
-      }),
+      items: lines,
       customerEmail: user.email,
       customerNr: crmCustomer?.customerNr ?? null,
     });

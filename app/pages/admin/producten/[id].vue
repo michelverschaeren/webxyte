@@ -1,153 +1,185 @@
 <template>
   <AdminShell
     :title="product ? product.name : 'Product bewerken'"
-    :subtitle="product ? `Artikelnr ${product.articleNr} · ${product.soldQuantity} stuks ooit verkocht` : undefined"
+    :subtitle="product ? `Artikelnr ${product.articleNr} · ${product.supplier}` : undefined"
   >
-    <div class="mb-6 flex flex-wrap items-center gap-4">
-      <button
-        type="button"
-        class="cursor-pointer text-sm font-semibold tracking-[0.08em] text-(--color-accent) uppercase transition-colors hover:text-(--color-text-strong)"
-        @click="goBack()"
-      >
-        ← Ga terug
+    <template #actions>
+      <button type="button" class="adm-btn adm-btn--secondary" @click="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Terug
       </button>
-    </div>
+      <button
+        type="submit"
+        form="product-form"
+        :disabled="pending || !product"
+        class="adm-btn adm-btn--primary"
+      >
+        {{ pending ? "Opslaan…" : "Wijzigingen opslaan" }}
+      </button>
+    </template>
 
-    <form v-if="form" class="max-w-2xl space-y-6" @submit.prevent="save()">
-      <label class="block">
-        <span class="adm-label">Naam <span aria-hidden="true">*</span></span>
-        <input
-          v-model="form.name"
-          type="text"
-          required
-          maxlength="200"
-          class="adm-input"
-        >
-      </label>
-
-      <label class="block">
-        <span class="adm-label">Leverancier <span aria-hidden="true">*</span></span>
-        <input
-          v-model="form.supplier"
-          type="text"
-          required
-          maxlength="200"
-          class="adm-input"
-        >
-      </label>
-
-      <label class="block">
-        <span class="adm-label">Categorie <span aria-hidden="true">*</span></span>
-        <select v-model="form.categoryId" required class="adm-input">
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.code }} — {{ cat.name }}
-          </option>
-        </select>
-      </label>
-
-      <div class="grid gap-5 sm:grid-cols-2">
-        <label class="block">
-          <span class="adm-label">Eenheid</span>
-          <input v-model="form.unit" type="text" maxlength="64" class="adm-input" >
-        </label>
-        <label class="block">
-          <span class="adm-label">Prijs (€)</span>
-          <input
-            v-model="form.price"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="optioneel"
-            class="adm-input"
-          >
-        </label>
-      </div>
-
-      <label class="block">
-        <span class="adm-label">Notitie</span>
-        <textarea
-          v-model="form.notes"
-          rows="3"
-          maxlength="2000"
-          placeholder="Interne notitie, niet zichtbaar voor klanten"
-          class="adm-input"
-        />
-      </label>
-
-      <label class="flex items-center gap-3">
-        <input v-model="form.isActive" type="checkbox" class="h-4 w-4" >
-        <span class="text-base text-(--color-text)"
-          >Actief (zichtbaar op de site)</span
-        >
-      </label>
-
-      <!-- Productfiche (pdf) -->
-      <fieldset class="space-y-3 border-t border-(--color-border) pt-6">
-        <legend
-          class="mb-2 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
-        >
-          — Productfiche (pdf) —
-        </legend>
-
-        <div v-if="product?.infoPdf" class="flex flex-wrap items-center gap-3">
-          <a
-            :href="product.infoPdf"
-            target="_blank"
-            class="text-base text-(--color-accent) underline hover:text-[#e8c97a]"
-          >
-            Huidige pdf openen →
-          </a>
-          <button
-            type="button"
-            :disabled="pdfPending"
-            class="text-sm font-semibold tracking-[0.08em] text-(--color-text-muted) uppercase hover:text-[#b8252a]"
-            @click="removePdf()"
-          >
-            Verwijderen
-          </button>
+    <template v-if="product">
+      <div class="adm-stats">
+        <div class="adm-stat">
+          <p class="adm-stat-label">Status</p>
+          <p class="mt-1.5">
+            <span class="adm-badge" :class="product.isActive ? 'adm-badge--success' : 'adm-badge--neutral'">
+              {{ product.isActive ? "Actief" : "Inactief" }}
+            </span>
+          </p>
         </div>
-        <p v-else class="text-base text-(--color-text-muted)">
-          Nog geen productfiche gekoppeld.
-        </p>
-
-        <input
-          ref="fileInput"
-          type="file"
-          accept="application/pdf"
-          class="adm-input"
-          @change="onFileSelected"
-        >
-        <p v-if="pdfError" class="text-base text-[#e06a6a]">{{ pdfError }}</p>
-        <p v-if="pdfPending" class="text-base text-(--color-text-muted)">
-          Bezig met uploaden…
-        </p>
-      </fieldset>
-
-      <p v-if="error" class="text-base text-[#e06a6a]">{{ error }}</p>
-      <p v-if="saved" class="text-base text-[#8fc98f]">Wijzigingen opgeslagen.</p>
-
-      <div class="flex flex-wrap items-center gap-3 pt-2">
-        <button
-          type="submit"
-          :disabled="pending"
-          class="rounded-lg bg-[#b8252a] px-6 py-3 text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-[#8b1f1f] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {{ pending ? "Opslaan…" : "Wijzigingen opslaan" }}
-        </button>
-        <NuxtLink
-          to="/admin/producten"
-          class="px-4 py-3 text-sm font-semibold tracking-widest text-(--color-text-muted) uppercase transition-colors hover:text-(--color-text-strong)"
-        >
-          Terug naar overzicht
-        </NuxtLink>
+        <div class="adm-stat">
+          <p class="adm-stat-label">Prijs</p>
+          <p class="adm-stat-value">
+            {{ product.price != null ? `€ ${product.price.toFixed(2)}` : "—" }}
+          </p>
+          <p v-if="product.unit" class="adm-stat-sub">{{ product.unit }}</p>
+        </div>
+        <div class="adm-stat">
+          <p class="adm-stat-label">Ooit verkocht</p>
+          <p class="adm-stat-value">{{ product.soldQuantity }}</p>
+          <p class="adm-stat-sub">stuks via de webshop</p>
+        </div>
+        <div class="adm-stat">
+          <p class="adm-stat-label">Categorie</p>
+          <p class="adm-stat-value truncate text-base!">{{ categoryName }}</p>
+        </div>
       </div>
-    </form>
+
+      <p v-if="saved" class="adm-notice adm-notice--success" role="status">Wijzigingen opgeslagen.</p>
+      <p v-if="error" class="adm-notice adm-notice--error" role="alert">{{ error }}</p>
+
+      <form
+        id="product-form"
+        class="grid items-start gap-6 lg:grid-cols-[2fr_1fr]"
+        @submit.prevent="save()"
+      >
+        <!-- Gegevens -->
+        <section class="adm-card">
+          <div class="adm-card-head">
+            <h2 class="adm-card-title">Productgegevens</h2>
+          </div>
+          <div class="adm-card-body grid gap-5 sm:grid-cols-2">
+            <label class="block sm:col-span-2">
+              <span class="adm-label">Naam <span aria-hidden="true">*</span></span>
+              <input v-model="form.name" type="text" required maxlength="200" class="adm-input">
+            </label>
+            <label class="block">
+              <span class="adm-label">Leverancier <span aria-hidden="true">*</span></span>
+              <input v-model="form.supplier" type="text" required maxlength="200" class="adm-input">
+            </label>
+            <label class="block">
+              <span class="adm-label">Categorie <span aria-hidden="true">*</span></span>
+              <select v-model="form.categoryId" required class="adm-input">
+                <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                  {{ cat.code }} — {{ cat.name }}
+                </option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="adm-label">Eenheid</span>
+              <input v-model="form.unit" type="text" maxlength="64" placeholder="bv. 15x140gr." class="adm-input">
+            </label>
+            <label class="block">
+              <span class="adm-label">Prijs (€)</span>
+              <input
+                v-model="form.price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="optioneel"
+                class="adm-input"
+              >
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="adm-label">Interne notitie</span>
+              <textarea
+                v-model="form.notes"
+                rows="3"
+                maxlength="2000"
+                placeholder="Niet zichtbaar voor klanten"
+                class="adm-input"
+              />
+            </label>
+          </div>
+        </section>
+
+        <div class="space-y-6">
+          <!-- Zichtbaarheid -->
+          <section class="adm-card">
+            <div class="adm-card-head">
+              <h2 class="adm-card-title">Zichtbaarheid</h2>
+            </div>
+            <div class="adm-card-body space-y-2">
+              <AdminSwitch
+                v-model="form.isActive"
+                label="Product actief"
+                on-text="Actief"
+                off-text="Inactief"
+              />
+              <p class="text-[0.8125rem] text-(--color-text-muted)">
+                {{
+                  form.isActive
+                    ? "Zichtbaar in de catalogus op de website."
+                    : "Uit het assortiment gehaald: verborgen voor klanten, maar niet verwijderd."
+                }}
+              </p>
+              <p
+                v-if="form.isActive !== product.isActive"
+                class="text-[0.8125rem] font-semibold text-(--color-warning)"
+              >
+                Nog niet opgeslagen — klik “Wijzigingen opslaan”.
+              </p>
+            </div>
+          </section>
+
+          <!-- Productfiche (pdf) -->
+          <section class="adm-card">
+            <div class="adm-card-head">
+              <h2 class="adm-card-title">Productfiche</h2>
+              <span v-if="product.infoPdf" class="adm-badge adm-badge--success">Gekoppeld</span>
+            </div>
+            <div class="adm-card-body space-y-3">
+              <div v-if="product.infoPdf" class="flex flex-wrap items-center gap-2">
+                <a :href="product.infoPdf" target="_blank" class="adm-btn adm-btn--secondary adm-btn--sm">
+                  Pdf openen
+                </a>
+                <button
+                  type="button"
+                  :disabled="pdfPending"
+                  class="adm-btn adm-btn--danger adm-btn--sm"
+                  @click="removePdf()"
+                >
+                  Verwijderen
+                </button>
+              </div>
+              <p v-else class="text-sm text-(--color-text-muted)">Nog geen productfiche gekoppeld.</p>
+
+              <label class="block">
+                <span class="adm-label">{{ product.infoPdf ? "Vervangen door" : "Pdf uploaden" }}</span>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="application/pdf"
+                  class="adm-input adm-file"
+                  @change="onFileSelected"
+                >
+              </label>
+              <p v-if="pdfError" class="text-sm text-(--color-error)">{{ pdfError }}</p>
+              <p v-if="pdfPending" class="text-sm text-(--color-text-muted)">Bezig met uploaden…</p>
+            </div>
+          </section>
+        </div>
+      </form>
+    </template>
   </AdminShell>
 </template>
 
 <script setup lang="ts">
 const route = useRoute();
-definePageMeta({ layout: "main", middleware: "admin" });
+definePageMeta({ layout: "admin", middleware: "admin" });
 useHead({ title: "Product bewerken — Vleeswaren Vermeir" });
 
 interface CategoryDto {
@@ -175,6 +207,10 @@ const categories = computed(() => categoriesData.value ?? []);
 
 const { data: product, refresh } = await useFetch<AdminProductDetail>(
   `/api/admin/products/${route.params.id}`,
+);
+
+const categoryName = computed(
+  () => categories.value.find((c) => c.id === product.value?.categoryId)?.name ?? "—",
 );
 
 const form = reactive({
@@ -242,7 +278,12 @@ async function save() {
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const pdfPending = ref(false);
-const pdfError = ref("");
+// Vanuit "Nieuw product": het product is aangemaakt, maar de pdf niet.
+const pdfError = ref(
+  route.query.fiche === "mislukt"
+    ? "Het product is aangemaakt, maar de productfiche kon niet geüpload worden. Probeer het hier opnieuw."
+    : "",
+);
 
 async function onFileSelected(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
@@ -289,28 +330,7 @@ async function removePdf() {
 </script>
 
 <style scoped>
-.adm-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
 .adm-input {
   width: 100%;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.5rem;
-  background: var(--color-surface-2);
-  padding: 0.7rem 0.85rem;
-  font-size: 0.9rem;
-  color: var(--color-text-strong);
-}
-.adm-input::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.6;
-}
-.adm-input:focus {
-  outline: none;
-  border-color: #c89868;
 }
 </style>

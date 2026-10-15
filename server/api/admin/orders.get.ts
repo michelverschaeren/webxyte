@@ -29,12 +29,21 @@ export default defineEventHandler(async (event) => {
     (data) => querySchema.parse(data),
   );
 
+  // Leveringsadres zoals bevroren op de bestelling (`BillingSnapshot`), niet
+  // het huidige adres van de klant; ontbreekt op heel oude bestellingen.
+  const street = raw<string | null>`${orders.billingSnapshot}->>'street'`;
+  const postalCode = raw<string | null>`${orders.billingSnapshot}->>'postalCode'`;
+  const city = raw<string | null>`${orders.billingSnapshot}->>'city'`;
+
   const filters = [
     search
       ? or(
           ilike(user.name, `%${search}%`),
           ilike(user.email, `%${search}%`),
           ilike(billingDetails.companyName, `%${search}%`),
+          ilike(street, `%${search}%`),
+          ilike(postalCode, `%${search}%`),
+          ilike(city, `%${search}%`),
           // Bestelnummer: het begin van de id (kort of volledig geplakt).
           ilike(raw`${orders.id}::text`, `${search}%`),
         )
@@ -51,6 +60,7 @@ export default defineEventHandler(async (event) => {
         customerName: user.name,
         customerEmail: user.email,
         companyName: billingDetails.companyName,
+        delivery: { street, postalCode, city },
         lineCount: raw<number>`count(${orderItems.id})::int`,
         totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
       })

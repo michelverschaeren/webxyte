@@ -17,6 +17,8 @@ const bodySchema = z.object({
   /** Adviesprijs; wordt als tekst opgeslagen (numeric-kolom, geen float). */
   price: z.number().nonnegative().optional(),
   notes: z.string().trim().max(2000).optional(),
+  /** Zonder waarde: actief (kolomstandaard). */
+  isActive: z.boolean().optional(),
 });
 
 export default defineEventHandler(async (event) => {

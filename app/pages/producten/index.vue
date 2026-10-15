@@ -240,11 +240,12 @@
                 >
               </button>
 
-              <!-- Eerder afgenomen -->
+              <!-- Mijn producten (eerder afgenomen) -->
               <button
                 type="button"
                 role="switch"
                 :aria-checked="purchasedOnly"
+                :aria-describedby="purchasedOnly ? 'mijn-producten-uitleg' : undefined"
                 class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
                 :class="
                   purchasedOnly
@@ -253,8 +254,43 @@
                 "
                 @click="togglePurchasedOnly()"
               >
-                <span class="sm:hidden">Eerder afgenomen</span>
-                <span class="hidden sm:inline">Eerder afgenomen producten</span>
+                Mijn producten
+              </button>
+
+              <!-- Promoties: enkel als er voor deze klant promoties lopen -->
+              <button
+                v-if="promotionCount > 0"
+                type="button"
+                role="switch"
+                :aria-checked="promotionsOnly"
+                class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap pl-3 pr-2.5 py-1.5 rounded-lg border text-[0.75rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:gap-2 sm:pl-4 sm:pr-3.5 sm:py-2.5 sm:text-sm"
+                :class="
+                  promotionsOnly
+                    ? 'border-[#b8252a] bg-[#b8252a] text-white'
+                    : 'border-[#b8252a]/50 text-[#b8252a] hover:bg-[#b8252a]/10'
+                "
+                @click="togglePromotionsOnly()"
+              >
+                <svg
+                  class="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3zM6 6h.008v.008H6V6z"
+                  />
+                </svg>
+                Promoties
+                <span
+                  class="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[0.6rem] font-bold sm:min-w-4.5 sm:h-4.5 sm:text-[0.65rem]"
+                  :class="promotionsOnly ? 'bg-white/25' : 'bg-[#b8252a] text-white'"
+                  >{{ promotionCount }}</span
+                >
               </button>
 
               <!-- Vorige bestelling -->
@@ -273,6 +309,13 @@
                 @update:model-value="selectPreviousOrder($event ?? '')"
               />
             </div>
+            <p
+              v-if="purchasedOnly"
+              id="mijn-producten-uitleg"
+              class="mt-2.5 text-[0.85rem] text-(--color-text-muted)"
+            >
+              Overzicht van de producten die u bestelde de afgelopen 18 maanden
+            </p>
             <div class="flex items-center gap-2 mt-4">
               <svg
                 class="w-3.5 h-3.5 text-(--color-accent) shrink-0"
@@ -314,6 +357,7 @@
               selectedCategorySlug ||
               selectedSupplier ||
               purchasedOnly ||
+              promotionsOnly ||
               cart.showCartOnly.value ||
               selectedOrderId
             "
@@ -323,10 +367,22 @@
               v-if="purchasedOnly"
               class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
             >
-              Eerder afgenomen
+              Mijn producten
               <button
                 class="hover:text-(--color-accent) transition-colors"
                 @click="purchasedOnly = false"
+              >
+                ✕
+              </button>
+            </span>
+            <span
+              v-if="promotionsOnly"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium bg-[#b8252a]/20 text-(--color-text) border border-[#b8252a]/40"
+            >
+              Promoties
+              <button
+                class="hover:text-(--color-accent) transition-colors"
+                @click="promotionsOnly = false"
               >
                 ✕
               </button>
@@ -416,6 +472,7 @@
                 selectedCategorySlug = null;
                 selectedSupplier = null;
                 purchasedOnly = false;
+                promotionsOnly = false;
                 cart.showCartOnly.value = false;
                 selectPreviousOrder('');
               "
@@ -572,11 +629,34 @@
                   class="border-b border-(--color-border) hover:bg-(--color-hover) transition-colors group"
                 >
                   <td class="py-3 px-3">
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span
                         class="text-(--color-text) font-medium group-hover:text-(--color-text-strong) transition-colors"
                         >{{ product.name }}</span
                       >
+                      <!-- Promotie die vandaag voor deze klant geldt -->
+                      <span
+                        v-for="promo in product.promotions"
+                        :key="promo.id"
+                        :title="`${promo.hint} · loopt tot en met ${formatPromoEnd(promo.endsOn)}`"
+                        class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md bg-[#b8252a] px-2 py-0.5 text-[0.75rem] font-bold text-white"
+                      >
+                        <svg
+                          class="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2.2"
+                          aria-hidden="true"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3zM6 6h.008v.008H6V6z"
+                          />
+                        </svg>
+                        {{ promo.label }}
+                      </span>
                       <button
                         v-if="auth.isLoggedIn.value && product.infoPdf"
                         type="button"
@@ -840,6 +920,8 @@ interface ProductDto {
   infoPdf: string | null;
   /** JJJJ-MM-DD; enkel gevuld bij de filter "eerder afgenomen". */
   lastPurchasedAt: string | null;
+  /** Promoties die vandaag voor deze klant gelden; leeg voor gasten. */
+  promotions: { id: string; label: string; hint: string; endsOn: string }[];
   category: {
     id: string;
     slug: string;
@@ -853,6 +935,8 @@ interface ProductsResponse {
   items: ProductDto[];
   pagination: { page: number; perPage: number; total: number; pageCount: number };
   listCategoryCounts: Record<string, number> | null;
+  /** Aantal producten met een promotie voor deze klant; 0 = geen knop. */
+  promotionCount: number;
 }
 
 const { data: categoriesData } = await useFetch<CategoryDto[]>("/api/categories");
@@ -889,12 +973,25 @@ function togglePurchasedOnly() {
   purchasedOnly.value = !purchasedOnly.value;
   if (purchasedOnly.value) {
     cart.showCartOnly.value = false;
+    promotionsOnly.value = false;
     selectPreviousOrder("");
   }
 }
 
-// "Enkel winkelmandje", "Eerder afgenomen" en "Vorige bestelling" beperken de
-// lijst alle drie tot een vaste set artikelnummers — samen zetten zou geen
+// "Promoties": enkel de producten met een lopende promotie voor deze klant.
+// De knop verschijnt pas als er zo'n promotie is (zie `promotionCount`).
+const promotionsOnly = ref(false);
+function togglePromotionsOnly() {
+  promotionsOnly.value = !promotionsOnly.value;
+  if (promotionsOnly.value) {
+    cart.showCartOnly.value = false;
+    purchasedOnly.value = false;
+    selectPreviousOrder("");
+  }
+}
+
+// "Enkel winkelmandje", "Mijn producten", "Promoties" en "Vorige bestelling"
+// beperken de lijst alle vier tot een vaste set producten — samen zetten zou geen
 // zinnig resultaat geven, dus ze sluiten elkaar uit. De categoriefilter valt
 // hier bewust buiten: die mag altijd gecombineerd blijven.
 function toggleCartOnly() {
@@ -902,22 +999,29 @@ function toggleCartOnly() {
   if (cart.showCartOnly.value) {
     selectPreviousOrder("");
     purchasedOnly.value = false;
+    promotionsOnly.value = false;
   }
 }
 
 const showingAll = computed(
-  () => !cart.showCartOnly.value && !purchasedOnly.value && !selectedOrderId.value,
+  () =>
+    !cart.showCartOnly.value &&
+    !purchasedOnly.value &&
+    !promotionsOnly.value &&
+    !selectedOrderId.value,
 );
 function showAllProducts() {
   cart.showCartOnly.value = false;
   purchasedOnly.value = false;
+  promotionsOnly.value = false;
   selectPreviousOrder("");
 }
 
 /** Naam van de actieve lijst, voor de categorie-filterknoppen. */
 const listScopeLabel = computed(() => {
   if (cart.showCartOnly.value) return "winkelmandje";
-  if (purchasedOnly.value) return "eerder afgenomen";
+  if (purchasedOnly.value) return "mijn producten";
+  if (promotionsOnly.value) return "promoties";
   if (selectedOrderId.value.startsWith(LIST_PREFIX)) return "dit lijstje";
   return "deze bestelling";
 });
@@ -1049,6 +1153,7 @@ async function selectPreviousOrder(id: string) {
   }
   cart.showCartOnly.value = false;
   purchasedOnly.value = false;
+  promotionsOnly.value = false;
   loadingOrderFilter.value = true;
   try {
     if (id.startsWith(LIST_PREFIX)) {
@@ -1075,6 +1180,7 @@ watch(
     if (!on) return;
     if (selectedOrderId.value) selectPreviousOrder("");
     purchasedOnly.value = false;
+    promotionsOnly.value = false;
   },
 );
 
@@ -1131,6 +1237,7 @@ const queryParams = computed(() => ({
   sort: sortKey.value || undefined,
   sortDir: sortDir.value,
   purchased: purchasedOnly.value || undefined,
+  promotions: promotionsOnly.value || undefined,
   articleNrs: cart.showCartOnly.value
     ? cart.items.value.map((i) => i.articleNr).join(",")
     : selectedOrderArticleNrs.value
@@ -1175,6 +1282,14 @@ const pagination = computed(
 );
 
 const hasMore = computed(() => items.value.length < pagination.value.total);
+
+const promotionCount = computed(() => firstPage.value?.promotionCount ?? 0);
+
+// Laatste promotie verlopen of uitgelogd terwijl de filter aan stond: dan is
+// de knop weg, dus ook de filter afzetten.
+watch(promotionCount, (n) => {
+  if (n === 0) promotionsOnly.value = false;
+});
 
 // In een lijst (mandje, eerder afgenomen, bestelling/lijstje) tonen we enkel
 // de categorieën waar die lijst producten in heeft. De gekozen categorie blijft
@@ -1258,6 +1373,14 @@ function formatPurchaseDate(value: string): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+/** "2026-10-25" → "25 okt." (einde van een promotie). */
+function formatPromoEnd(value: string): string {
+  return new Date(`${value}T12:00:00Z`).toLocaleDateString("nl-BE", {
+    day: "numeric",
+    month: "short",
   });
 }
 

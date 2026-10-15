@@ -16,6 +16,7 @@ import { requireAdmin } from "~~/server/utils/session";
  */
 const querySchema = z.object({
   category: z.string().min(1).optional(),
+  supplier: z.string().min(1).optional(),
   search: z.string().trim().min(1).optional(),
   status: z.enum(["active", "inactive"]).optional(),
   sort: z
@@ -29,11 +30,12 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
-  const { category, search, status, sort, sortDir, page, perPage } =
+  const { category, supplier, search, status, sort, sortDir, page, perPage } =
     await getValidatedQuery(event, (data) => querySchema.parse(data));
 
   const filters = [
     category ? eq(categories.slug, category) : undefined,
+    supplier ? eq(products.supplier, supplier) : undefined,
     status ? eq(products.isActive, status === "active") : undefined,
     search
       ? or(

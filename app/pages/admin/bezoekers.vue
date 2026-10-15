@@ -1,58 +1,95 @@
 <template>
   <AdminShell title="Bezoekers" subtitle="Bezoekcijfers van de website, uit Vercel Web Analytics.">
-    <div class="mb-8 flex flex-wrap items-center gap-2">
-      <button
-        v-for="option in PERIODS"
-        :key="option"
-        type="button"
-        class="rounded-lg border px-4 py-2 text-sm font-semibold tracking-widest uppercase transition-colors"
-        :class="
-          days === option
-            ? 'border-[#b8252a] bg-[#b8252a] text-white'
-            : 'border-(--color-border-strong) text-(--color-text-muted) hover:text-(--color-text-strong)'
-        "
-        @click="days = option"
-      >
-        {{ option }} dagen
-      </button>
+    <template #actions>
       <span v-if="pending" class="text-sm text-(--color-text-muted)">Laden…</span>
-    </div>
+      <div class="adm-segmented" role="group" aria-label="Periode">
+        <button
+          v-for="option in PERIODS"
+          :key="option"
+          type="button"
+          :aria-pressed="days === option"
+          @click="days = option"
+        >
+          {{ option }} dagen
+        </button>
+      </div>
+    </template>
 
-    <p
-      v-if="!stats || !stats.configured"
-      class="rounded-r-xl border-l-2 border-[#c89868] bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text-muted)"
-    >
+    <p v-if="!stats || !stats.configured" class="adm-notice">
       De bezoekcijfers zijn nog niet gekoppeld: de omgevingsvariabele
       <code>VERCEL_ANALYTICS_TOKEN</code> ontbreekt.
     </p>
 
-    <p
-      v-else-if="'error' in stats"
-      class="rounded-r-xl border-l-2 border-[#e06a6a] bg-(--color-surface-2) px-5 py-4 text-base text-(--color-text)"
-    >
+    <p v-else-if="'error' in stats" class="adm-notice adm-notice--error" role="alert">
       {{ stats.error }}
     </p>
 
     <template v-else>
-      <div class="grid gap-5 sm:grid-cols-2">
-        <div class="adm-card">
-          <span class="adm-card-value">{{ format(stats.totals.visitors) }}</span>
-          <span class="adm-card-title">Bezoekers</span>
-          <span class="adm-card-hint">Unieke bezoekers, laatste {{ stats.days }} dagen</span>
+      <div class="adm-kpis">
+        <div class="adm-kpi">
+          <span class="adm-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </span>
+          <span>
+            <span class="adm-kpi-label block">Bezoekers</span>
+            <span class="adm-kpi-value block">{{ format(stats.totals.visitors) }}</span>
+            <span class="adm-kpi-sub block">Uniek, laatste {{ stats.days }} dagen</span>
+          </span>
         </div>
-        <div class="adm-card">
-          <span class="adm-card-value">{{ format(stats.totals.pageviews) }}</span>
-          <span class="adm-card-title">Paginaweergaven</span>
-          <span class="adm-card-hint">Laatste {{ stats.days }} dagen</span>
+        <div class="adm-kpi">
+          <span class="adm-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+          <span>
+            <span class="adm-kpi-label block">Paginaweergaven</span>
+            <span class="adm-kpi-value block">{{ format(stats.totals.pageviews) }}</span>
+            <span class="adm-kpi-sub block">Laatste {{ stats.days }} dagen</span>
+          </span>
+        </div>
+        <div class="adm-kpi">
+          <span class="adm-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </span>
+          <span>
+            <span class="adm-kpi-label block">Pagina's per bezoeker</span>
+            <span class="adm-kpi-value block">{{ pagesPerVisitor }}</span>
+            <span class="adm-kpi-sub block">Gemiddeld</span>
+          </span>
+        </div>
+        <div class="adm-kpi">
+          <span class="adm-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+            </svg>
+          </span>
+          <span>
+            <span class="adm-kpi-label block">Drukste dag</span>
+            <span class="adm-kpi-value block">{{ format(maxVisitors) }}</span>
+            <span class="adm-kpi-sub block">
+              {{ busiestDay ? `bezoekers op ${formatDay(busiestDay.date)}` : "—" }}
+            </span>
+          </span>
         </div>
       </div>
 
-      <section v-if="stats.perDay.length > 0" class="mt-12">
-        <h2 class="adm-heading">— Bezoekers per dag —</h2>
-        <div class="rounded-xl border border-(--color-border) bg-(--color-surface) px-4 pt-6 pb-3">
+      <section v-if="stats.perDay.length > 0" class="adm-card mb-6">
+        <div class="adm-card-head">
+          <h2 class="adm-card-title">Bezoekers per dag</h2>
+          <span class="text-[0.8125rem] text-(--color-text-muted)">
+            {{ formatDay(stats.perDay[0]!.date) }} – {{ formatDay(stats.perDay[stats.perDay.length - 1]!.date) }}
+          </span>
+        </div>
+        <div class="adm-card-body">
           <div class="flex gap-2">
             <div
-              class="relative h-48 w-9 shrink-0 text-right text-[0.75rem] text-(--color-text-muted) tabular-nums"
+              class="relative h-56 w-9 shrink-0 text-right text-[0.75rem] text-(--color-text-muted) tabular-nums"
               aria-hidden="true"
             >
               <span
@@ -65,11 +102,11 @@
               </span>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="relative h-48">
+              <div class="relative h-56">
                 <div
                   v-for="tick in yTicks"
                   :key="tick"
-                  class="absolute inset-x-0 border-t border-(--color-border)"
+                  class="absolute inset-x-0 border-t border-dashed border-(--color-border)"
                   :style="{ bottom: `${(tick / axisMax) * 100}%` }"
                 />
                 <div class="absolute inset-0 flex items-end gap-0.5 sm:gap-1">
@@ -81,21 +118,20 @@
                   >
                     <span
                       v-if="showValues && day.visitors > 0"
-                      class="mb-1 text-[0.75rem] leading-none font-semibold text-(--color-text-strong) tabular-nums"
+                      class="mb-1 text-[0.7rem] leading-none font-semibold text-(--color-text-muted) tabular-nums group-hover:text-(--color-text-strong)"
                       :class="{ 'hidden sm:block': stats.perDay.length > 7 }"
                     >
                       {{ format(day.visitors) }}
                     </span>
                     <div
-                      class="w-full shrink-0 rounded-t-sm bg-[#c89868] transition-colors group-hover:bg-[#b8252a]"
+                      class="adm-bar w-full max-w-10 shrink-0 rounded-t-md transition-colors"
                       :style="{ height: `${barHeight(day.visitors)}%` }"
                     />
                   </div>
                 </div>
               </div>
-              <div class="mt-2 flex justify-between text-[0.8rem] text-(--color-text-muted)">
+              <div class="mt-2 flex justify-between text-[0.75rem] text-(--color-text-muted)">
                 <span>{{ formatDay(stats.perDay[0]!.date) }}</span>
-                <span>Hoogste dag: {{ format(maxVisitors) }} bezoekers</span>
                 <span>{{ formatDay(stats.perDay[stats.perDay.length - 1]!.date) }}</span>
               </div>
             </div>
@@ -103,40 +139,35 @@
         </div>
       </section>
 
-      <div class="mt-12 grid gap-10 lg:grid-cols-2">
-        <section v-for="table in tables" :key="table.title">
-          <h2 class="adm-heading">— {{ table.title }} —</h2>
-          <div class="overflow-hidden rounded-xl border border-(--color-border)">
-            <table class="w-full border-collapse text-base">
+      <div class="grid items-start gap-6 lg:grid-cols-2">
+        <section v-for="table in tables" :key="table.title" class="adm-card">
+          <div class="adm-card-head">
+            <h2 class="adm-card-title">{{ table.title }}</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="adm-table">
               <thead>
-                <tr
-                  class="border-b border-(--color-border) text-[0.8rem] tracking-widest text-(--color-text-muted) uppercase"
-                >
-                  <th class="px-4 py-3 text-left font-semibold">{{ table.label }}</th>
-                  <th class="px-4 py-3 text-right font-semibold">Bezoekers</th>
-                  <th class="px-4 py-3 text-right font-semibold">Weergaven</th>
+                <tr>
+                  <th class="w-full">{{ table.label }}</th>
+                  <th class="adm-num">Bezoekers</th>
+                  <th class="adm-num">Weergaven</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="row in table.rows"
-                  :key="row.key"
-                  class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
-                >
-                  <td class="max-w-0 truncate px-4 py-2.5 text-(--color-text-strong)">
-                    {{ row.key || table.empty }}
+                <tr v-for="row in table.rows" :key="row.key">
+                  <td class="w-full max-w-0">
+                    <p class="truncate font-medium text-(--color-text-strong)" :title="row.key || table.empty">
+                      {{ row.key || table.empty }}
+                    </p>
+                    <div class="adm-share" aria-hidden="true">
+                      <span :style="{ width: `${(row.visitors / table.max) * 100}%` }" />
+                    </div>
                   </td>
-                  <td class="px-4 py-2.5 text-right font-semibold text-(--color-text-strong)">
-                    {{ format(row.visitors) }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-(--color-text)">
-                    {{ format(row.pageviews) }}
-                  </td>
+                  <td class="adm-num font-semibold text-(--color-text-strong)">{{ format(row.visitors) }}</td>
+                  <td class="adm-num text-(--color-text-muted)">{{ format(row.pageviews) }}</td>
                 </tr>
                 <tr v-if="table.rows.length === 0">
-                  <td colspan="3" class="px-4 py-4 text-(--color-text-muted)">
-                    Nog geen gegevens voor deze periode.
-                  </td>
+                  <td colspan="3" class="adm-card-empty">Nog geen gegevens voor deze periode.</td>
                 </tr>
               </tbody>
             </table>
@@ -148,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: "main", middleware: "admin" });
+definePageMeta({ layout: "admin", middleware: "admin" });
 useHead({ title: "Bezoekers — Vleeswaren Vermeir" });
 
 const PERIODS = [7, 30, 90] as const;
@@ -166,16 +197,34 @@ const maxVisitors = computed(() =>
   Math.max(0, ...(ok.value?.perDay.map((d) => d.visitors) ?? [])),
 );
 
-const tables = computed(() => [
-  { title: "Meest bezochte pagina's", label: "Pagina", empty: "—", rows: ok.value?.pages ?? [] },
-  {
-    title: "Herkomst",
-    label: "Verwijzende site",
-    empty: "Rechtstreeks",
-    rows: ok.value?.referrers ?? [],
-  },
-  { title: "Toestellen", label: "Toestel", empty: "Onbekend", rows: ok.value?.devices ?? [] },
-]);
+const busiestDay = computed(() =>
+  ok.value?.perDay.find((d) => d.visitors === maxVisitors.value && d.visitors > 0),
+);
+
+const pagesPerVisitor = computed(() => {
+  const totals = ok.value?.totals;
+  if (!totals || totals.visitors === 0) return "—";
+  return (totals.pageviews / totals.visitors).toLocaleString("nl-BE", {
+    maximumFractionDigits: 1,
+  });
+});
+
+const tables = computed(() =>
+  [
+    { title: "Meest bezochte pagina's", label: "Pagina", empty: "—", rows: ok.value?.pages ?? [] },
+    {
+      title: "Herkomst",
+      label: "Verwijzende site",
+      empty: "Rechtstreeks",
+      rows: ok.value?.referrers ?? [],
+    },
+    { title: "Toestellen", label: "Toestel", empty: "Onbekend", rows: ok.value?.devices ?? [] },
+  ].map((table) => ({
+    ...table,
+    // Grootste waarde = volle balk.
+    max: Math.max(1, ...table.rows.map((r) => r.visitors)),
+  })),
+);
 
 /** Ronde stap (1, 2, 5, 10, …) zodat de y-as een viertal leesbare streepjes krijgt. */
 const tickStep = computed(() => {
@@ -214,40 +263,10 @@ function formatDay(value: string): string {
 </script>
 
 <style scoped>
-.adm-heading {
-  margin-bottom: 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-accent);
+.adm-bar {
+  background: rgb(184 37 42 / 0.55);
 }
-.adm-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.75rem;
-  background: var(--color-surface);
-  padding: 1.5rem 1.75rem;
-}
-.adm-card-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: lining-nums tabular-nums;
-  color: var(--color-text-strong);
-}
-.adm-card-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-accent);
-}
-.adm-card-hint {
-  font-size: 1rem;
-  color: var(--color-text);
+.group:hover .adm-bar {
+  background: var(--color-primary);
 }
 </style>

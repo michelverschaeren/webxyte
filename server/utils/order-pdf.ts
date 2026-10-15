@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import type { OrderLinePromotion } from "../../shared/promotion";
 import type { BillingSnapshot, Order } from "~~/server/database/schema";
 
 export interface OrderPdfItem {
@@ -7,6 +8,15 @@ export interface OrderPdfItem {
   supplier: string;
   unit: string | null;
   quantity: number;
+  /** Promoties die bij het bestellen voor deze klant golden; leeg = geen. */
+  promotions?: OrderLinePromotion[] | null;
+}
+
+/** "Promotie: 3+1 gratis (+1 gratis)" — één regel per promotie. */
+export function promotionLines(item: OrderPdfItem): string[] {
+  return (item.promotions ?? []).map(
+    (p) => `Promotie: ${p.label} (${p.note})`,
+  );
 }
 
 interface OrderPdfInput {
@@ -233,8 +243,16 @@ export async function generateOrderPdf({
   for (const item of items) {
     const label = item.unit ? `${item.name} (${item.unit})` : item.name;
     const nameLines = wrapText(clean(label), regular, 10, NAME_WIDTH);
+    // Promoties onder de productnaam, in merkkleur (vet als ze van toepassing zijn).
+    const promoLines = (item.promotions ?? []).flatMap((p) =>
+      wrapText(clean(`Promotie: ${p.label} (${p.note})`), bold, 9, NAME_WIDTH).map((line) => ({
+        line,
+        reached: p.reached,
+      })),
+    );
     const supplierLines = wrapText(clean(item.supplier), regular, 10, SUPPLIER_WIDTH);
-    const rowHeight = Math.max(nameLines.length, supplierLines.length) * ROW_LINE_HEIGHT;
+    const rowHeight =
+      Math.max(nameLines.length + promoLines.length, supplierLines.length) * ROW_LINE_HEIGHT;
 
     // Rij past niet meer: nieuwe pagina met herhaalde tabelkop.
     if (y - rowHeight < MARGIN + 20) {
@@ -254,6 +272,15 @@ export async function generateOrderPdf({
         color: TEXT,
       });
     });
+    promoLines.forEach(({ line, reached }, i) => {
+      page.drawText(line, {
+        x: COL_NAME,
+        y: y - (nameLines.length + i) * ROW_LINE_HEIGHT,
+        font: reached ? bold : regular,
+        size: 9,
+        color: reached ? BRAND : MUTED,
+      });
+    });
     supplierLines.forEach((line, i) => {
       page.drawText(line, {
         x: COL_SUPPLIER,
@@ -270,9 +297,11 @@ export async function generateOrderPdf({
   }
 
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  const promoCount = items.filter((i) => (i.promotions ?? []).length > 0).length;
   y -= 2;
   text(
-    `${items.length} artikel${items.length === 1 ? "" : "en"} · totaal aantal: ${totalQty}`,
+    `${items.length} artikel${items.length === 1 ? "" : "en"} · totaal aantal: ${totalQty}` +
+      (promoCount > 0 ? ` · ${promoCount} met promotie` : ""),
     MARGIN,
     { size: 9, color: MUTED },
   );

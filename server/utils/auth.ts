@@ -41,6 +41,7 @@ export const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
+      rateLimit: schema.rateLimit,
     },
   }),
 
@@ -83,16 +84,20 @@ export const auth = betterAuth({
   },
 
   /**
-   * Better Auth's default (`enabled: isProduction`) hangt af van hoe Dokploy
-   * NODE_ENV precies zet — expliciet aanzetten maakt dat onafhankelijk
-   * daarvan. De ingebouwde regel voor /sign-in (3 pogingen per 10s per IP)
-   * laat nog ~26.000 gokken per dag toe; wachtwoord-login krijgt daarom een
-   * eigen, trager venster. De teller zit in het geheugen van de instantie:
-   * een gedeelde opslag houdt een aanvaller met meerdere IP's evenmin tegen,
-   * en kost wel een extra query op elke auth-call.
+   * Expliciet aan, onafhankelijk van hoe NODE_ENV gezet wordt (Better Auth's
+   * default is `enabled: isProduction`). De ingebouwde regel voor /sign-in
+   * (3 pogingen per 10s per IP) laat nog ~26.000 gokken per dag toe;
+   * wachtwoord-login krijgt daarom een eigen, trager venster.
+   *
+   * De tellers staan in de database (tabel rate_limit): op Vercel draaien
+   * meerdere instanties naast elkaar en worden ze geregeld vervangen, dus een
+   * teller in het geheugen liet per instantie opnieuw 10 pogingen toe. Kost
+   * één extra query per auth-call. Het IP komt uit `x-forwarded-for`, dat
+   * Vercel zelf zet (niet te vervalsen door de client).
    */
   rateLimit: {
     enabled: true,
+    storage: "database",
     customRules: {
       "/sign-in/email": { window: 300, max: 10 },
     },
