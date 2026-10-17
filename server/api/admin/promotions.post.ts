@@ -1,47 +1,38 @@
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { promotionCustomers, promotions } from "~~/server/database/schema";
+import { promotionGroups } from "~~/server/database/schema";
 import {
   assertPromotionRefs,
-  promotionColumns,
-  promotionFieldsSchema,
+  insertPromotions,
+  promotionGroupFieldsSchema,
 } from "~~/server/utils/promotions";
 import { requireAdmin } from "~~/server/utils/session";
 
 /**
- * POST /api/admin/promotions — maakt promoties aan. Meerdere producten in één
- * keer kan: elk product krijgt dan een eigen promotie met dezelfde korting,
- * periode en klanten, zodat ze daarna los te bewerken zijn.
+ * POST /api/admin/promotions — maakt een promotie aan: een groep met naam,
+ * periode en klanten, en per product een korting (de wizard bundelt
+ * producten met dezelfde korting tot kortingsregels).
  */
 const bodySchema = z.intersection(
-  z.object({ productIds: z.array(z.uuid()).min(1).max(100) }),
-  promotionFieldsSchema,
+  z.object({ groupName: z.string().trim().min(1, "Geef de promotie een naam.").max(120) }),
+  promotionGroupFieldsSchema,
 );
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
 
   const body = await readValidatedBody(event, (data) => bodySchema.parse(data));
-  const productIds = [...new Set(body.productIds)];
-  const customerIds = body.customerIds ? [...new Set(body.customerIds)] : null;
-  await assertPromotionRefs(productIds, customerIds);
-
-  const columns = promotionColumns(body);
+  await assertPromotionRefs(
+    body.items.map((i) => i.productId),
+    body.customerIds,
+  );
 
   const created = await db.transaction(async (tx) => {
-    const rows = await tx
-      .insert(promotions)
-      .values(productIds.map((productId) => ({ ...columns, productId })))
-      .returning({ id: promotions.id });
-
-    if (customerIds) {
-      await tx.insert(promotionCustomers).values(
-        rows.flatMap((row) =>
-          customerIds.map((customerId) => ({ promotionId: row.id, customerId })),
-        ),
-      );
-    }
-    return rows;
+    const [group] = await tx
+      .insert(promotionGroups)
+      .values({ name: body.groupName })
+      .returning({ id: promotionGroups.id });
+    return insertPromotions(tx, body, group!.id);
   });
 
   setResponseStatus(event, 201);

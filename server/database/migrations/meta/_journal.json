@@ -120,6 +120,13 @@
       "when": 1792085119978,
       "tag": "0016_customer_product_overrides",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792237213130,
+      "tag": "0017_promotion_groups",
+      "breakpoints": true
     }
   ]
 }

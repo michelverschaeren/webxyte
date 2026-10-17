@@ -23,12 +23,46 @@ const NON_PRODUCT_GROUPS = new Set(["LG"]);
 
 type CsvRow = { articleNr: string; name: string; supplier: string; groupCode: string };
 
+/**
+ * E\u00E9n CSV-regel (scheidingsteken `;`) in velden. Velden tussen aanhalingstekens
+ * mogen `;` bevatten en `""` staat voor \u00E9\u00E9n `"`: `"Boulogne ""Kilo"""` \u2192
+ * `Boulogne "Kilo"`.
+ */
+function splitCsvLine(line: string): string[] {
+  const cols: string[] = [];
+  let field = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else if (ch === '"') {
+        quoted = false;
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"' && field.trim() === "") {
+      quoted = true;
+      field = "";
+    } else if (ch === ";") {
+      cols.push(field);
+      field = "";
+    } else {
+      field += ch;
+    }
+  }
+  cols.push(field);
+  return cols;
+}
+
 function parseCsv(): CsvRow[] {
   const text = readFileSync(CSV_PATH, "utf8").replace(/^\uFEFF/, "");
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
   const rows: CsvRow[] = [];
   for (const line of lines.slice(1)) {
-    const cols = line.split(";");
+    const cols = splitCsvLine(line);
     const [articleNr, name, , supplier, , , , groupCode] = cols;
     if (!articleNr) continue;
     rows.push({

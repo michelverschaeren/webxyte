@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="max-w-325 mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="flex gap-8">
         <!-- Sidebar (desktop) -->
         <aside class="hidden lg:block w-64 shrink-0">
@@ -441,7 +441,7 @@
                 <tr
                   class="border-b border-(--color-border) bg-(--color-surface-2) text-[0.8rem] uppercase tracking-[0.12em]"
                 >
-                  <th class="text-left py-3 px-4 font-semibold">
+                  <th class="text-left py-3 px-4 font-semibold whitespace-nowrap">
                     <button
                       type="button"
                       class="inline-flex items-center gap-1.5 group"
@@ -465,7 +465,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-4 font-semibold hidden sm:table-cell"
+                    class="text-left py-3 px-4 font-semibold whitespace-nowrap hidden sm:table-cell"
                   >
                     <button
                       type="button"
@@ -490,7 +490,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-4 font-semibold hidden md:table-cell"
+                    class="text-left py-3 px-4 font-semibold whitespace-nowrap hidden md:table-cell"
                   >
                     <button
                       type="button"
@@ -515,7 +515,7 @@
                   </th>
                   <th
                     v-if="auth.isLoggedIn.value"
-                    class="text-left py-3 px-4 font-semibold hidden lg:table-cell"
+                    class="text-left py-3 px-4 font-semibold whitespace-nowrap hidden lg:table-cell"
                   >
                     <button
                       type="button"
@@ -539,7 +539,7 @@
                     </button>
                   </th>
                   <th
-                    class="text-left py-3 px-4 font-semibold"
+                    class="text-left py-3 px-4 font-semibold whitespace-nowrap"
                     :class="auth.isLoggedIn.value ? 'hidden xl:table-cell' : ''"
                   >
                     <button
@@ -578,9 +578,10 @@
                   class="border-b border-(--color-border) last:border-b-0 hover:bg-(--color-hover) transition-colors group"
                 >
                   <td class="py-3 px-4">
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <!-- Vanaf lg: naam, promotie en fiche op één lijn; een lange naam loopt zelf door. -->
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 lg:flex-nowrap">
                       <span
-                        class="text-(--color-text) font-medium group-hover:text-(--color-text-strong) transition-colors"
+                        class="min-w-0 text-(--color-text) font-medium group-hover:text-(--color-text-strong) transition-colors"
                         >{{ product.name }}</span
                       >
                       <!-- Promotie die vandaag voor deze klant geldt -->
@@ -778,7 +779,7 @@
       class="sticky bottom-0 z-40 mt-10 border-t border-(--color-border) bg-(--color-surface-strong)/95 backdrop-blur-md"
     >
       <div
-        class="max-w-325 mx-auto flex items-center gap-2 px-3 py-2.5 sm:flex-wrap sm:gap-4 sm:px-6 sm:py-4 lg:px-8"
+        class="max-w-360 mx-auto flex items-center gap-2 px-3 py-2.5 sm:flex-wrap sm:gap-4 sm:px-6 sm:py-4 lg:px-8"
       >
         <div class="text-sm shrink-0 sm:text-base">
           <span class="text-(--color-text-muted)">In winkelmandje</span>

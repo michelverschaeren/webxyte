@@ -21,7 +21,7 @@
                 id="promotion-wizard-title"
                 class="font-['Playfair_Display',Georgia,serif] text-xl font-bold text-(--color-text-strong)"
               >
-                {{ editing ? "Promotie bewerken" : "Nieuwe promotie" }}
+                {{ editing || editingGroup ? "Promotie bewerken" : "Nieuwe promotie" }}
               </h3>
               <p class="mt-0.5 text-sm text-(--color-text-muted)">{{ STEP_HINTS[step] }}</p>
             </div>
@@ -56,8 +56,17 @@
         </div>
 
         <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="next">
-          <!-- 1. Product: filters + tabel -->
-          <div v-if="step === 0" class="flex min-h-0 flex-1 flex-col">
+          <!-- Producten kiezen voor één kortingsregel: filters + tabel -->
+          <div v-if="pickingSet" class="flex min-h-0 flex-1 flex-col">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-(--color-border) px-4 py-3">
+              <span class="text-sm font-semibold text-(--color-text-strong)">
+                Producten voor korting {{ setNumber(pickingSet) }}
+              </span>
+              <span class="adm-badge adm-badge--info">{{ setLabel(pickingSet) }}</span>
+              <span class="text-[0.8125rem] text-(--color-text-muted)">
+                Producten uit een andere korting van deze promotie kun je hier niet kiezen.
+              </span>
+            </div>
             <div class="adm-card-toolbar">
               <label class="relative block w-full sm:w-72">
                 <span class="sr-only">Zoek een product</span>
@@ -166,7 +175,7 @@
                   <tr
                     v-for="p in productResults"
                     :key="p.id"
-                    class="cursor-pointer"
+                    :class="otherSetOf(p.id) ? 'opacity-55' : 'cursor-pointer'"
                     :aria-selected="isProductSelected(p.id)"
                     @click="toggleProduct(p)"
                   >
@@ -175,7 +184,8 @@
                         :type="editing ? 'radio' : 'checkbox'"
                         name="promotion-product"
                         class="adm-check"
-                        :checked="isProductSelected(p.id)"
+                        :checked="isProductSelected(p.id) || Boolean(otherSetOf(p.id))"
+                        :disabled="Boolean(otherSetOf(p.id))"
                         :aria-label="`${p.name} kiezen`"
                         @click.stop
                         @change="toggleProduct(p)"
@@ -186,6 +196,9 @@
                       <p class="truncate font-medium text-(--color-text-strong)" :title="p.name">
                         {{ p.name }}
                         <span v-if="!p.isActive" class="adm-badge adm-badge--neutral ml-1.5">Inactief</span>
+                        <span v-if="otherSetOf(p.id)" class="adm-badge adm-badge--neutral ml-1.5">
+                          In korting {{ setNumber(otherSetOf(p.id)!) }}
+                        </span>
                       </p>
                     </td>
                     <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">{{ p.unit ?? "—" }}</td>
@@ -216,126 +229,25 @@
             class="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_20rem] lg:overflow-hidden"
           >
             <div class="flex min-w-0 flex-col gap-5 px-5 py-5 sm:px-6 lg:overflow-y-auto">
-            <!-- 2. Korting -->
-            <template v-if="step === 1">
-              <div>
-                <span class="adm-label">Snel kiezen</span>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    v-for="preset in PRESETS"
-                    :key="preset.label"
-                    type="button"
-                    class="wiz-preset"
-                    @click="applyPreset(preset)"
-                  >
-                    {{ preset.label }}
-                  </button>
-                </div>
-              </div>
-
-              <fieldset>
-                <legend class="adm-label">Soort korting</legend>
-                <div class="grid gap-2 sm:grid-cols-3">
-                  <label
-                    v-for="type in PROMOTION_TYPES"
-                    :key="type"
-                    class="wiz-option"
-                    :class="{ 'wiz-option--active': discount.type === type }"
-                  >
-                    <input v-model="discount.type" type="radio" name="promotion-type" :value="type" class="adm-check">
-                    {{ PROMOTION_TYPE_LABELS[type] }}
-                  </label>
-                </div>
-              </fieldset>
-
-              <div v-if="discount.type === 'percentage'" class="grid grid-cols-2 gap-3">
-                <label class="block">
-                  <span class="adm-label">Korting (%)</span>
-                  <input
-                    v-model.number="discount.percentage"
-                    type="number"
-                    min="0.01"
-                    max="99.99"
-                    step="0.01"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-                <label class="block">
-                  <span class="adm-label">Vanaf aantal stuks</span>
-                  <input
-                    v-model.number="discount.minQuantity"
-                    type="number"
-                    min="1"
-                    max="999"
-                    step="1"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-              </div>
-
-              <div v-else-if="discount.type === 'free_items'" class="grid grid-cols-2 gap-3">
-                <label class="block">
-                  <span class="adm-label">Aantal kopen</span>
-                  <input
-                    v-model.number="discount.buyQuantity"
-                    type="number"
-                    min="1"
-                    max="999"
-                    step="1"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-                <label class="block">
-                  <span class="adm-label">Aantal gratis</span>
-                  <input
-                    v-model.number="discount.freeQuantity"
-                    type="number"
-                    min="1"
-                    max="999"
-                    step="1"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-              </div>
-
-              <div v-else class="grid grid-cols-2 gap-3">
-                <label class="block">
-                  <span class="adm-label">Promoprijs per stuk (€)</span>
-                  <input
-                    v-model.number="discount.price"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-                <label class="block">
-                  <span class="adm-label">Vanaf aantal stuks</span>
-                  <input
-                    v-model.number="discount.minQuantity"
-                    type="number"
-                    min="1"
-                    max="999"
-                    step="1"
-                    required
-                    class="adm-input w-full"
-                  >
-                </label>
-              </div>
-
-              <p v-if="discountValid" class="adm-notice mb-0!">
-                <span class="text-(--color-text-muted)">Resultaat:</span>
-                <strong class="ml-1">{{ promotionLabel(normalizedDiscount) }}</strong>
+            <!-- 1. Naam + periode -->
+            <template v-if="step === 0">
+              <label v-if="!editing" class="block">
+                <span class="adm-label">Naam van de promotie</span>
+                <input
+                  ref="groupNameInput"
+                  v-model="groupName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="off"
+                  data-1p-ignore
+                  data-lpignore="true"
+                  placeholder="bv. Folder week 43 of Promotie op kaas"
+                  class="adm-input w-full sm:max-w-md"
+                >
+              </label>
+              <p v-else class="adm-notice mb-0!">
+                Losse promotie zonder naam. Nieuwe promoties krijgen altijd een naam.
               </p>
-            </template>
-
-            <!-- 3. Periode -->
-            <template v-else-if="step === 2">
               <div>
                 <span class="adm-label">Snel kiezen</span>
                 <div class="flex flex-wrap gap-2">
@@ -377,8 +289,8 @@
               </p>
             </template>
 
-            <!-- 4. Klanten -->
-            <template v-else>
+            <!-- 2. Klanten -->
+            <template v-else-if="step === 1">
               <fieldset>
                 <legend class="adm-label">Wie heeft recht op de promotie?</legend>
                 <div class="grid gap-2 sm:grid-cols-2">
@@ -476,40 +388,158 @@
               </div>
 
             </template>
+
+            <!-- 3. Kortingen: elke regel = één korting voor een verzameling producten -->
+            <template v-else>
+              <div
+                v-for="set in sets"
+                :key="set.key"
+                class="wiz-set"
+                :class="{ 'wiz-set--open': openSetKey === set.key }"
+              >
+                <div class="wiz-set-head">
+                  <button
+                    type="button"
+                    class="flex min-w-0 flex-1 items-center gap-2 text-left"
+                    :aria-expanded="openSetKey === set.key"
+                    @click="openSetKey = openSetKey === set.key ? null : set.key"
+                  >
+                    <svg class="wiz-set-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span class="font-semibold text-(--color-text-strong)">Korting {{ setNumber(set) }}</span>
+                    <span class="truncate text-sm" :class="setDiscount(set) ? 'text-(--color-text-strong)' : 'text-(--color-primary)'">
+                      {{ setLabel(set) }}
+                    </span>
+                    <span class="ml-auto shrink-0 text-[0.8125rem]" :class="set.products.length ? 'text-(--color-text-muted)' : 'text-(--color-primary)'">
+                      {{ set.products.length }} product{{ set.products.length !== 1 ? "en" : "" }}
+                    </span>
+                  </button>
+                  <button
+                    v-if="sets.length > 1"
+                    type="button"
+                    class="adm-row-btn shrink-0"
+                    title="Korting verwijderen"
+                    :aria-label="`Korting ${setNumber(set)} verwijderen`"
+                    @click="removeSet(set)"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div v-if="openSetKey === set.key" class="flex flex-col gap-4 px-4 pt-1 pb-4">
+                  <div>
+                    <span class="adm-label">Snel kiezen</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="preset in PRESETS"
+                        :key="preset.label"
+                        type="button"
+                        class="wiz-preset"
+                        @click="applyPreset(set.form, preset)"
+                      >
+                        {{ preset.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <fieldset>
+                    <legend class="adm-label">Soort korting</legend>
+                    <div class="grid gap-2 sm:grid-cols-3">
+                      <label
+                        v-for="type in PROMOTION_TYPES"
+                        :key="type"
+                        class="wiz-option"
+                        :class="{ 'wiz-option--active': set.form.type === type }"
+                      >
+                        <input v-model="set.form.type" type="radio" :name="`promotion-type-${set.key}`" :value="type" class="adm-check">
+                        {{ PROMOTION_TYPE_LABELS[type] }}
+                      </label>
+                    </div>
+                  </fieldset>
+
+                  <div v-if="set.form.type === 'percentage'" class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                      <span class="adm-label">Korting (%)</span>
+                      <input v-model.number="set.form.percentage" type="number" min="0.01" max="99.99" step="0.01" required class="adm-input w-full">
+                    </label>
+                    <label class="block">
+                      <span class="adm-label">Vanaf aantal stuks</span>
+                      <input v-model.number="set.form.minQuantity" type="number" min="1" max="999" step="1" required class="adm-input w-full">
+                    </label>
+                  </div>
+
+                  <div v-else-if="set.form.type === 'free_items'" class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                      <span class="adm-label">Aantal kopen</span>
+                      <input v-model.number="set.form.buyQuantity" type="number" min="1" max="999" step="1" required class="adm-input w-full">
+                    </label>
+                    <label class="block">
+                      <span class="adm-label">Aantal gratis</span>
+                      <input v-model.number="set.form.freeQuantity" type="number" min="1" max="999" step="1" required class="adm-input w-full">
+                    </label>
+                  </div>
+
+                  <div v-else class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                      <span class="adm-label">Promoprijs per stuk (€)</span>
+                      <input v-model.number="set.form.price" type="number" min="0.01" step="0.01" required class="adm-input w-full">
+                    </label>
+                    <label class="block">
+                      <span class="adm-label">Vanaf aantal stuks</span>
+                      <input v-model.number="set.form.minQuantity" type="number" min="1" max="999" step="1" required class="adm-input w-full">
+                    </label>
+                  </div>
+
+                  <div>
+                    <span class="adm-label">Producten met deze korting</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span v-for="p in set.products" :key="p.id" class="wiz-chip">
+                        <span class="max-w-56 truncate">{{ p.name }}</span>
+                        <button type="button" :aria-label="`${p.name} verwijderen`" @click="removeProduct(set, p.id)">×</button>
+                      </span>
+                      <button type="button" class="adm-btn adm-btn--secondary adm-btn--sm" @click="startPicking(set)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                        </svg>
+                        {{ set.products.length ? "Producten wijzigen" : "Producten kiezen" }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                v-if="!editing"
+                type="button"
+                class="adm-btn adm-btn--secondary self-start"
+                @click="addSet"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                </svg>
+                Nog een korting toevoegen
+              </button>
+            </template>
             </div>
 
-            <!-- Samenvatting: altijd zichtbaar naast de stappen 2-4 -->
+            <!-- Samenvatting: altijd zichtbaar naast de stappen -->
             <aside
               class="border-t border-(--color-border) bg-(--color-surface-2) px-5 py-5 sm:px-6 lg:overflow-y-auto lg:border-t-0 lg:border-l"
               aria-label="Samenvatting"
             >
               <h4 class="mb-4 text-sm font-semibold text-(--color-text-strong)">Samenvatting</h4>
               <dl class="adm-dl">
-                <div>
-                  <dt>Product{{ selectedProducts.length !== 1 ? `en (${selectedProducts.length})` : "" }}</dt>
-                  <dd>
-                    <ul class="space-y-0.5">
-                      <li v-for="p in selectedProducts.slice(0, SUMMARY_PRODUCTS)" :key="p.id" class="truncate" :title="p.name">
-                        {{ p.name }}
-                      </li>
-                    </ul>
-                    <button
-                      v-if="selectedProducts.length > SUMMARY_PRODUCTS"
-                      type="button"
-                      class="mt-0.5 text-[0.8125rem] font-semibold text-(--color-accent) hover:underline"
-                      @click="step = 0"
-                    >
-                      + {{ selectedProducts.length - SUMMARY_PRODUCTS }} meer
-                    </button>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Korting</dt>
-                  <dd>{{ step >= 1 && discountValid ? promotionLabel(normalizedDiscount) : "—" }}</dd>
+                <div v-if="!editing">
+                  <dt>Naam</dt>
+                  <dd v-if="groupName.trim()">{{ groupName.trim() }}</dd>
+                  <dd v-else class="text-(--color-text-muted)">Nog in te vullen</dd>
                 </div>
                 <div>
                   <dt>Periode</dt>
-                  <dd v-if="step >= 2 && periodValid">
+                  <dd v-if="periodValid">
                     {{ formatDate(startsOn) }} – {{ formatDate(endsOn) }}
                     <span class="block text-[0.8125rem] text-(--color-text-muted)">
                       {{ periodDays }} dag{{ periodDays !== 1 ? "en" : "" }}
@@ -519,12 +549,24 @@
                 </div>
                 <div>
                   <dt>Klanten</dt>
-                  <dd v-if="step >= 3">
+                  <dd v-if="step >= 1">
                     {{
                       allCustomers
                         ? "Alle klanten"
                         : `${selectedCustomers.length} klant${selectedCustomers.length !== 1 ? "en" : ""}`
                     }}
+                  </dd>
+                  <dd v-else class="text-(--color-text-muted)">Nog in te vullen</dd>
+                </div>
+                <div>
+                  <dt>Kortingen ({{ allProducts.length }} product{{ allProducts.length !== 1 ? "en" : "" }})</dt>
+                  <dd v-if="step >= 2">
+                    <ul class="space-y-0.5">
+                      <li v-for="set in sets" :key="set.key" class="truncate">
+                        {{ setLabel(set) }}
+                        <span class="text-(--color-text-muted)">· {{ set.products.length }}</span>
+                      </li>
+                    </ul>
                   </dd>
                   <dd v-else class="text-(--color-text-muted)">Nog in te vullen</dd>
                 </div>
@@ -534,16 +576,25 @@
 
           <p v-if="error" class="adm-notice adm-notice--error mx-5 mt-3 mb-0! sm:mx-6" role="alert">{{ error }}</p>
 
-          <div class="flex items-center gap-2 border-t border-(--color-border) bg-(--color-surface-2) px-5 py-3.5 sm:px-6">
+          <!-- Producten kiezen: terug naar de kortingen -->
+          <div
+            v-if="pickingSet"
+            class="flex items-center gap-2 border-t border-(--color-border) bg-(--color-surface-2) px-5 py-3.5 sm:px-6"
+          >
+            <span class="text-sm text-(--color-text-muted)">
+              {{ selectedProducts.length }} product{{ selectedProducts.length !== 1 ? "en" : "" }} gekozen
+            </span>
+            <button type="submit" class="adm-btn adm-btn--primary ml-auto">Klaar</button>
+          </div>
+
+          <div v-else class="flex items-center gap-2 border-t border-(--color-border) bg-(--color-surface-2) px-5 py-3.5 sm:px-6">
             <button v-if="step > 0" type="button" class="adm-btn adm-btn--secondary" @click="step--">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
               Vorige
             </button>
-            <span v-if="step === 0" class="text-sm text-(--color-text-muted)">
-              {{ selectedProducts.length }} product{{ selectedProducts.length !== 1 ? "en" : "" }} gekozen
-            </span>
+            <span v-if="stepHint" class="text-sm text-(--color-text-muted)">{{ stepHint }}</span>
             <button type="button" class="adm-btn adm-btn--ghost ml-auto" @click="close">Annuleren</button>
             <button type="submit" :disabled="saving || !stepValid[step]" class="adm-btn adm-btn--primary">
               {{ step < STEPS.length - 1 ? "Volgende" : saving ? "Opslaan…" : "Opslaan" }}
@@ -574,9 +625,11 @@ import {
 } from "#shared/promotion";
 
 /**
- * Wizard voor een nieuwe of bestaande promotie: product → korting → periode
- * → klanten. Bij een nieuwe promotie mag je meerdere producten kiezen (één
- * promotie per product); bij bewerken precies één.
+ * Wizard voor een promotie (groep): naam + periode → klanten → kortingen.
+ * Een groep heeft één naam, periode en klantenlijst, en een of meer
+ * kortingsregels: één korting voor een verzameling producten (bv. een folder
+ * met "3+1 gratis" op kazen en "10%" op salami's). Elk product komt in één
+ * regel. Oude promoties zonder groep zijn als losse promotie te bewerken.
  */
 export interface PromotionWizardProduct {
   id: string;
@@ -592,10 +645,26 @@ export interface PromotionWizardCustomer {
   name: string;
 }
 
-export interface PromotionWizardInitial extends PromotionDiscount {
-  /** Ontbreekt bij dupliceren: dan wordt het een nieuwe promotie. */
-  id?: string;
+export interface PromotionWizardGroup {
+  id: string;
+  name: string;
+}
+
+export interface PromotionWizardItem {
   product: PromotionWizardProduct;
+  discount: PromotionDiscount;
+}
+
+export interface PromotionWizardInitial {
+  /** Eén losse promotie bewerken (zonder groep). */
+  id?: string;
+  /** Een groep bewerken; ontbreekt bij een nieuwe promotie of bij dupliceren. */
+  groupId?: string;
+  groupName: string;
+  /** Producten met elk hun korting; gelijke kortingen worden één regel. */
+  items: PromotionWizardItem[];
+  /** De regel met dit product staat open; de wizard begint dan bij de kortingen. */
+  focusProductId?: string;
   startsOn: string;
   endsOn: string;
   allCustomers: boolean;
@@ -613,18 +682,16 @@ const emit = defineEmits<{
   saved: [message: string];
 }>();
 
-const STEPS = ["Product", "Korting", "Periode", "Klanten"];
-
-/** Zoveel productnamen in de samenvatting, de rest als "+ N meer". */
-const SUMMARY_PRODUCTS = 5;
+const STEPS = ["Naam & periode", "Klanten", "Kortingen"];
 
 const STEP_HINTS = computed(() => [
-  editing.value
-    ? "Kies het product voor deze promotie."
-    : "Kies een of meer producten; elk krijgt een eigen promotie met dezelfde instellingen.",
-  "Welke korting krijgt de klant?",
-  "Wanneer loopt de promotie?",
-  "Wie heeft recht op de promotie?",
+  editing.value ? "Wanneer loopt de promotie?" : "Hoe heet de promotie en wanneer loopt ze?",
+  "Wie heeft recht op de promotie? Geldt voor alle producten.",
+  pickingSet.value
+    ? "Kies de producten die deze korting krijgen."
+    : editing.value
+      ? "Welke korting krijgt het product?"
+      : "Voeg een of meer kortingen toe, elk met de producten die ze krijgen.",
 ]);
 
 const STATUS_BADGE: Record<PromotionStatus, string> = {
@@ -655,13 +722,137 @@ const PRESETS: Preset[] = [
   { label: "3+1 gratis", type: "free_items", buyQuantity: 3, freeQuantity: 1 },
 ];
 
+/** Eén losse promotie (zonder groep) bewerken: precies één product, geen naam. */
 const editing = computed(() => Boolean(props.initial?.id));
+/** Een bestaande groep bewerken: alles wordt in één keer vervangen. */
+const editingGroup = computed(() => Boolean(props.initial?.groupId));
 
 const step = ref(0);
 const saving = ref(false);
 const error = ref("");
 
-// --- Stap 1: product ------------------------------------------------------
+const groupName = ref("");
+const groupNameInput = ref<HTMLInputElement | null>(null);
+
+// --- Kortingsregels -------------------------------------------------------
+
+/** Formulierwaarden van één korting; "" = leeg veld. */
+interface DiscountForm {
+  type: PromotionType;
+  percentage: number | "";
+  minQuantity: number | "";
+  buyQuantity: number | "";
+  freeQuantity: number | "";
+  price: number | "";
+}
+
+/** Eén korting voor een verzameling producten. */
+interface DiscountSet {
+  key: number;
+  form: DiscountForm;
+  products: PromotionWizardProduct[];
+}
+
+function discountForm(d?: PromotionDiscount | DiscountForm): DiscountForm {
+  return {
+    type: d?.type ?? "percentage",
+    percentage: d?.percentage ?? 10,
+    minQuantity: d?.minQuantity ?? 1,
+    buyQuantity: d?.buyQuantity ?? 3,
+    freeQuantity: d?.freeQuantity ?? 1,
+    price: d?.price ?? "",
+  };
+}
+
+function parseDiscount(form: DiscountForm) {
+  return promotionDiscountSchema.safeParse({
+    type: form.type,
+    percentage: form.percentage === "" ? undefined : form.percentage,
+    minQuantity: form.minQuantity === "" ? undefined : form.minQuantity,
+    buyQuantity: form.buyQuantity === "" ? undefined : form.buyQuantity,
+    freeQuantity: form.freeQuantity === "" ? undefined : form.freeQuantity,
+    price: form.price === "" ? undefined : form.price,
+  });
+}
+
+const sets = ref<DiscountSet[]>([]);
+let lastSetKey = 0;
+/** De regel die openstaat om te bewerken. */
+const openSetKey = ref<number | null>(null);
+/** De regel waarvoor de producttabel openstaat. */
+const pickingSetKey = ref<number | null>(null);
+const pickingSet = computed(() => sets.value.find((s) => s.key === pickingSetKey.value) ?? null);
+
+function newSet(form = discountForm(), products: PromotionWizardProduct[] = []): DiscountSet {
+  return { key: ++lastSetKey, form, products };
+}
+
+function addSet() {
+  const set = newSet();
+  sets.value.push(set);
+  openSetKey.value = set.key;
+}
+
+function removeSet(set: DiscountSet) {
+  if (set.products.length > 0 && !window.confirm(`Korting ${setNumber(set)} met ${set.products.length} product(en) verwijderen?`)) {
+    return;
+  }
+  sets.value = sets.value.filter((s) => s.key !== set.key);
+}
+
+function setNumber(set: DiscountSet) {
+  return sets.value.indexOf(set) + 1;
+}
+
+function setDiscount(set: DiscountSet): PromotionDiscount | null {
+  const parsed = parseDiscount(set.form);
+  return parsed.success ? normalizeDiscount(parsed.data) : null;
+}
+
+function setLabel(set: DiscountSet) {
+  const d = setDiscount(set);
+  return d ? promotionLabel(d) : "Korting onvolledig";
+}
+
+function applyPreset(form: DiscountForm, preset: Preset) {
+  form.type = preset.type;
+  if (preset.percentage !== undefined) form.percentage = preset.percentage;
+  if (preset.minQuantity !== undefined) form.minQuantity = preset.minQuantity;
+  if (preset.buyQuantity !== undefined) form.buyQuantity = preset.buyQuantity;
+  if (preset.freeQuantity !== undefined) form.freeQuantity = preset.freeQuantity;
+}
+
+function removeProduct(set: DiscountSet, productId: string) {
+  set.products = set.products.filter((p) => p.id !== productId);
+}
+
+const allProducts = computed(() => sets.value.flatMap((s) => s.products));
+
+/** De andere regel waar dit product al in zit (een product krijgt één korting). */
+function otherSetOf(productId: string) {
+  return sets.value.find(
+    (s) => s.key !== pickingSetKey.value && s.products.some((p) => p.id === productId),
+  );
+}
+
+function startPicking(set: DiscountSet) {
+  pickingSetKey.value = set.key;
+  void loadProducts();
+  nextTick(() => productSearchInput.value?.focus());
+}
+
+/**
+ * Wat er in de producttabel aangevinkt is: de producten van de regel
+ * waarvoor de tabel openstaat.
+ */
+const selectedProducts = computed<PromotionWizardProduct[]>({
+  get: () => pickingSet.value?.products ?? [],
+  set: (list) => {
+    if (pickingSet.value) pickingSet.value.products = list;
+  },
+});
+
+// --- Producttabel ---------------------------------------------------------
 
 interface ProductResult extends PromotionWizardProduct {
   supplier: string;
@@ -671,7 +862,6 @@ interface ProductResult extends PromotionWizardProduct {
 
 const PRODUCT_PAGE_SIZE = 25;
 
-const selectedProducts = ref<PromotionWizardProduct[]>([]);
 const productSearch = ref("");
 const debouncedProductSearch = useDebounced(productSearch);
 const productSearchInput = ref<HTMLInputElement | null>(null);
@@ -771,7 +961,8 @@ async function loadFilterOptions() {
 
 const allOnPageSelected = computed(
   () =>
-    productResults.value.length > 0 && productResults.value.every((p) => isProductSelected(p.id)),
+    productResults.value.length > 0 &&
+    productResults.value.every((p) => isProductSelected(p.id) || otherSetOf(p.id)),
 );
 
 function toggleAllOnPage() {
@@ -788,6 +979,7 @@ function isProductSelected(id: string) {
 }
 
 function toggleProduct(p: PromotionWizardProduct) {
+  if (otherSetOf(p.id)) return;
   const product = { id: p.id, articleNr: p.articleNr, name: p.name, unit: p.unit, price: p.price };
   if (editing.value) {
     selectedProducts.value = [product];
@@ -800,14 +992,14 @@ function toggleProduct(p: PromotionWizardProduct) {
 
 /**
  * Enter in het zoekveld: eerste treffer aanvinken en het zoekveld leegmaken,
- * zodat je meteen het volgende product kunt zoeken. Leeg veld + Enter = verder.
+ * zodat je meteen het volgende product kunt zoeken. Leeg veld + Enter = klaar.
  */
 function pickFirstProduct() {
-  const first = productResults.value.find((p) => !isProductSelected(p.id));
+  const first = productResults.value.find((p) => !isProductSelected(p.id) && !otherSetOf(p.id));
   if (productSearch.value.trim() && first) {
     toggleProduct(first);
     if (!editing.value) productSearch.value = "";
-  } else if (stepValid.value[0]) {
+  } else if (!productSearch.value.trim()) {
     next();
   }
 }
@@ -818,43 +1010,7 @@ function selectAllProductResults() {
   }
 }
 
-// --- Stap 2: korting ------------------------------------------------------
-
-const discount = reactive({
-  type: "percentage" as PromotionType,
-  percentage: 10 as number | "",
-  minQuantity: 1 as number | "",
-  buyQuantity: 3 as number | "",
-  freeQuantity: 1 as number | "",
-  price: "" as number | "",
-});
-
-function applyPreset(preset: Preset) {
-  discount.type = preset.type;
-  if (preset.percentage !== undefined) discount.percentage = preset.percentage;
-  if (preset.minQuantity !== undefined) discount.minQuantity = preset.minQuantity;
-  if (preset.buyQuantity !== undefined) discount.buyQuantity = preset.buyQuantity;
-  if (preset.freeQuantity !== undefined) discount.freeQuantity = preset.freeQuantity;
-}
-
-const parsedDiscount = computed(() =>
-  promotionDiscountSchema.safeParse({
-    type: discount.type,
-    percentage: discount.percentage === "" ? undefined : discount.percentage,
-    minQuantity: discount.minQuantity === "" ? undefined : discount.minQuantity,
-    buyQuantity: discount.buyQuantity === "" ? undefined : discount.buyQuantity,
-    freeQuantity: discount.freeQuantity === "" ? undefined : discount.freeQuantity,
-    price: discount.price === "" ? undefined : discount.price,
-  }),
-);
-const discountValid = computed(() => parsedDiscount.value.success);
-const normalizedDiscount = computed<PromotionDiscount>(() =>
-  parsedDiscount.value.success
-    ? normalizeDiscount(parsedDiscount.value.data)
-    : { type: "percentage", percentage: 0, minQuantity: 1, buyQuantity: null, freeQuantity: null, price: null },
-);
-
-// --- Stap 3: periode ------------------------------------------------------
+// --- Periode ---------------------------------------------------------------
 
 const startsOn = ref("");
 const endsOn = ref("");
@@ -906,7 +1062,7 @@ const periodDays = computed(() =>
     : 0,
 );
 
-// --- Stap 4: klanten ------------------------------------------------------
+// --- Klanten ---------------------------------------------------------------
 
 const allCustomers = ref(true);
 const selectedCustomers = ref<PromotionWizardCustomer[]>([]);
@@ -972,12 +1128,34 @@ watch(allCustomers, (all) => {
 
 // --- Navigatie + opslaan --------------------------------------------------
 
+const setsValid = computed(
+  () =>
+    sets.value.length > 0 &&
+    sets.value.every((s) => s.products.length > 0 && setDiscount(s) !== null),
+);
+
 const stepValid = computed(() => [
-  selectedProducts.value.length > 0,
-  discountValid.value,
-  periodValid.value,
+  (editing.value || Boolean(groupName.value.trim())) && periodValid.value,
   allCustomers.value || selectedCustomers.value.length > 0,
+  setsValid.value,
 ]);
+
+/** Waarom "Volgende"/"Opslaan" nog niet kan. */
+const stepHint = computed(() => {
+  if (step.value === 0) {
+    if (!editing.value && !groupName.value.trim()) return "Geef de promotie een naam.";
+    if (!periodValid.value) return "Kies een periode.";
+  }
+  if (step.value === 1 && !stepValid.value[1]) return "Kies minstens één klant.";
+  if (step.value === 2) {
+    const empty = sets.value.find((s) => s.products.length === 0);
+    if (empty) return `Korting ${setNumber(empty)} heeft nog geen producten.`;
+    const invalid = sets.value.find((s) => setDiscount(s) === null);
+    if (invalid) return `Korting ${setNumber(invalid)} is nog onvolledig.`;
+    return `${allProducts.value.length} product${allProducts.value.length !== 1 ? "en" : ""} in ${sets.value.length} korting${sets.value.length !== 1 ? "en" : ""}`;
+  }
+  return "";
+});
 
 /** Een stap is bereikbaar als alle stappen ervoor in orde zijn. */
 function canVisit(i: number) {
@@ -985,6 +1163,11 @@ function canVisit(i: number) {
 }
 
 function next() {
+  // Enter of "Klaar" in de producttabel: terug naar de kortingen.
+  if (pickingSet.value) {
+    pickingSetKey.value = null;
+    return;
+  }
   if (!stepValid.value[step.value]) return;
   error.value = "";
   if (step.value < STEPS.length - 1) step.value++;
@@ -992,16 +1175,22 @@ function next() {
 }
 
 watch(step, (s) => {
-  if (s === 0) nextTick(() => productSearchInput.value?.focus());
-  if (s === 3 && !allCustomers.value) nextTick(() => customerSearchInput.value?.focus());
+  pickingSetKey.value = null;
+  if (s === 0) nextTick(() => groupNameInput.value?.focus());
+  if (s === 1 && !allCustomers.value) nextTick(() => customerSearchInput.value?.focus());
 });
 
 async function save() {
-  if (saving.value || !parsedDiscount.value.success) return;
+  if (saving.value || !setsValid.value) return;
+  const items = sets.value.flatMap((set) => {
+    const parsed = parseDiscount(set.form);
+    return parsed.success
+      ? set.products.map((p) => ({ productId: p.id, discount: parsed.data }))
+      : [];
+  });
   saving.value = true;
   error.value = "";
-  const fields = {
-    discount: parsedDiscount.value.data,
+  const period = {
     startsOn: startsOn.value,
     endsOn: endsOn.value,
     customerIds: allCustomers.value ? null : selectedCustomers.value.map((c) => c.id),
@@ -1010,16 +1199,21 @@ async function save() {
     if (props.initial?.id) {
       await $fetch(`/api/admin/promotions/${props.initial.id}`, {
         method: "PATCH",
-        body: { ...fields, productId: selectedProducts.value[0]!.id },
+        body: { ...period, productId: items[0]!.productId, discount: items[0]!.discount },
       });
       emit("saved", "Promotie bijgewerkt.");
-    } else {
-      const result = await $fetch<{ ids: string[] }>("/api/admin/promotions", {
-        method: "POST",
-        body: { ...fields, productIds: selectedProducts.value.map((p) => p.id) },
+    } else if (props.initial?.groupId) {
+      await $fetch(`/api/admin/promotion-groups/${props.initial.groupId}`, {
+        method: "PUT",
+        body: { ...period, name: groupName.value.trim(), items },
       });
-      const n = result.ids.length;
-      emit("saved", `${n} promotie${n !== 1 ? "s" : ""} aangemaakt.`);
+      emit("saved", `Promotie “${groupName.value.trim()}” bijgewerkt.`);
+    } else {
+      await $fetch("/api/admin/promotions", {
+        method: "POST",
+        body: { ...period, groupName: groupName.value.trim(), items },
+      });
+      emit("saved", `Promotie “${groupName.value.trim()}” aangemaakt met ${items.length} product${items.length !== 1 ? "en" : ""}.`);
     }
   } catch (err) {
     const message = (err as { data?: { statusMessage?: string } }).data?.statusMessage;
@@ -1031,6 +1225,21 @@ async function save() {
 
 function close() {
   if (!saving.value) emit("close");
+}
+
+/**
+ * Producten met dezelfde korting samenvoegen tot één regel, in de volgorde
+ * waarin ze binnenkomen.
+ */
+function setsFromItems(items: PromotionWizardItem[]) {
+  const byDiscount = new Map<string, DiscountSet>();
+  for (const item of items) {
+    const key = JSON.stringify(normalizeDiscount(promotionDiscountSchema.parse(item.discount)));
+    const set = byDiscount.get(key) ?? newSet(discountForm(item.discount));
+    set.products.push(item.product);
+    byDiscount.set(key, set);
+  }
+  return [...byDiscount.values()];
 }
 
 /** Bij elke opening de wizard vullen vanuit `initial`, of leegmaken. */
@@ -1050,24 +1259,23 @@ watch(
     productPage.value = 1;
     customerSearch.value = "";
     debouncedCustomerSearch.value = "";
-    selectedProducts.value = init ? [init.product] : [];
-    discount.type = init?.type ?? "percentage";
-    discount.percentage = init?.percentage ?? 10;
-    discount.minQuantity = init?.minQuantity ?? 1;
-    discount.buyQuantity = init?.buyQuantity ?? 3;
-    discount.freeQuantity = init?.freeQuantity ?? 1;
-    discount.price = init?.price ?? "";
+    groupName.value = init?.groupName ?? "";
+    sets.value = init && init.items.length > 0 ? setsFromItems(init.items) : [newSet()];
+    pickingSetKey.value = null;
+    const focusSet = init?.focusProductId
+      ? sets.value.find((s) => s.products.some((p) => p.id === init.focusProductId))
+      : undefined;
+    openSetKey.value = (focusSet ?? sets.value[0])?.key ?? null;
     const week = quickRanges.value[0]!;
     startsOn.value = init?.startsOn ?? week.start;
     endsOn.value = init?.endsOn ?? week.end;
     allCustomers.value = init?.allCustomers ?? true;
     selectedCustomers.value = init ? [...init.customers] : [];
-    // Bewerken/dupliceren: product staat al klaar, meteen naar de korting.
-    step.value = init ? 1 : 0;
-    void loadProducts();
+    // Een product aangeklikt in de lijst: meteen naar zijn korting.
+    step.value = focusSet ? 2 : 0;
     void loadFilterOptions();
     if (!allCustomers.value) void loadCustomers();
-    if (!init) nextTick(() => productSearchInput.value?.focus());
+    if (step.value === 0) nextTick(() => groupNameInput.value?.focus());
   },
 );
 
@@ -1208,6 +1416,33 @@ function formatDate(iso: string) {
   background: rgb(184 37 42 / 0.06);
   color: var(--color-text-strong);
   font-weight: 600;
+}
+
+/* Kortingsregel: één korting + haar producten */
+.wiz-set {
+  flex: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+}
+.wiz-set--open {
+  border-color: var(--color-primary);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+.wiz-set-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+}
+.wiz-set-chevron {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+.wiz-set--open .wiz-set-chevron {
+  transform: rotate(90deg);
 }
 
 /* Gekozen product of klant */

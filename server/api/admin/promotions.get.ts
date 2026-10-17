@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, exists, gt, gte, ilike, inArray, lt, lte, or, sql as raw } from "drizzle-orm";
+import { and, asc, desc, eq, exists, gt, gte, ilike, inArray, lt, lte, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { isoDateSchema, promotionStatus, todayInBrussels } from "#shared/promotion";
 import { db } from "~~/server/database/client";
@@ -6,6 +6,7 @@ import {
   categories,
   customers,
   promotionCustomers,
+  promotionGroups,
   promotions,
   products,
 } from "~~/server/database/schema";
@@ -13,8 +14,11 @@ import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/promotions — promoties met product, korting, periode en
- * de klanten die er recht op hebben. Filters:
- * - `search`: productnaam/artikelnr of naam/nummer van een gekoppelde klant;
+ * de klanten die er recht op hebben, per lijn (`entries`): een groep met al
+ * haar promoties, of één promotie zonder groep. De paginering telt lijnen.
+ * Filters (gelden per promotie; een groep toont enkel wat overblijft):
+ * - `search`: groepsnaam, productnaam/artikelnr of naam/nummer van een
+ *   gekoppelde klant;
  * - `status`: gepland, actief of verlopen t.o.v. vandaag (Belgische tijd);
  * - `from`/`to`: promoties waarvan de periode deze dagen overlapt;
  * - `category` (slug) en `supplier`: van het product.
@@ -53,6 +57,7 @@ export default defineEventHandler(async (event) => {
     supplier ? eq(products.supplier, supplier) : undefined,
     like
       ? or(
+          ilike(promotionGroups.name, like),
           ilike(products.name, like),
           ilike(products.articleNr, like),
           exists(
@@ -73,55 +78,90 @@ export default defineEventHandler(async (event) => {
 
   const where = and(...filters);
 
-  const [rows, [total], [summary]] = await Promise.all([
+  // Eén lijn per groep, of per promotie zonder groep.
+  const entryKey = raw<string>`coalesce(${promotions.groupId}, ${promotions.id})`;
+
+  const perEntry = db
+    .select({
+      active: raw<number>`count(*) filter (where ${promotions.startsOn} <= ${today} and ${promotions.endsOn} >= ${today})`.as("active"),
+      scheduled: raw<number>`count(*) filter (where ${promotions.startsOn} > ${today})`.as("scheduled"),
+    })
+    .from(promotions)
+    .groupBy(entryKey)
+    .as("per_entry");
+
+  const [pageKeys, [total], [summary]] = await Promise.all([
     db
-      .select({
-        id: promotions.id,
-        type: promotions.type,
-        percentage: promotions.percentage,
-        minQuantity: promotions.minQuantity,
-        buyQuantity: promotions.buyQuantity,
-        freeQuantity: promotions.freeQuantity,
-        price: promotions.price,
-        startsOn: promotions.startsOn,
-        endsOn: promotions.endsOn,
-        allCustomers: promotions.allCustomers,
-        createdAt: promotions.createdAt,
-        product: {
-          id: products.id,
-          articleNr: products.articleNr,
-          name: products.name,
-          unit: products.unit,
-          price: products.price,
-          isActive: products.isActive,
-          supplier: products.supplier,
-          categoryName: categories.name,
-        },
-      })
+      .select({ key: entryKey })
       .from(promotions)
       .innerJoin(products, eq(products.id, promotions.productId))
       .innerJoin(categories, eq(categories.id, products.categoryId))
+      .leftJoin(promotionGroups, eq(promotionGroups.id, promotions.groupId))
       .where(where)
-      .orderBy(desc(promotions.startsOn), asc(products.name))
+      .groupBy(entryKey)
+      .orderBy(
+        desc(raw`max(${promotions.startsOn})`),
+        asc(raw`min(coalesce(${promotionGroups.name}, ${products.name}))`),
+      )
       .limit(perPage)
       .offset((page - 1) * perPage),
 
     db
-      .select({ value: count() })
+      .select({ value: raw<number>`count(distinct ${entryKey})::int` })
       .from(promotions)
       .innerJoin(products, eq(products.id, promotions.productId))
       .innerJoin(categories, eq(categories.id, products.categoryId))
+      .leftJoin(promotionGroups, eq(promotionGroups.id, promotions.groupId))
       .where(where),
 
-    // Tellers voor de statusknoppen, los van filters en paginering.
+    // Tellers voor de statusknoppen, per lijn (groep of losse promotie), los
+    // van filters en paginering. Een lijn is actief zodra één promotie loopt,
+    // anders gepland als er een moet starten, anders verlopen.
     db
       .select({
-        scheduled: raw<number>`count(*) filter (where ${promotions.startsOn} > ${today})::int`,
-        active: raw<number>`count(*) filter (where ${promotions.startsOn} <= ${today} and ${promotions.endsOn} >= ${today})::int`,
-        expired: raw<number>`count(*) filter (where ${promotions.endsOn} < ${today})::int`,
+        active: raw<number>`count(*) filter (where ${perEntry.active} > 0)::int`,
+        scheduled: raw<number>`count(*) filter (where ${perEntry.active} = 0 and ${perEntry.scheduled} > 0)::int`,
+        expired: raw<number>`count(*) filter (where ${perEntry.active} = 0 and ${perEntry.scheduled} = 0)::int`,
       })
-      .from(promotions),
+      .from(perEntry),
   ]);
+
+  const keys = pageKeys.map((k) => k.key);
+  const rows =
+    keys.length > 0
+      ? await db
+          .select({
+            id: promotions.id,
+            groupId: promotions.groupId,
+            groupName: promotionGroups.name,
+            type: promotions.type,
+            percentage: promotions.percentage,
+            minQuantity: promotions.minQuantity,
+            buyQuantity: promotions.buyQuantity,
+            freeQuantity: promotions.freeQuantity,
+            price: promotions.price,
+            startsOn: promotions.startsOn,
+            endsOn: promotions.endsOn,
+            allCustomers: promotions.allCustomers,
+            createdAt: promotions.createdAt,
+            product: {
+              id: products.id,
+              articleNr: products.articleNr,
+              name: products.name,
+              unit: products.unit,
+              price: products.price,
+              isActive: products.isActive,
+              supplier: products.supplier,
+              categoryName: categories.name,
+            },
+          })
+          .from(promotions)
+          .innerJoin(products, eq(products.id, promotions.productId))
+          .innerJoin(categories, eq(categories.id, products.categoryId))
+          .leftJoin(promotionGroups, eq(promotionGroups.id, promotions.groupId))
+          .where(and(where, inArray(entryKey, keys)))
+          .orderBy(desc(promotions.startsOn), asc(products.name))
+      : [];
 
   // Klanten van de promoties op deze pagina, in één query.
   const ids = rows.filter((r) => !r.allCustomers).map((r) => r.id);
@@ -147,18 +187,33 @@ export default defineEventHandler(async (event) => {
     customersByPromotion.set(promotionId, list);
   }
 
+  const items = rows.map(({ groupId, groupName, ...r }) => ({
+    ...r,
+    group: groupId ? { id: groupId, name: groupName ?? "" } : null,
+    percentage: r.percentage === null ? null : Number(r.percentage),
+    price: r.price === null ? null : Number(r.price),
+    product: {
+      ...r.product,
+      price: r.product.price === null ? null : Number(r.product.price),
+    },
+    status: promotionStatus(r.startsOn, r.endsOn, today),
+    customers: customersByPromotion.get(r.id) ?? [],
+  }));
+
+  // Promoties per lijn, in de volgorde van `pageKeys`.
+  const byKey = new Map<string, typeof items>();
+  for (const item of items) {
+    const key = item.group?.id ?? item.id;
+    const list = byKey.get(key) ?? [];
+    list.push(item);
+    byKey.set(key, list);
+  }
+
   return {
-    items: rows.map((r) => ({
-      ...r,
-      percentage: r.percentage === null ? null : Number(r.percentage),
-      price: r.price === null ? null : Number(r.price),
-      product: {
-        ...r.product,
-        price: r.product.price === null ? null : Number(r.product.price),
-      },
-      status: promotionStatus(r.startsOn, r.endsOn, today),
-      customers: customersByPromotion.get(r.id) ?? [],
-    })),
+    entries: keys.map((key) => {
+      const promos = byKey.get(key) ?? [];
+      return { key, group: promos[0]?.group ?? null, items: promos };
+    }),
     summary: summary ?? { scheduled: 0, active: 0, expired: 0 },
     pagination: {
       page,

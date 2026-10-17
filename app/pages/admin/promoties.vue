@@ -89,28 +89,75 @@
       </div>
 
       <!-- Lijst (mobiel) -->
-      <ul v-if="items.length > 0" class="adm-list sm:hidden">
-        <li v-for="p in items" :key="p.id" class="flex items-start gap-3 px-4 py-3">
-          <input
-            type="checkbox"
-            class="adm-check mt-1"
-            :checked="selected.has(p.id)"
-            aria-label="Promotie selecteren"
-            @change="toggleSelect(p.id)"
-          >
-          <button type="button" class="flex min-w-0 flex-1 flex-col gap-1 text-left" @click="openWizard(p)">
-            <span class="flex items-start justify-between gap-3">
-              <span class="min-w-0 font-semibold text-(--color-text-strong)">{{ p.product.name }}</span>
-              <span class="adm-badge" :class="STATUS_BADGE[p.status]">
-                {{ PROMOTION_STATUS_LABELS[p.status] }}
+      <ul v-if="entries.length > 0" class="adm-list sm:hidden">
+        <template v-for="entry in entries" :key="entry.key">
+          <li v-if="entry.group" class="promo-group-row flex items-start gap-3 px-4 py-3">
+            <input
+              type="checkbox"
+              class="adm-check mt-1"
+              :checked="groupSelection(entry) === 'all'"
+              :indeterminate="groupSelection(entry) === 'some'"
+              aria-label="Alle promoties van deze groep selecteren"
+              @change="toggleGroupSelect(entry)"
+            >
+            <button
+              type="button"
+              class="flex min-w-0 flex-1 flex-col gap-1 text-left"
+              :aria-expanded="isGroupOpen(entry)"
+              @click="toggleGroup(entry)"
+            >
+              <span class="flex items-start justify-between gap-3">
+                <span class="flex min-w-0 items-center gap-1.5 font-semibold text-(--color-text-strong)">
+                  <svg class="promo-chevron" :class="{ 'promo-chevron--open': isGroupOpen(entry) }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span class="truncate">{{ entry.group.name }}</span>
+                </span>
+                <span class="adm-badge" :class="STATUS_BADGE[groupStatus(entry)]">
+                  {{ PROMOTION_STATUS_LABELS[groupStatus(entry)] }}
+                </span>
               </span>
-            </span>
-            <span class="text-sm text-(--color-text-strong)">{{ promotionLabel(p) }}</span>
-            <span class="text-sm text-(--color-text-muted)">
-              {{ formatDate(p.startsOn) }} – {{ formatDate(p.endsOn) }} · {{ audienceSummary(p) }}
-            </span>
-          </button>
-        </li>
+              <span class="text-sm text-(--color-text-strong)">
+                {{ productCount(entry) }} · {{ groupDiscount(entry) }}
+              </span>
+              <span class="text-sm text-(--color-text-muted)">
+                {{ groupPeriod(entry) }} · {{ groupAudience(entry) }}
+              </span>
+            </button>
+          </li>
+          <template v-for="part in visibleParts(entry)" :key="part.key">
+          <li v-if="part.label" class="promo-part promo-child">
+            {{ part.label }} · {{ part.items.length }} product{{ part.items.length !== 1 ? "en" : "" }}
+          </li>
+          <li
+            v-for="p in part.items"
+            :key="p.id"
+            class="flex items-start gap-3 px-4 py-3"
+            :class="{ 'promo-child': entry.group }"
+          >
+            <input
+              type="checkbox"
+              class="adm-check mt-1"
+              :checked="selected.has(p.id)"
+              aria-label="Promotie selecteren"
+              @change="toggleSelect(p.id)"
+            >
+            <button type="button" class="flex min-w-0 flex-1 flex-col gap-1 text-left" @click="openWizard(p)">
+              <span class="flex items-start justify-between gap-3">
+                <span class="min-w-0 font-semibold text-(--color-text-strong)">{{ p.product.name }}</span>
+                <span v-if="!entry.group" class="adm-badge" :class="STATUS_BADGE[p.status]">
+                  {{ PROMOTION_STATUS_LABELS[p.status] }}
+                </span>
+              </span>
+              <span class="text-sm text-(--color-text-strong)">{{ promotionLabel(p) }}</span>
+              <!-- In een groep staan periode en klanten al op de groepslijn. -->
+              <span v-if="!entry.group" class="text-sm text-(--color-text-muted)">
+                {{ formatDate(p.startsOn) }} – {{ formatDate(p.endsOn) }} · {{ audienceSummary(p) }}
+              </span>
+            </button>
+          </li>
+          </template>
+        </template>
       </ul>
       <p v-else class="adm-card-empty sm:hidden">{{ emptyText }}</p>
 
@@ -138,8 +185,82 @@
             </tr>
           </thead>
           <tbody>
+            <template v-for="entry in entries" :key="entry.key">
+            <tr v-if="entry.group" class="promo-group-row align-top">
+              <td class="adm-col-check">
+                <input
+                  type="checkbox"
+                  class="adm-check"
+                  :checked="groupSelection(entry) === 'all'"
+                  :indeterminate="groupSelection(entry) === 'some'"
+                  aria-label="Alle promoties van deze groep selecteren"
+                  @change="toggleGroupSelect(entry)"
+                >
+              </td>
+              <td class="w-full max-w-0">
+                <button
+                  type="button"
+                  class="flex max-w-full items-center gap-1.5 text-left font-semibold text-(--color-text-strong) hover:text-(--color-accent)"
+                  :aria-expanded="isGroupOpen(entry)"
+                  :title="entry.group.name"
+                  @click="toggleGroup(entry)"
+                >
+                  <svg class="promo-chevron" :class="{ 'promo-chevron--open': isGroupOpen(entry) }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span class="truncate">{{ entry.group.name }}</span>
+                </button>
+                <p class="truncate pl-5.5 text-[0.8125rem] text-(--color-text-muted)">
+                  {{ productCount(entry) }}
+                </p>
+              </td>
+              <td class="hidden sm:table-cell" />
+              <td class="whitespace-nowrap font-medium text-(--color-text-strong)">{{ groupDiscount(entry) }}</td>
+              <td class="whitespace-nowrap">{{ groupPeriod(entry) }}</td>
+              <td>
+                <span class="adm-badge" :class="STATUS_BADGE[groupStatus(entry)]">
+                  {{ PROMOTION_STATUS_LABELS[groupStatus(entry)] }}
+                </span>
+              </td>
+              <td class="hidden min-w-48 text-(--color-text-muted) lg:table-cell">{{ groupAudience(entry) }}</td>
+              <td class="adm-col-actions">
+                <button
+                  type="button"
+                  title="Bewerken"
+                  :aria-label="`${entry.group.name} bewerken`"
+                  class="adm-row-btn"
+                  @click="openGroupWizard(entry)"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  title="Dupliceren"
+                  :aria-label="`${entry.group.name} dupliceren`"
+                  class="adm-row-btn"
+                  @click="openGroupWizard(entry, true)"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            <template v-for="part in visibleParts(entry)" :key="part.key">
+            <tr v-if="part.label" class="promo-part-row">
+              <td />
+              <td colspan="7" class="promo-child-cell">
+                <span class="promo-part">
+                  {{ part.label }} · {{ part.items.length }} product{{ part.items.length !== 1 ? "en" : "" }}
+                </span>
+              </td>
+            </tr>
             <tr
-              v-for="p in items"
+              v-for="p in part.items"
               :key="p.id"
               :aria-selected="selected.has(p.id)"
               class="align-top"
@@ -154,7 +275,7 @@
                 >
               </td>
               <!-- max-w-0 + w-full: neemt de restbreedte en kapt af i.p.v. de tabel te verbreden -->
-              <td class="w-full max-w-0">
+              <td class="w-full max-w-0" :class="{ 'promo-child-cell': entry.group }">
                 <NuxtLink
                   :to="`/admin/producten/${p.product.id}`"
                   :title="p.product.name"
@@ -172,19 +293,23 @@
               <td class="whitespace-nowrap font-medium text-(--color-text-strong)">
                 {{ promotionLabel(p) }}
               </td>
+              <!-- In een groep staan periode, status en klanten al op de groepslijn. -->
               <td class="whitespace-nowrap">
-                {{ formatDate(p.startsOn) }} – {{ formatDate(p.endsOn) }}
-                <span class="block text-[0.8125rem] text-(--color-text-muted)">
-                  {{ dayCount(p) }} dag{{ dayCount(p) !== 1 ? "en" : "" }}
-                </span>
+                <template v-if="!entry.group">
+                  {{ formatDate(p.startsOn) }} – {{ formatDate(p.endsOn) }}
+                  <span class="block text-[0.8125rem] text-(--color-text-muted)">
+                    {{ dayCount(p) }} dag{{ dayCount(p) !== 1 ? "en" : "" }}
+                  </span>
+                </template>
               </td>
               <td>
-                <span class="adm-badge" :class="STATUS_BADGE[p.status]">
+                <span v-if="!entry.group" class="adm-badge" :class="STATUS_BADGE[p.status]">
                   {{ PROMOTION_STATUS_LABELS[p.status] }}
                 </span>
               </td>
               <td class="hidden min-w-48 lg:table-cell">
-                <span v-if="p.allCustomers" class="adm-badge adm-badge--neutral">Alle klanten</span>
+                <template v-if="entry.group" />
+                <span v-else-if="p.allCustomers" class="adm-badge adm-badge--neutral">Alle klanten</span>
                 <template v-else>
                   <ul>
                     <li
@@ -224,6 +349,7 @@
                   </svg>
                 </button>
                 <button
+                  v-if="!entry.group"
                   type="button"
                   title="Dupliceren"
                   :aria-label="`Promotie op ${p.product.name} dupliceren`"
@@ -237,7 +363,9 @@
                 </button>
               </td>
             </tr>
-            <tr v-if="items.length === 0">
+            </template>
+            </template>
+            <tr v-if="entries.length === 0">
               <td colspan="8" class="adm-card-empty">{{ emptyText }}</td>
             </tr>
           </tbody>
@@ -267,10 +395,14 @@
 import {
   PROMOTION_STATUS_LABELS,
   promotionLabel,
+  todayInBrussels,
   type PromotionDiscount,
   type PromotionStatus,
 } from "#shared/promotion";
-import type { PromotionWizardInitial } from "~/components/admin/PromotionWizard.vue";
+import type {
+  PromotionWizardGroup,
+  PromotionWizardInitial,
+} from "~/components/admin/PromotionWizard.vue";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 useHead({ title: "Promoties — Vleeswaren Vermeir" });
@@ -281,6 +413,7 @@ interface PromotionDto extends PromotionDiscount {
   endsOn: string;
   allCustomers: boolean;
   status: PromotionStatus;
+  group: PromotionWizardGroup | null;
   product: {
     id: string;
     articleNr: string;
@@ -294,8 +427,15 @@ interface PromotionDto extends PromotionDiscount {
   customers: { id: string; customerNr: string; name: string }[];
 }
 
-interface PromotionsResponse {
+/** Eén lijn: een groep met haar promoties, of één promotie zonder groep. */
+interface PromotionEntry {
+  key: string;
+  group: PromotionWizardGroup | null;
   items: PromotionDto[];
+}
+
+interface PromotionsResponse {
+  entries: PromotionEntry[];
   summary: Record<PromotionStatus, number>;
   pagination: { page: number; perPage: number; total: number; pageCount: number };
 }
@@ -376,7 +516,8 @@ const query = computed(() => ({
 
 const { data, refresh } = await useFetch<PromotionsResponse>("/api/admin/promotions", { query });
 
-const items = computed(() => data.value?.items ?? []);
+const entries = computed(() => data.value?.entries ?? []);
+const items = computed(() => entries.value.flatMap((e) => e.items));
 const summary = computed(
   () => data.value?.summary ?? { active: 0, scheduled: 0, expired: 0 },
 );
@@ -395,26 +536,55 @@ const notice = ref("");
 const wizardOpen = ref(false);
 const wizardInitial = ref<PromotionWizardInitial | null>(null);
 
-/** `null` = nieuw; met `duplicate` wordt het een nieuwe promotie met dezelfde gegevens. */
+/**
+ * Periode voor een kopie: de week na vandaag, maandag t.e.m. zondag. Zo is
+ * de folder van volgende week: dupliceren, naam aanpassen, producten bijwerken.
+ */
+function nextWeek() {
+  const today = new Date(`${todayInBrussels()}T00:00:00Z`);
+  const weekday = (today.getUTCDay() + 6) % 7; // maandag = 0
+  const monday = new Date(today);
+  monday.setUTCDate(today.getUTCDate() + 7 - weekday);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+  return { startsOn: monday.toISOString().slice(0, 10), endsOn: sunday.toISOString().slice(0, 10) };
+}
+
+function wizardItem(p: PromotionDto) {
+  return {
+    product: {
+      id: p.product.id,
+      articleNr: p.product.articleNr,
+      name: p.product.name,
+      unit: p.product.unit,
+      price: p.product.price,
+    },
+    discount: {
+      type: p.type,
+      percentage: p.percentage,
+      minQuantity: p.minQuantity,
+      buyQuantity: p.buyQuantity,
+      freeQuantity: p.freeQuantity,
+      price: p.price,
+    },
+  };
+}
+
+/**
+ * `null` = nieuw. Een losse promotie bewerken of dupliceren (`duplicate`);
+ * een promotie uit een groep opent de hele groep, met dat product klaar.
+ */
 function openWizard(p: PromotionDto | null, duplicate = false) {
+  if (p?.group) {
+    void openGroupWizard({ key: p.group.id, group: p.group, items: [] }, false, p.product.id);
+    return;
+  }
   wizardInitial.value = p
     ? {
         id: duplicate ? undefined : p.id,
-        type: p.type,
-        percentage: p.percentage,
-        minQuantity: p.minQuantity,
-        buyQuantity: p.buyQuantity,
-        freeQuantity: p.freeQuantity,
-        price: p.price,
-        product: {
-          id: p.product.id,
-          articleNr: p.product.articleNr,
-          name: p.product.name,
-          unit: p.product.unit,
-          price: p.product.price,
-        },
-        startsOn: p.startsOn,
-        endsOn: p.endsOn,
+        groupName: "",
+        items: [wizardItem(p)],
+        ...(duplicate ? nextWeek() : { startsOn: p.startsOn, endsOn: p.endsOn }),
         allCustomers: p.allCustomers,
         customers: p.customers,
       }
@@ -422,10 +592,117 @@ function openWizard(p: PromotionDto | null, duplicate = false) {
   wizardOpen.value = true;
 }
 
+interface PromotionGroupResponse {
+  id: string;
+  name: string;
+  startsOn: string | null;
+  endsOn: string | null;
+  allCustomers: boolean;
+  customers: PromotionDto["customers"];
+  items: PromotionWizardInitial["items"];
+}
+
+/**
+ * Een groep bewerken, of dupliceren als nieuwe groep (bv. de folder van
+ * volgende week). De groep wordt volledig opgehaald: de lijst toont bij
+ * filters maar een deel, en opslaan vervangt de hele groep.
+ */
+async function openGroupWizard(entry: PromotionEntry, duplicate = false, focusProductId?: string) {
+  if (!entry.group) return;
+  let group: PromotionGroupResponse;
+  try {
+    group = await $fetch<PromotionGroupResponse>(`/api/admin/promotion-groups/${entry.group.id}`);
+  } catch {
+    notice.value = "Promotie openen mislukt. Probeer het later opnieuw.";
+    return;
+  }
+  wizardInitial.value = {
+    groupId: duplicate ? undefined : group.id,
+    groupName: duplicate ? `${group.name} (kopie)` : group.name,
+    items: group.items,
+    focusProductId,
+    ...(duplicate
+      ? nextWeek()
+      : { startsOn: group.startsOn ?? todayInBrussels(), endsOn: group.endsOn ?? todayInBrussels() }),
+    allCustomers: group.allCustomers,
+    customers: group.customers,
+  };
+  wizardOpen.value = true;
+}
+
 async function onSaved(message: string) {
   wizardOpen.value = false;
   notice.value = message;
   await refresh();
+}
+
+// --- Groepen --------------------------------------------------------------
+
+const openGroups = ref<Set<string>>(new Set());
+
+// Zoeken: groepen met treffers meteen openklappen.
+watch(entries, (list) => {
+  if (!debouncedSearch.value) return;
+  for (const e of list) if (e.group) openGroups.value.add(e.group.id);
+});
+
+function isGroupOpen(entry: PromotionEntry) {
+  return entry.group ? openGroups.value.has(entry.group.id) : true;
+}
+
+function toggleGroup(entry: PromotionEntry) {
+  if (!entry.group) return;
+  if (openGroups.value.has(entry.group.id)) openGroups.value.delete(entry.group.id);
+  else openGroups.value.add(entry.group.id);
+}
+
+/**
+ * Wat er onder een lijn staat, per kortingsregel (producten met dezelfde
+ * korting). Een losse promotie altijd; een groep enkel als ze open staat.
+ */
+function visibleParts(entry: PromotionEntry) {
+  if (!entry.group) return [{ key: entry.key, label: null, items: entry.items }];
+  if (!isGroupOpen(entry)) return [];
+  const parts = new Map<string, { key: string; label: string | null; items: PromotionDto[] }>();
+  for (const p of entry.items) {
+    const label = promotionLabel(p);
+    const part = parts.get(label) ?? { key: `${entry.key}:${label}`, label, items: [] };
+    part.items.push(p);
+    parts.set(label, part);
+  }
+  return [...parts.values()];
+}
+
+function productCount(entry: PromotionEntry) {
+  const n = entry.items.length;
+  return `${n} product${n !== 1 ? "en" : ""}`;
+}
+
+/** Eén kortingsregel? Dan die korting, anders het aantal regels. */
+function groupDiscount(entry: PromotionEntry) {
+  const labels = new Set(entry.items.map((p) => promotionLabel(p)));
+  return labels.size === 1 ? [...labels][0]! : `${labels.size} kortingen`;
+}
+
+function groupPeriod(entry: PromotionEntry) {
+  const starts = entry.items.map((p) => p.startsOn).sort();
+  const ends = entry.items.map((p) => p.endsOn).sort();
+  return `${formatDate(starts[0]!)} – ${formatDate(ends.at(-1)!)}`;
+}
+
+/** Actief zodra één promotie loopt; anders gepland, anders verlopen. */
+function groupStatus(entry: PromotionEntry): PromotionStatus {
+  const statuses = new Set(entry.items.map((p) => p.status));
+  if (statuses.has("active")) return "active";
+  if (statuses.has("scheduled")) return "scheduled";
+  return "expired";
+}
+
+function groupAudience(entry: PromotionEntry) {
+  const audiences = new Set(
+    entry.items.map((p) => (p.allCustomers ? "*" : p.customers.map((c) => c.id).sort().join(","))),
+  );
+  return audiences.size === 1 ? audienceSummary(entry.items[0]!) : "Verschillend per product";
 }
 
 // --- Klantenlijst uitklappen ----------------------------------------------
@@ -453,6 +730,17 @@ const allSelected = computed(
 function toggleSelect(id: string) {
   if (selected.value.has(id)) selected.value.delete(id);
   else selected.value.add(id);
+}
+
+function groupSelection(entry: PromotionEntry): "none" | "some" | "all" {
+  const n = entry.items.filter((p) => selected.value.has(p.id)).length;
+  if (n === 0) return "none";
+  return n === entry.items.length ? "all" : "some";
+}
+
+function toggleGroupSelect(entry: PromotionEntry) {
+  if (groupSelection(entry) === "all") for (const p of entry.items) selected.value.delete(p.id);
+  else for (const p of entry.items) selected.value.add(p.id);
 }
 
 function toggleSelectAll() {
@@ -511,6 +799,45 @@ function dayCount(p: PromotionDto) {
 </script>
 
 <style scoped>
+.promo-chevron {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+.promo-chevron--open {
+  transform: rotate(90deg);
+}
+.promo-group-row {
+  background: var(--color-surface-2);
+}
+/* Op de beige groepslijn valt de grijze badge anders weg. */
+.promo-group-row .adm-badge--neutral {
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+/* Kopje per kortingsregel binnen een opengeklapte groep. */
+.promo-part {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+li.promo-part {
+  padding-top: 0.6rem;
+  padding-bottom: 0.2rem;
+}
+.promo-part-row td {
+  padding-top: 0.6rem;
+  padding-bottom: 0.2rem;
+}
+/* Producten van een groep inspringen onder de groepslijn. */
+.promo-child-cell,
+.promo-child {
+  padding-left: 2.25rem;
+}
 .adm-input--compact {
   width: auto;
   height: 2.125rem;
