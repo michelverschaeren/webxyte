@@ -1,4 +1,10 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  type PDFFont,
+  type PDFPage,
+} from "pdf-lib";
 import type { OrderLinePromotion } from "../../shared/promotion";
 import type { BillingSnapshot, Order } from "~~/server/database/schema";
 
@@ -14,9 +20,7 @@ export interface OrderPdfItem {
 
 /** "Promotie: 3+1 gratis (+1 gratis)" — één regel per promotie. */
 export function promotionLines(item: OrderPdfItem): string[] {
-  return (item.promotions ?? []).map(
-    (p) => `Promotie: ${p.label} (${p.note})`,
-  );
+  return (item.promotions ?? []).map((p) => `Promotie: ${p.label} (${p.note})`);
 }
 
 interface OrderPdfInput {
@@ -32,7 +36,10 @@ interface OrderPdfInput {
  * De extra klantregels bovenaan bestelbon en bestelmail: telefoon, en het
  * factuuradres enkel als het afwijkt van het account (anders staat het er al).
  */
-export function contactDetails(billing: BillingSnapshot, customerEmail: string) {
+export function contactDetails(
+  billing: BillingSnapshot,
+  customerEmail: string,
+) {
   const details: [string, string][] = [["Telefoon", billing.phone || "—"]];
   if (billing.invoiceEmail.toLowerCase() !== customerEmail.toLowerCase()) {
     details.push(["Factuur-e-mail", billing.invoiceEmail]);
@@ -49,6 +56,22 @@ export function deliveryAddressLines(billing: BillingSnapshot): string[] {
   return lines.length > 0 ? lines : ["Niet ingevuld"];
 }
 
+/**
+ * Promotieregel op de bestelbon, ook zonder kleur duidelijk:
+ * "PROMOTIE: 3+1 gratis (waarvan 1 gratis)" of
+ * "Geen promotie: 25% korting vanaf 2 stuks (minimum niet gehaald)".
+ */
+function promotionText(p: OrderLinePromotion): string {
+  if (p.reached) {
+    return p.note === "van toepassing"
+      ? `PROMOTIE: ${p.label}`
+      : `PROMOTIE: ${p.label} (${p.note})`;
+  }
+  // "25% korting vanaf 2 stuks" noemt het minimum al; "5+1 gratis" niet.
+  const why = p.label.includes("vanaf") ? "minimum niet gehaald" : p.note;
+  return `Geen promotie: ${p.label} (${why})`;
+}
+
 // A4 in punten.
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -59,6 +82,8 @@ const BRAND = rgb(0xb8 / 255, 0x25 / 255, 0x2a / 255);
 const TEXT = rgb(0.1, 0.1, 0.1);
 const MUTED = rgb(0.4, 0.4, 0.4);
 const LINE = rgb(0.85, 0.85, 0.85);
+// Heel lichte merkkleur achter rijen met promotie.
+const PROMO_TINT = rgb(0.99, 0.93, 0.93);
 
 // Kolommen van de artikeltabel: artikelnummer, aantal, productnaam, leverancier.
 const COL_ARTICLE = MARGIN;
@@ -128,11 +153,20 @@ export async function generateOrderPdf({
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const clean = sanitizer(regular);
 
-  const placedAt = order.createdAt.toLocaleString("nl-BE", {
-    dateStyle: "long",
-    timeStyle: "short",
+  // "Vrijdag 16 oktober 2026 om 14:32"
+  const day = order.createdAt.toLocaleDateString("nl-BE", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
     timeZone: "Europe/Brussels",
   });
+  const time = order.createdAt.toLocaleTimeString("nl-BE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Brussels",
+  });
+  const placedAt = `${day.charAt(0).toUpperCase()}${day.slice(1)} om ${time}`;
 
   pdf.setTitle(`Bestelbon ${billing.companyName}`);
   pdf.setAuthor("Vleeswaren Vermeir");
@@ -174,48 +208,58 @@ export async function generateOrderPdf({
     });
   };
 
-  // — Kop —
-  text("Vleeswaren Vermeir", MARGIN, { font: bold, size: 11, color: BRAND });
-  rightText("Bestelbon", PAGE_WIDTH - MARGIN, { font: bold, size: 20 });
-  y -= 30;
+  // — Kop: klant links, bestelbon + tijdstip rechts —
+  // Bewust zonder `order.name`: dat is een persoonlijk geheugensteuntje van
+  // de klant, niet bedoeld voor de zaak.
+  // Korte vorm, zoals in het beheer (Bestellingen → Bestelnr.).
+  const title = `Bestelbon #${order.id.slice(0, 8).toUpperCase()}`;
+  const titleSize = 13;
+  const headerLeftWidth =
+    CONTENT_WIDTH - bold.widthOfTextAtSize(clean(title), titleSize) - 20;
+  const customer = customerNr
+    ? `${billing.companyName} - ${customerNr}`
+    : billing.companyName;
+  const contact = [customerEmail, billing.phone].filter(Boolean).join(" - ");
+  const top = y;
+
+  rightText(title, PAGE_WIDTH - MARGIN, { font: bold, size: titleSize });
+  y -= 18;
+  rightText(placedAt, PAGE_WIDTH - MARGIN, { color: MUTED });
+  const rightBottom = y - 13;
+
+  y = top;
+  for (const line of wrapText(clean(customer), bold, 13, headerLeftWidth)) {
+    text(line, MARGIN, { font: bold, size: 13, color: BRAND });
+    y -= 16;
+  }
+  y -= 2;
+  for (const line of wrapText(clean(contact), regular, 10, headerLeftWidth)) {
+    text(line, MARGIN, { color: MUTED });
+    y -= 13;
+  }
+
+  y = Math.min(y, rightBottom) - 4;
   hr(BRAND, 1.5);
   y -= 24;
 
-  // — Bestel- en klantgegevens (label/waarde-paren) —
-  const details: [string, string][] = [
-    ["Datum", placedAt],
-    ["Klant", billing.companyName],
-    ["Klantnummer", customerNr ?? "—"],
-    ["Account", customerEmail],
-    ...contactDetails(billing, customerEmail),
-    // Bewust zonder `order.name`: dat is een persoonlijk geheugensteuntje van
-    // de klant, niet bedoeld voor de zaak.
-    // Korte vorm, zoals in het beheer (Bestellingen → Bestelnr.).
-    ["Bestelnummer", order.id.slice(0, 8).toUpperCase()],
-  ];
-
-  for (const [label, value] of details) {
-    text(label, MARGIN, { size: 9, color: MUTED });
-    text(value, MARGIN + 90, { font: label === "Klant" ? bold : regular });
-    y -= 15;
-  }
-
-  // — Leveringsadres —
-  y -= 10;
-  text("Leveringsadres", MARGIN, { font: bold, size: 9, color: MUTED });
-  y -= 14;
-  for (const line of deliveryAddressLines(billing)) {
-    text(line, MARGIN);
-    y -= 13;
+  // Factuur-e-mail enkel als die afwijkt van het account (dat staat al in de kop).
+  if (billing.invoiceEmail.toLowerCase() !== customerEmail.toLowerCase()) {
+    text("Factuur-e-mail", MARGIN, { size: 9, color: MUTED });
+    text(billing.invoiceEmail, MARGIN + 90);
+    y -= 25;
   }
 
   // — Opmerking van de klant —
   if (order.note) {
-    y -= 10;
     text("Opmerking", MARGIN, { font: bold, size: 9, color: MUTED });
     y -= 14;
     for (const paragraph of order.note.split(/\r?\n/)) {
-      for (const line of wrapText(clean(paragraph), regular, 10, CONTENT_WIDTH)) {
+      for (const line of wrapText(
+        clean(paragraph),
+        regular,
+        10,
+        CONTENT_WIDTH,
+      )) {
         if (y < MARGIN + 40) {
           page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
           y = PAGE_HEIGHT - MARGIN;
@@ -224,7 +268,23 @@ export async function generateOrderPdf({
         y -= 13;
       }
     }
+    y -= 10;
   }
+
+  // — Samenvatting boven de tabel —
+  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  const promoCount = items.filter((i) =>
+    (i.promotions ?? []).some((p) => p.reached),
+  ).length;
+  text(`Verschillende producten: ${items.length}`, MARGIN, { font: bold });
+  text(`Totaal aantal stuks: ${totalQty}`, MARGIN + 170, { font: bold });
+  if (promoCount > 0) {
+    text(`Met promotie: ${promoCount}`, MARGIN + 320, {
+      font: bold,
+      color: BRAND,
+    });
+  }
+  y -= 24;
 
   // — Artikeltabel —
   const drawTableHeader = () => {
@@ -237,28 +297,49 @@ export async function generateOrderPdf({
     y -= ROW_LINE_HEIGHT + 1;
   };
 
-  y -= 20;
   drawTableHeader();
 
   for (const item of items) {
     const label = item.unit ? `${item.name} (${item.unit})` : item.name;
     const nameLines = wrapText(clean(label), regular, 10, NAME_WIDTH);
-    // Promoties onder de productnaam, in merkkleur (vet als ze van toepassing zijn).
+    // Promoties onder de productnaam. Ook in zwart-wit herkenbaar: een
+    // promotie die geldt staat er als "PROMOTIE:" (vet, rij lichtrood),
+    // een niet-gehaalde als "Geen promotie:" (grijs).
     const promoLines = (item.promotions ?? []).flatMap((p) =>
-      wrapText(clean(`Promotie: ${p.label} (${p.note})`), bold, 9, NAME_WIDTH).map((line) => ({
+      wrapText(clean(promotionText(p)), bold, 9, NAME_WIDTH).map((line) => ({
         line,
         reached: p.reached,
       })),
     );
-    const supplierLines = wrapText(clean(item.supplier), regular, 10, SUPPLIER_WIDTH);
+    const hasPromo = (item.promotions ?? []).some((p) => p.reached);
+    const supplierLines = wrapText(
+      clean(item.supplier),
+      regular,
+      10,
+      SUPPLIER_WIDTH,
+    );
     const rowHeight =
-      Math.max(nameLines.length + promoLines.length, supplierLines.length) * ROW_LINE_HEIGHT;
+      Math.max(nameLines.length + promoLines.length, supplierLines.length) *
+      ROW_LINE_HEIGHT;
 
     // Rij past niet meer: nieuwe pagina met herhaalde tabelkop.
     if (y - rowHeight < MARGIN + 20) {
       page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
       y = PAGE_HEIGHT - MARGIN;
       drawTableHeader();
+    }
+
+    // Van de lijn boven de rij tot de lijn eronder.
+    const top = y + ROW_LINE_HEIGHT + 1;
+    const bottom = y - (rowHeight - ROW_LINE_HEIGHT + ROW_PADDING);
+    if (hasPromo) {
+      page.drawRectangle({
+        x: MARGIN - 6,
+        y: bottom,
+        width: CONTENT_WIDTH + 12,
+        height: top - bottom,
+        color: PROMO_TINT,
+      });
     }
 
     text(item.articleNr, COL_ARTICLE, { font: bold });
@@ -296,15 +377,19 @@ export async function generateOrderPdf({
     y -= ROW_LINE_HEIGHT + ROW_PADDING - 3;
   }
 
-  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
-  const promoCount = items.filter((i) => (i.promotions ?? []).length > 0).length;
-  y -= 2;
-  text(
-    `${items.length} artikel${items.length === 1 ? "" : "en"} · totaal aantal: ${totalQty}` +
-      (promoCount > 0 ? ` · ${promoCount} met promotie` : ""),
-    MARGIN,
-    { size: 9, color: MUTED },
-  );
+  // — Leveringsadres, onder de tabel —
+  const addressLines = deliveryAddressLines(billing);
+  y -= 10;
+  if (y - 14 - addressLines.length * 13 < MARGIN + 20) {
+    page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    y = PAGE_HEIGHT - MARGIN;
+  }
+  text("Leveringsadres", MARGIN, { font: bold, size: 9, color: MUTED });
+  y -= 14;
+  for (const line of addressLines) {
+    text(line, MARGIN);
+    y -= 13;
+  }
 
   // — Paginanummers —
   const pages = pdf.getPages();
