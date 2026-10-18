@@ -61,6 +61,15 @@ async function sendMail({
   replyTo,
   attachments,
 }: MailMessage) {
+  // Lokaal en op Vercel Preview (kopie van productie, met echte klanten):
+  // alle mail naar de ontwikkelaar, met de echte ontvanger in het onderwerp.
+  const redirectTo = process.env.MAIL_REDIRECT_TO;
+  if (redirectTo) {
+    subject = `[test → ${to}] ${subject}`;
+    to = redirectTo;
+    replyTo = undefined;
+  }
+
   const response = await fetch(LETTERMINT_ENDPOINT, {
     method: "POST",
     headers: {
