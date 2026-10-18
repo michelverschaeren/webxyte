@@ -210,6 +210,16 @@ export default defineNuxtConfig({
     databaseUrl: "",
     betterAuthSecret: "",
     betterAuthUrl: "",
+
+    public: {
+      /**
+       * Naam van de databasebranch als dat níét productie is (lokaal en op
+       * Vercel Preview: NUXT_PUBLIC_DATABASE_ENV=development). Toont dan een
+       * kader rond het scherm (components/DatabaseEnvFrame.vue). Leeg in
+       * productie: klanten zien niets.
+       */
+      databaseEnv: "",
+    },
   },
 
   routeRules: {

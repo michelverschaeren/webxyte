@@ -52,7 +52,8 @@ export const auth = betterAuth({
     // werken voor bestaande accounts.
     disableSignUp: true,
     minPasswordLength: 8,
-    // Zet op true zodra je een mailer (Resend, SMTP, …) gekoppeld hebt.
+    // Mail loopt via Lettermint (server/utils/mail.ts). Op true zetten vraagt
+    // ook een `emailVerification.sendVerificationEmail` die daarlangs verstuurt.
     requireEmailVerification: false,
   },
 

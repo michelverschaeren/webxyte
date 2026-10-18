@@ -180,7 +180,7 @@
             <p v-if="data.myProducts.length === 0" class="adm-card-empty">
               Deze klant heeft nog geen producten onder Mijn producten.
             </p>
-            <div v-else class="max-h-[32rem] overflow-auto">
+            <div v-else class="max-h-128 overflow-auto">
               <table class="adm-table">
                 <thead class="sticky top-0 z-1">
                   <tr>

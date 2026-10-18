@@ -3,6 +3,7 @@
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <DatabaseEnvFrame />
 </template>
 
 <script setup lang="ts">
