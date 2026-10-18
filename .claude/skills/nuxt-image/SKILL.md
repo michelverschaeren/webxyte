@@ -32,7 +32,7 @@ en image.nuxt.com, of via de context7-MCP.
   alt="Beschrijvende tekst (of alt=&quot;&quot; als het puur decoratief is)"
   width="1536"
   height="2048"
-  sizes="100vw md:50vw lg:600px"
+  sizes="sm:100vw md:50vw lg:600px"
   loading="lazy"
   format="webp"
   class="h-auto w-full object-cover"
@@ -43,6 +43,11 @@ en image.nuxt.com, of via de context7-MCP.
   layout niet (CLS). De echte weergavegrootte regelt CSS.
 - **`sizes`** zodra de afbeelding kleiner getoond wordt dan haar bron. Zonder
   `sizes` krijgt een mobiel de volle breedte.
+- **Valkuil:** elke `vw`-waarde in `sizes` moet een breakpoint-prefix hebben
+  (`sm:100vw`, nooit los `100vw`). @nuxt/image leest een waarde zonder prefix
+  als een scherm van 1 px breed: `sizes="100vw"` geeft een srcset van `1w, 2w`,
+  en de afbeelding is kapot. Losse `px`-waarden (`105px sm:160px`) zijn wel in
+  orde. Schrijf elk breakpoint uit waarvoor je een variant wil.
 - **`loading="lazy"`** voor alles onder de vouw.
 - **LCP-afbeelding** (hero bovenaan): géén `lazy`; wel `preload` en
   `fetchpriority="high"`. Maximaal één per pagina.

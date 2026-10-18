@@ -1,3 +1,4 @@
+import { HttpRequestError, Lettermint, TimeoutError, ValidationError } from "lettermint";
 import type { BillingSnapshot, Order } from "~~/server/database/schema";
 import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
 import { renderLaunchMail } from "./mail-launch";
@@ -22,7 +23,12 @@ interface OrderNotification {
   customerNr: string | null;
 }
 
-const LETTERMINT_ENDPOINT = "https://api.lettermint.co/v1/send";
+/**
+ * Hoe lang we op Lettermint wachten. Een bestelling wacht op de mail; liever
+ * een gelogde fout na 10 s dan een request dat blijft hangen tot Vercel de
+ * functie afbreekt. (De SDK-standaard is 30 s.)
+ */
+const MAIL_TIMEOUT_MS = 10_000;
 
 interface MailMessage {
   /** Weergavenaam van de afzender; het adres komt uit MAIL_FROM_EMAIL. */
@@ -33,6 +39,14 @@ interface MailMessage {
   html?: string;
   replyTo?: string;
   attachments?: MailAttachment[];
+  /** Soort mail ("order", "contact", …): filter in het Lettermint-dashboard en in de logs. */
+  tag: string;
+  /**
+   * Zelfde sleutel = Lettermint verstuurt maar één keer, ook als deze aanroep
+   * opnieuw gebeurt (bv. `order:<id>`). Enkel voor mails die per gebeurtenis
+   * precies één keer mogen vertrekken.
+   */
+  idempotencyKey?: string;
 }
 
 interface MailAttachment {
@@ -48,9 +62,13 @@ function mailConfigured() {
 }
 
 /**
- * Verstuurt één mail via Lettermint (Sending API). Bewust zonder SDK: één
- * HTTP-call heeft geen extra dependency nodig. Controleer eerst
+ * Verstuurt één mail via de officiële Lettermint-SDK (`lettermint`, zonder
+ * eigen dependencies). Dit is de enige plek die Lettermint kent: wie een
+ * andere maildienst wil, vervangt enkel deze functie. Controleer eerst
  * `mailConfigured()`; de aanroeper beslist wat er zonder config gebeurt.
+ *
+ * Gooit bij een fout een Error met soort, status en antwoord van Lettermint;
+ * de aanroeper vangt die op (een mail mag de hoofdactie nooit breken).
  */
 async function sendMail({
   fromName,
@@ -60,6 +78,8 @@ async function sendMail({
   html,
   replyTo,
   attachments,
+  tag,
+  idempotencyKey,
 }: MailMessage) {
   // Lokaal en op Vercel Preview (kopie van productie, met echte klanten):
   // alle mail naar de ontwikkelaar, met de echte ontvanger in het onderwerp.
@@ -70,34 +90,37 @@ async function sendMail({
     replyTo = undefined;
   }
 
-  const response = await fetch(LETTERMINT_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "x-lettermint-token": process.env.LETTERMINT_API_TOKEN!,
-      "content-type": "application/json",
-      accept: "application/json",
-    },
-    body: JSON.stringify({
-      from: `${fromName} <${process.env.MAIL_FROM_EMAIL}>`,
-      to: [to],
-      subject,
-      text,
-      html,
-      reply_to: replyTo ? [replyTo] : undefined,
-      attachments: attachments?.map((a) => ({
-        filename: a.filename,
-        content: Buffer.from(a.content).toString("base64"),
-        content_type: a.contentType,
-      })),
-    }),
-  });
-
-  if (!response.ok) {
-    // Wordt opgevangen door de aanroeper.
-    throw new Error(
-      `Lettermint gaf ${response.status}: ${await response.text().catch(() => "")}`,
-    );
+  let email = Lettermint.email(process.env.LETTERMINT_API_TOKEN!, { timeout: MAIL_TIMEOUT_MS })
+    .from(`${fromName} <${process.env.MAIL_FROM_EMAIL}>`)
+    .to(to)
+    .subject(subject)
+    .text(text)
+    .tag(tag);
+  if (html) email = email.html(html);
+  if (replyTo) email = email.replyTo(replyTo);
+  if (idempotencyKey) email = email.idempotencyKey(idempotencyKey);
+  for (const a of attachments ?? []) {
+    email = email.attach(a.filename, Buffer.from(a.content).toString("base64"), undefined, a.contentType);
   }
+
+  try {
+    const result = await email.send();
+    console.info(`[mail] ${tag} verstuurd: ${result.message_id} (${result.status})`);
+  } catch (err) {
+    throw new Error(`[mail] ${tag} mislukt: ${describeLettermintError(err)}`, { cause: err });
+  }
+}
+
+/** Leesbare foutmelding voor de logs, met wat Lettermint zelf antwoordde. */
+function describeLettermintError(err: unknown): string {
+  if (err instanceof TimeoutError) return `geen antwoord binnen ${MAIL_TIMEOUT_MS / 1000} s`;
+  if (err instanceof ValidationError) {
+    return `geweigerd (422 ${err.errorType}): ${JSON.stringify(err.responseBody)}`;
+  }
+  if (err instanceof HttpRequestError) {
+    return `HTTP ${err.statusCode}: ${JSON.stringify(err.responseBody)}`;
+  }
+  return err instanceof Error ? err.message : String(err);
 }
 
 /**
@@ -197,6 +220,9 @@ export async function sendOrderNotification({
     text: withTextFooter(text),
     html,
     attachments,
+    tag: "order",
+    // Een nieuwe poging (bv. na een time-out) verstuurt geen tweede melding.
+    idempotencyKey: `order:${order.id}`,
   });
 }
 
@@ -297,6 +323,7 @@ export async function sendContactMail({ name, company, email, phone, message }: 
 
   await sendMail({
     fromName: "Website Vermeir",
+    tag: "contact",
     to,
     // Antwoorden gaat rechtstreeks naar de afzender van het formulier.
     replyTo: email,
@@ -341,6 +368,7 @@ export async function sendCustomerRequestMail({ email }: { email: string }) {
 
   await sendMail({
     fromName: "Website Vermeir",
+    tag: "customer-request",
     to: customerRequestRecipient(),
     // Antwoorden gaat rechtstreeks naar de aanvrager.
     replyTo: email,
@@ -418,6 +446,7 @@ export async function sendAuthLinkMail({ email, url, purpose }: AuthLinkMail) {
   await sendMail({
     // Niet MAIL_FROM_NAME: die is "Bestellingen …" en bedoeld voor bestelmails.
     fromName: "Vleeswaren Vermeir",
+    tag: `auth-${purpose}`,
     to: email,
     subject,
     text: withTextFooter([intro, "", url, "", outro].join("\n")),
@@ -457,5 +486,5 @@ export async function sendLaunchMail({
   }
 
   const { subject, text, html } = renderLaunchMail({ companyName, url });
-  await sendMail({ fromName: "Vleeswaren Vermeir", to: email, subject, text, html });
+  await sendMail({ fromName: "Vleeswaren Vermeir", to: email, subject, text, html, tag: "launch" });
 }
