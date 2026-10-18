@@ -195,7 +195,10 @@ async function save() {
       method: "PUT",
       body: { ...form, phone: contact.value?.isCustomer ? phone : undefined },
     });
-    await Promise.all([refresh(), refreshContact()]);
+    // De bedrijfsnaam is ook de naam van de login; de sessie zit 5 min in
+    // een cookie-cache, dus die eerst vernieuwen ("Welkom, …").
+    await authClient.getSession({ query: { disableCookieCache: true } });
+    await Promise.all([refresh(), refreshContact(), auth.refresh()]);
     saved.value = true;
   } catch (err) {
     error.value =

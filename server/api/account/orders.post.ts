@@ -77,9 +77,11 @@ export default defineEventHandler(async (event) => {
   }
 
   // Facturatiegegevens zijn optioneel: wat de klant niet invulde, komt uit
-  // het CRM en de login. Bestellen wordt er nooit door tegengehouden.
+  // het CRM en de login. Bestellen wordt er nooit door tegengehouden. De
+  // bedrijfsnaam is de klantnaam (die de klant zelf kan wijzigen); enkel een
+  // login zonder klant valt terug op de facturatiegegevens.
   const billing: BillingSnapshot = {
-    companyName: details?.companyName ?? crmCustomer?.name ?? user.name,
+    companyName: crmCustomer?.name ?? details?.companyName ?? user.name,
     vatNumber: details?.vatNumber ?? null,
     phone: crmCustomer?.phone ?? null,
     invoiceEmail: details?.invoiceEmail ?? user.email,

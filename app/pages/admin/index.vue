@@ -57,9 +57,6 @@
                 </td>
                 <td class="w-full max-w-0">
                   <p class="truncate font-medium text-(--color-text-strong)">{{ o.customerName }}</p>
-                  <p v-if="o.companyName" class="truncate text-[0.8125rem] text-(--color-text-muted)">
-                    {{ o.companyName }}
-                  </p>
                 </td>
                 <td class="whitespace-nowrap text-(--color-text-muted)">{{ formatDate(o.createdAt) }}</td>
                 <td class="adm-num">{{ o.totalQuantity }}</td>
@@ -128,20 +125,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="p in activePromotions" :key="p.id">
+              <tr v-for="p in activePromotions" :key="p.key">
                 <td class="w-full max-w-0">
-                  <p class="truncate font-medium text-(--color-text-strong)" :title="p.product.name">
-                    {{ p.product.name }}
+                  <p class="truncate font-medium text-(--color-text-strong)" :title="p.title">
+                    {{ p.title }}
                   </p>
-                  <p class="truncate text-[0.8125rem] text-(--color-text-muted)">{{ p.product.articleNr }}</p>
+                  <p class="truncate text-[0.8125rem] text-(--color-text-muted)">{{ p.subtitle }}</p>
                 </td>
-                <td class="whitespace-nowrap font-medium text-(--color-text-strong)">{{ promotionLabel(p) }}</td>
+                <td class="whitespace-nowrap font-medium text-(--color-text-strong)">{{ p.discount }}</td>
                 <td class="whitespace-nowrap">
                   {{ formatIsoDate(p.endsOn) }}
                   <span class="block text-[0.8125rem] text-(--color-text-muted)">{{ daysLeftLabel(p.endsOn) }}</span>
                 </td>
                 <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">
-                  {{ p.allCustomers ? "Alle klanten" : `${p.customers.length} klant${p.customers.length !== 1 ? "en" : ""}` }}
+                  {{ p.customers }}
                 </td>
               </tr>
             </tbody>
@@ -176,20 +173,26 @@ interface RecentOrders {
     id: string;
     createdAt: string;
     customerName: string;
-    companyName: string | null;
     totalQuantity: number;
   }[];
   pagination: { total: number };
 }
 
+type ActivePromotion = PromotionDiscount & {
+  id: string;
+  endsOn: string;
+  allCustomers: boolean;
+  product: { articleNr: string; name: string };
+  customers: { id: string }[];
+};
+
+/** Zelfde vorm als op /admin/promoties: één lijn per groep of losse promotie. */
 interface ActivePromotions {
-  items: (PromotionDiscount & {
-    id: string;
-    endsOn: string;
-    allCustomers: boolean;
-    product: { articleNr: string; name: string };
-    customers: { id: string }[];
-  })[];
+  entries: {
+    key: string;
+    group: { id: string; name: string } | null;
+    items: ActivePromotion[];
+  }[];
   summary: Record<PromotionStatus, number>;
 }
 
@@ -202,7 +205,30 @@ const [{ data: stats }, { data: orders }, { data: promotions }] = await Promise.
 ]);
 
 const recentOrders = computed(() => orders.value?.items ?? []);
-const activePromotions = computed(() => promotions.value?.items ?? []);
+// Een groep (folder) is één rij: haar naam en het aantal producten; periode
+// en klanten zijn voor de hele groep dezelfde.
+const activePromotions = computed(() =>
+  (promotions.value?.entries ?? []).flatMap((entry) => {
+    const first = entry.items[0];
+    if (!first) return [];
+    const labels = [...new Set(entry.items.map((p) => promotionLabel(p)))];
+    const count = entry.items.length;
+    return [
+      {
+        key: entry.key,
+        title: entry.group?.name ?? first.product.name,
+        subtitle: entry.group
+          ? `${count} product${count !== 1 ? "en" : ""}`
+          : first.product.articleNr,
+        discount: labels.length === 1 ? labels[0] : "Verschillende kortingen",
+        endsOn: entry.items.reduce((max, p) => (p.endsOn > max ? p.endsOn : max), first.endsOn),
+        customers: first.allCustomers
+          ? "Alle klanten"
+          : `${first.customers.length} klant${first.customers.length !== 1 ? "en" : ""}`,
+      },
+    ];
+  }),
+);
 const promoSummary = computed(
   () => promotions.value?.summary ?? { active: 0, scheduled: 0, expired: 0 },
 );
