@@ -28,6 +28,19 @@
         </svg>
         Bestelbon (PDF)
       </a>
+      <!-- Enkel voor de agency-admin; de server controleert dat opnieuw. -->
+      <button
+        v-if="order && isAgencyAdmin"
+        type="button"
+        class="adm-btn adm-btn--danger"
+        aria-label="Bestelling verwijderen"
+        title="Bestelling verwijderen"
+        @click="openDelete"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6m4-6v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+        </svg>
+      </button>
     </template>
 
     <template v-if="order">
@@ -199,10 +212,76 @@
         </div>
       </div>
     </template>
+
+    <!-- Verwijderen: bestelnummer overtypen ter bevestiging -->
+    <Teleport to="body">
+      <div
+        v-if="deleteOpen && order"
+        class="fixed inset-0 z-220 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm"
+        @click.self="closeDelete"
+      >
+        <div
+          class="my-auto w-full max-w-md overflow-hidden rounded-2xl border border-(--color-border) shadow-2xl"
+          style="background: var(--color-surface)"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-order-title"
+          aria-describedby="delete-order-desc"
+        >
+          <div class="border-b border-(--color-border) px-5 py-4 sm:px-6">
+            <h3
+              id="delete-order-title"
+              class="font-['Playfair_Display',Georgia,serif] text-xl text-(--color-text-strong)"
+            >
+              Bestelling verwijderen
+            </h3>
+          </div>
+
+          <form class="space-y-4 px-5 py-5 sm:px-6" @submit.prevent="submitDelete">
+            <p id="delete-order-desc" class="text-sm text-(--color-text-muted)">
+              Bestelling <strong class="text-(--color-text-strong)">{{ orderNr }}</strong>
+              van {{ order.customer.name }} ({{ order.items.length }}
+              artikel{{ order.items.length !== 1 ? "en" : "" }}) wordt definitief
+              verwijderd, ook bij de klant onder "Mijn bestellingen". Dit kan niet
+              ongedaan gemaakt worden.
+            </p>
+            <label class="block">
+              <span class="adm-label">Typ <strong>{{ orderNr }}</strong> om te bevestigen</span>
+              <input
+                ref="deleteInput"
+                v-model="deleteConfirm"
+                type="text"
+                required
+                autocomplete="off"
+                spellcheck="false"
+                :placeholder="orderNr"
+                class="adm-input w-full font-mono uppercase"
+              >
+            </label>
+
+            <p v-if="deleteError" class="text-sm text-(--color-error)">{{ deleteError }}</p>
+
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button type="button" class="adm-btn adm-btn--secondary" @click="closeDelete">
+                Annuleren
+              </button>
+              <button
+                type="submit"
+                :disabled="!deleteMatches || deleting"
+                class="adm-btn adm-btn--danger"
+              >
+                {{ deleting ? "Bezig…" : "Definitief verwijderen" }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </AdminShell>
 </template>
 
 <script setup lang="ts">
+import { isAgencyAdminEmail } from "#shared/agency-admin";
 import type { OrderLinePromotion } from "#shared/promotion";
 
 const route = useRoute();
@@ -254,6 +333,59 @@ if (!data.value) {
 
 const order = computed(() => data.value ?? null);
 useHead({ title: "Bestelling — Beheer — Vleeswaren Vermeir" });
+
+/**
+ * Verwijderen is voorbehouden aan de agency-admin (shared/agency-admin.ts);
+ * DELETE /api/admin/orders/:id controleert dat opnieuw.
+ */
+const auth = useAuth();
+const isAgencyAdmin = computed(() => isAgencyAdminEmail(auth.user.value?.email));
+
+const orderNr = computed(() => order.value?.id.slice(0, 8).toUpperCase() ?? "");
+const deleteOpen = ref(false);
+const deleteConfirm = ref("");
+const deleting = ref(false);
+const deleteError = ref("");
+const deleteInput = ref<HTMLInputElement | null>(null);
+const deleteMatches = computed(
+  () => deleteConfirm.value.trim().toUpperCase() === orderNr.value,
+);
+
+function openDelete() {
+  deleteConfirm.value = "";
+  deleteError.value = "";
+  deleteOpen.value = true;
+  nextTick(() => deleteInput.value?.focus());
+}
+
+function closeDelete() {
+  if (!deleting.value) deleteOpen.value = false;
+}
+
+async function submitDelete() {
+  if (!order.value || !deleteMatches.value || deleting.value) return;
+  deleting.value = true;
+  deleteError.value = "";
+  try {
+    await $fetch(`/api/admin/orders/${order.value.id}`, { method: "DELETE" });
+    deleteOpen.value = false;
+    await navigateTo("/admin/bestellingen");
+  } catch (err) {
+    deleteError.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      "Verwijderen mislukt. Probeer het later opnieuw.";
+  } finally {
+    deleting.value = false;
+  }
+}
+
+onMounted(() => {
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && deleteOpen.value) closeDelete();
+  };
+  window.addEventListener("keydown", onKey);
+  onUnmounted(() => window.removeEventListener("keydown", onKey));
+});
 
 const totalQuantity = computed(() =>
   (order.value?.items ?? []).reduce((sum, item) => sum + item.quantity, 0),
