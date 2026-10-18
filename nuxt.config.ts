@@ -33,8 +33,7 @@ export default defineNuxtConfig({
     // Vercel-only; no-op (and Speed Insights collects nothing) off Vercel and
     // in dev, so these are safe to leave on for every clone.
     '@vercel/analytics',
-    '@vercel/speed-insights',
-    'nuxt-lettermint'
+    '@vercel/speed-insights'
   ],
 
   // Off: @nuxt/devtools 3.4.2's internal "config-retriever" plugin still uses
@@ -47,6 +46,16 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  runtimeConfig: {
+    public: {
+      // Database branch name when it is NOT production (locally and on Vercel
+      // Preview: NUXT_PUBLIC_DATABASE_ENV=development). Shows the
+      // "DEVELOPMENT · TESTDATABASE" banner (app/components/DatabaseEnvFrame.vue).
+      // Empty in production: visitors see nothing.
+      databaseEnv: ''
+    }
+  },
 
   routeRules: {
     '/**': { headers: securityHeaders },
@@ -125,12 +134,5 @@ export default defineNuxtConfig({
       'xl': 1280,
       '2xl': 1536
     }
-  },
-
-  // autoEndpoint exposes POST /api/lettermint/send so a contact form can call
-  // useLettermint().send(...) from the client — the NUXT_LETTERMINT_API_KEY
-  // token itself is only ever read server-side. See .claude/rules/integrations.md.
-  lettermint: {
-    autoEndpoint: true
   }
 })

@@ -1,9 +1,9 @@
 # CLAUDE.md
 
-Nuxt 4 brochure-site starter. Every client site is a clone of this repo, so the
-performance and security settings here are load-bearing — each was added after
-measuring a regression, and the reason is written next to it. Do not undo one to
-make a layout easier.
+Nuxt 4 brochure-site starter, hosted on Vercel. Every client site is a clone of
+this repo, so the performance and security settings here are load-bearing —
+each was added after measuring a regression, and the reason is written next to
+it. Do not undo one to make a layout easier.
 
 ## Commands
 
@@ -28,8 +28,8 @@ There is no `test` script and no `format` script. Do not invent one.
   interrupts only on an error. Trust it; don't pre-empt it by linting by hand.
 - **End of task** — a Stop hook runs lint + typecheck (~18s) and blocks the turn
   until both pass. It skips itself in <1s when no source file changed.
-- **Before a deploy** — run `/ship`. Only that runs `pnpm build` and
-  `verify:perf`; neither hook does.
+- **Before a site goes live** — run `/ship`. Only that runs `pnpm build` and
+  `verify:perf` (locally, then against a Vercel deploy); neither hook does.
 
 `typescript-lsp` gives per-edit diagnostics for `.ts`/`.mjs` only. **`.vue` files
 have no LSP coverage** — no Vue language server exists in the official plugin
@@ -43,12 +43,33 @@ not repeated here:
 
 - `.claude/rules/images.md` (`**/*.vue`) — the @nuxt/image `sizes` trap. Read it
   before writing a single `<NuxtImg>`.
-- `.claude/rules/nuxt-config.md` (`nuxt.config.ts`) — Nitro, routeRules, headers.
-- `.claude/rules/deploy.md` (`Dockerfile`) — base image and sharp.
+- `.claude/rules/nuxt-config.md` (`nuxt.config.ts`) — Nitro, routeRules,
+  headers, and why a local build differs from what Vercel serves.
 - `.claude/rules/integrations.md` (`nuxt.config.ts`, `.env.example`,
   `server/**`) — Vercel Analytics/Speed Insights, Lettermint email, opt-in
-  Neon. The Vercel and Neon MCP servers are linked at the project level in
-  `.mcp.json`.
+  Neon. The Vercel and Neon MCP servers in `.mcp.json` are scoped to this
+  site's own projects (placeholders until `/new-site` step 7).
+
+## Standing agreements (all sites)
+
+- **Mail = Lettermint via the official SDK** behind `sendMail()` in
+  `server/utils/mail.ts`. Never `nuxt-lettermint`'s `autoEndpoint` (open relay).
+  Skill `mail-lettermint`.
+- **Two env files:** `.env` = development (read by the app), `.env.live` =
+  production values (read only by `db:migrate:production`). Vercel env is set
+  **per environment**: Preview never touches production data or real inboxes
+  (`MAIL_REDIRECT_TO`, Neon branch `development`).
+- **Banner** `DEVELOPMENT · TESTDATABASE` whenever `NUXT_PUBLIC_DATABASE_ENV`
+  is set — never in production.
+- **Roles:** agency admin (Xyte, `shared/agency-admin.ts`) > client admin >
+  customer. Irreversible actions are agency-only. Skill `admin-conventions`.
+- **Confirm first:** production migrations, production data writes, Vercel
+  env/DNS changes, outgoing real mail.
+
+Skills for sites that grow beyond a brochure: `release`, `go-live`,
+`db-migration`, `drizzle-orm`, `better-auth-conventions` (plus the official
+Better Auth skills `best-practices` and `security`, installed with skilld —
+`.skills/skilld-lock.yaml` pins them; `npx skilld install` restores them).
 
 ## Workflow
 

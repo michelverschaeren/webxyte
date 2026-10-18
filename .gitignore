@@ -25,3 +25,9 @@ content-import
 .env
 .env.*
 !.env.example
+
+# Vercel CLI project link (vercel link / vercel deploy)
+.vercel
+
+# skilld runtime lock (the lockfile .skills/skilld-lock.yaml is tracked)
+.skills/.skilld-store-lock

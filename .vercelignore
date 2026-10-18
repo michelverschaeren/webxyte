@@ -1,0 +1,12 @@
+# Only matters for `vercel deploy` from the CLI; Git deploys never see these.
+content-import
+lighthouse-report*
+.output
+.nuxt
+.data
+.cache
+node_modules
+*.log
+.env
+.env.*
+!.env.example

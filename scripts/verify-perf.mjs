@@ -11,14 +11,19 @@
  *   node scripts/verify-perf.mjs [url] [--output-dir <dir>] [--json]
  *   pnpm verify:perf                      # against http://localhost:3000
  *   pnpm verify:perf https://example.com  # against the real deploy
+ *   VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm verify:perf https://<preview>.vercel.app
  *
  * Fails (exit 1) on:
  *   1. a response without Content-Encoding under `Accept-Encoding: br, gzip`
  *   2. a srcset candidate of ` 1w` / ` 2w` (the @nuxt/image `sizes` trap)
- *   3. an image not served as image/webp
- *   4. a /_ipx/ response without cache-control
+ *   3. an image not served as image/webp (or image/avif from Vercel)
+ *   4. an /images/, /_ipx/ or /_vercel/image response without cache-control
  *   5. a missing security header
  *   6. a generated image candidate wider than its source file (upscaling)
+ *
+ * Locally (`pnpm build && pnpm preview`) images come from IPX under /_ipx/.
+ * On Vercel @nuxt/image switches to its vercel provider and they come from
+ * /_vercel/image?url=…&w=…; both URL shapes are understood here.
  */
 
 import { readFile, readdir } from 'node:fs/promises'
@@ -40,6 +45,10 @@ const REQUIRED_SECURITY_HEADERS = {
 
 // Formats that legitimately are not WebP.
 const NON_WEBP_EXTENSIONS = ['.svg', '.ico', '.gif']
+
+// Vercel negotiates the format from the Accept header and may answer with
+// AVIF, which is smaller still. Locally IPX only produces what `format` asks.
+const MODERN_IMAGE_TYPES = ['image/webp', 'image/avif']
 
 // Nitro's compressPublicAssets skips anything under 1 KB (compressing it costs
 // more bytes than it saves), plus .map files and non-compressible mime types.
@@ -77,7 +86,13 @@ function parseArgs(argv) {
   return args
 }
 
+// Vercel preview deploys sit behind Vercel Authentication by default, so every
+// request would come back 401. The project's "Protection Bypass for
+// Automation" secret lets this script through without turning protection off.
+const VERCEL_BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+
 function fetchRaw(url, { method = 'GET', headers = {} } = {}) {
+  if (VERCEL_BYPASS) headers = { ...headers, 'x-vercel-protection-bypass': VERCEL_BYPASS }
   return new Promise((resolve, reject) => {
     const target = new URL(url)
     const send = target.protocol === 'https:' ? httpsRequest : httpRequest
@@ -188,21 +203,36 @@ function checkSrcsets(label, srcsets) {
   return true
 }
 
+/** Source path (without leading slash) and requested width of a generated image URL. */
+function generatedImage(url) {
+  const ipx = url.match(/^\/_ipx\/([^/]+)\/(.+)$/)
+  if (ipx) {
+    const [, modifiers, sourcePath] = ipx
+    const width = Number(modifiers.match(/(?:^|&)s_(\d+)x/)?.[1] ?? modifiers.match(/(?:^|&)w_(\d+)/)?.[1])
+    return { sourcePath, width }
+  }
+  if (url.startsWith('/_vercel/image?')) {
+    const params = new URLSearchParams(url.slice(url.indexOf('?') + 1))
+    const source = params.get('url') ?? ''
+    if (!source.startsWith('/')) return null
+    return { sourcePath: source.slice(1), width: Number(params.get('w')) }
+  }
+  return null
+}
+
 /** Check 6: never generate a candidate wider than the source file. */
 async function checkNoUpscaling(imageUrls) {
-  const ipxWidths = new Map()
+  const widths = new Map()
 
   for (const url of imageUrls) {
-    const match = url.match(/^\/_ipx\/([^/]+)\/(.+)$/)
-    if (!match) continue
-    const [, modifiers, sourcePath] = match
-    const width = Number(modifiers.match(/(?:^|&)s_(\d+)x/)?.[1] ?? modifiers.match(/(?:^|&)w_(\d+)/)?.[1])
-    if (!width) continue
-    const current = ipxWidths.get(sourcePath) ?? 0
-    if (width > current) ipxWidths.set(sourcePath, width)
+    const image = generatedImage(url)
+    if (!image?.width) continue
+    const { sourcePath, width } = image
+    const current = widths.get(sourcePath) ?? 0
+    if (width > current) widths.set(sourcePath, width)
   }
 
-  if (!ipxWidths.size) return
+  if (!widths.size) return
 
   let sharp
   try {
@@ -212,7 +242,7 @@ async function checkNoUpscaling(imageUrls) {
     return
   }
 
-  for (const [sourcePath, width] of ipxWidths) {
+  for (const [sourcePath, width] of widths) {
     const file = path.join('public', decodeURIComponent(sourcePath))
     if (!existsSync(file)) {
       info(`upscaling: source ${sourcePath} is not a local public/ file — skipped.`)
@@ -220,7 +250,7 @@ async function checkNoUpscaling(imageUrls) {
     }
     const { width: sourceWidth } = await sharp(await readFile(file)).metadata()
     if (width > sourceWidth) {
-      fail('upscaling', `/${sourcePath} is ${sourceWidth}px wide but a ${width}px candidate is requested — IPX upscales it: bigger file, no extra detail. Lower the top breakpoint, set densities="1", or supply a larger source.`)
+      fail('upscaling', `/${sourcePath} is ${sourceWidth}px wide but a ${width}px candidate is requested — a wasted variant at best, an upscaled one (bigger file, no extra detail) at worst. Lower the top breakpoint, set densities="1", or supply a larger source.`)
     } else {
       pass('upscaling', `/${sourcePath}: largest candidate ${width}px <= source ${sourceWidth}px`)
     }
@@ -239,7 +269,7 @@ async function checkDocument(baseUrl, route) {
   // Check 1 — compression.
   const encoding = res.headers['content-encoding']
   if (!encoding) {
-    fail('compression', `${route} has no Content-Encoding under \`Accept-Encoding: br, gzip\`. compressPublicAssets writes .gz/.br at build time — if they exist, something in front (proxy/CDN) is decompressing or stripping. Body: ${res.raw.length} B.`)
+    fail('compression', `${route} has no Content-Encoding under \`Accept-Encoding: br, gzip\`. Locally compressPublicAssets writes .gz/.br at build time; on Vercel the CDN compresses — either way, something is decompressing or stripping. Body: ${res.raw.length} B.`)
   } else {
     pass('compression', `${route} → ${encoding}, ${res.raw.length} B on the wire`)
     if (!res.headers.vary || !/accept-encoding/i.test(res.headers.vary)) {
@@ -314,17 +344,17 @@ async function checkImage(baseUrl, url) {
   // Check 3 — WebP delivery.
   if (NON_WEBP_EXTENSIONS.includes(extension)) {
     info(`image: ${url} is ${contentType} (${extension} is exempt from the WebP rule).`)
-  } else if (contentType !== 'image/webp') {
+  } else if (!MODERN_IMAGE_TYPES.includes(contentType)) {
     fail('webp', `${url} is served as \`${contentType}\`, not image/webp. Add format="webp" to the <NuxtImg> (IPX keeps the source format otherwise), or convert the source file.`)
   } else {
-    pass('webp', `${url} → image/webp, ${(res.raw.length / 1024).toFixed(1)} kB`)
+    pass('webp', `${url} → ${contentType}, ${(res.raw.length / 1024).toFixed(1)} kB`)
   }
 
   // Check 4 — cache headers on generated and static images.
-  if (/^\/(_ipx|images)\//.test(url)) {
+  if (/^\/(_ipx\/|images\/|_vercel\/image\?)/.test(url)) {
     const cacheControl = res.headers['cache-control']
     if (!cacheControl) {
-      fail('caching', `${url} has no cache-control — every repeat visit re-downloads it. Check the \`/_ipx/**\` and \`/images/**\` routeRules, and whether a proxy strips them.`)
+      fail('caching', `${url} has no cache-control — every repeat visit re-downloads it. Check the \`/_ipx/**\` and \`/images/**\` routeRules (Vercel manages \`/_vercel/image\` itself), and whether a proxy strips them.`)
     } else if (!/max-age=([1-9]\d{4,})/.test(cacheControl)) {
       warn('caching', `${url} → \`cache-control: ${cacheControl}\` — shorter than the intended month (max-age=2592000).`)
     } else {

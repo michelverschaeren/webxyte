@@ -31,6 +31,8 @@ const navigation = [
 
 <template>
   <UApp>
+    <DatabaseEnvFrame />
+
     <UHeader>
       <template #left>
         <NuxtLink

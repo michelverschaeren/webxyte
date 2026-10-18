@@ -22,9 +22,9 @@ It is also meant for rebuilding outdated websites by reusing the text, context, 
 
 **Deployment integrations (pre-installed, all sites run on Vercel)**
 - `@vercel/analytics` and `@vercel/speed-insights` — registered as Nuxt modules, zero config. Both no-op off Vercel.
-- `nuxt-lettermint` — official Lettermint module for transactional email, with a ready `POST /api/lettermint/send` endpoint. Needs `NUXT_LETTERMINT_API_KEY` (see `.env.example`).
+- `lettermint` — the official Lettermint SDK (pinned), wrapped in `sendMail()` in `server/utils/mail.ts`, plus a validated, rate-limited contact route (`POST /api/contact`). Needs `LETTERMINT_API_TOKEN` and `MAIL_FROM_EMAIL` (see `.env.example`). The `nuxt-lettermint` module is deliberately **not** used: its `autoEndpoint` is an open mail relay.
 - Neon Postgres is **not** pre-installed — it's added per site, only when that site needs a database. See [`.claude/rules/integrations.md`](.claude/rules/integrations.md) for how.
-- The Vercel and Neon MCP servers are linked to this project in `.mcp.json`.
+- `.mcp.json` links Neon and Vercel **scoped to this site's own projects** (fill in the placeholders — `/new-site` step 7), plus context7 (current library docs) and Playwright (browser testing).
 
 **Fetching an existing site for a rebuild**
 - `scripts/fetch-site.mjs` — CLI that pulls a page's text (as Markdown), metadata, and images into `content-import/`
@@ -40,7 +40,7 @@ pnpm install
 cp .env.example .env
 ```
 
-Fill in `NUXT_LETTERMINT_API_KEY` once the site sends mail. Leave `DATABASE_URL`
+Fill in `LETTERMINT_API_TOKEN` and `MAIL_FROM_EMAIL` once the site sends mail, and `MAIL_REDIRECT_TO` with your own address — in `.env` every mail goes there. Keep production values in `.env.live`. Leave `DATABASE_URL`
 commented out unless this site uses Neon — see
 [`.claude/rules/integrations.md`](.claude/rules/integrations.md).
 
@@ -79,22 +79,38 @@ pnpm verify:perf https://your-deploy.com  # or against the real thing
 ```
 
 It exits non-zero on: a response without `Content-Encoding`, a `1w`/`2w` srcset
-candidate (the @nuxt/image `sizes` trap), an image not served as WebP, a
-`/_ipx/` response without `cache-control`, a missing security header, or a
+candidate (the @nuxt/image `sizes` trap), an image not served as WebP/AVIF, an
+image response without `cache-control`, a missing security header, or a
 generated image candidate wider than its source file.
+
+The local build is not what Vercel serves: locally images come from IPX
+(`/_ipx/…`) and Nitro pre-compresses assets; on Vercel @nuxt/image switches to
+Vercel's image optimization (`/_vercel/image?…`) and the CDN compresses. Always
+run it against a Vercel deploy as well. Preview deploys are protected by
+default — pass the project's *Protection Bypass for Automation* secret:
+
+```bash
+VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm verify:perf https://<preview>.vercel.app
+```
 
 **Read [CLAUDE.md](CLAUDE.md) before adding images or pages** — it documents the
 rules these checks enforce and, more importantly, why each one exists.
 
 ## Deployment
 
-`Dockerfile` is multi-stage with an explicitly pinned Node version. Build and
-run it with:
+Every site is hosted on Vercel. There is nothing to configure: Nitro detects
+Vercel and uses its `vercel` preset, and @nuxt/image switches to Vercel's image
+optimization by itself (its allowed widths come from `image.screens` in
+`nuxt.config.ts`).
 
-```bash
-docker build -t my-site .
-docker run --rm -p 3000:3000 my-site
-```
+1. Import the repo in Vercel (or `vercel link` + `vercel deploy` from the CLI).
+2. Set the env vars from `.env.example` in the Vercel project
+   **per environment** — Production gets the real recipients, Preview gets
+   `MAIL_REDIRECT_TO` (and the Neon `development` branch if the site has a
+   database). See `.claude/skills/go-live`.
+3. Enable Web Analytics and Speed Insights in the project — the modules are
+   already installed.
+4. Run `/ship` (or `pnpm verify:perf` by hand) against the deploy.
 
 ## Rebuilding an existing site
 
@@ -137,7 +153,7 @@ Use this when a client wants their outdated site redesigned and you need its tex
 - [ ] **Rewrite `app/pages/index.vue`** with the client's content. Keep the
       `<NuxtImg>` patterns (see [CLAUDE.md](CLAUDE.md)) — replace the copy.
 - [ ] Remove `content-import/` before shipping, if it was used
-- [ ] Run through the definition of done in [CLAUDE.md](CLAUDE.md) against the
+- [ ] Run through the definition of done in [AGENTS.md](AGENTS.md) against the
       deployed site before handing it over
 
 ## Recommended VS Code extensions

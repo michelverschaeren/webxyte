@@ -34,7 +34,8 @@ image that is too small and looks soft. Write
 
 ## The rest of the image rules
 
-- **`format="webp"` on every non-WebP source.** IPX keeps the source format when
+- **`format="webp"` on every non-WebP source** (locally; see "On Vercel"
+  below). IPX keeps the source format when
   no `format` is given. Measured on this stack with a detail-rich source: the
   same 800×600 render is **287 kB as PNG and 77 kB as WebP** — 3.7× for one
   missing prop. Better still: convert source files to WebP yourself (quality 90 —
@@ -58,6 +59,21 @@ image that is too small and looks soft. Write
   to whatever the audit names — and re-check after the content changes.
 - **Never `object-cover` on an image with baked-in text or captions** — it crops
   the words. Use `object-contain` or let the image keep its own ratio.
+
+## On Vercel
+
+In production @nuxt/image switches to its `vercel` provider by itself (see
+`.claude/rules/nuxt-config.md`). The rules above still apply — `sizes` is
+parsed by @nuxt/image before any provider sees it — but three things differ:
+
+- **`format` is ignored.** Vercel picks WebP or AVIF from the browser's
+  `Accept` header. Keep `format="webp"` anyway: it is what the local IPX build
+  needs, and it costs nothing on Vercel.
+- **Widths snap to `image.screens`.** A `width` or density that is not a screen
+  value is rounded up to the next one. Two candidates can collapse onto the
+  same URL; that is harmless.
+- **Every distinct source × width × quality is a billed transformation.** Do
+  not invent per-image `quality` values or extra screens without a reason.
 
 `app/pages/index.vue` is the reference implementation: the hero shows the LCP
 pattern, the workflow cards show the lazy-loaded grid pattern.

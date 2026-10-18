@@ -1,12 +1,20 @@
 {
   "mcpServers": {
+    "Neon": {
+      "type": "http",
+      "url": "https://mcp.neon.tech/mcp?projectId=REPLACE_WITH_NEON_PROJECT_ID"
+    },
     "vercel": {
       "type": "http",
-      "url": "https://mcp.vercel.com"
+      "url": "https://mcp.vercel.com/webxytes-projects/REPLACE_WITH_VERCEL_PROJECT_NAME"
     },
-    "neon": {
+    "context7": {
       "type": "http",
-      "url": "https://mcp.neon.tech/mcp"
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@playwright/mcp@latest"]
     }
   }
 }

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Nuxt 4 brochure-site starter. Every client site is a clone of this repo, so the
+Nuxt 4 brochure-site starter, hosted on Vercel. Every client site is a clone of this repo, so the
 performance and security settings here are load-bearing — each was added after
 measuring a regression, and the reason is written next to it. Do not undo one to
 make a layout easier.
@@ -20,7 +20,10 @@ pnpm fetch:site   # pull an existing site's copy + images into content-import/
 There is no `test` script and no `format` script. Do not invent one.
 
 `pnpm verify:perf` needs a server: `pnpm build && pnpm preview` in one terminal,
-then `pnpm verify:perf http://localhost:3000` (or the deployed URL) in another.
+then `pnpm verify:perf http://localhost:3000` in another. The local build is a
+node-server build with IPX; Vercel serves images from `/_vercel/image` and
+compresses at its CDN, so run it against the Vercel deploy too. A protected
+preview deploy needs `VERCEL_AUTOMATION_BYPASS_SECRET` set.
 
 ## Where the rules live
 
@@ -30,11 +33,11 @@ what the task needs. Read the matching file **before** editing:
 | Editing | Read first |
 | --- | --- |
 | any `.vue` file | [`.claude/rules/images.md`](.claude/rules/images.md) — the @nuxt/image `sizes` trap and the image rules. Non-negotiable before writing a `<NuxtImg>`. |
-| `nuxt.config.ts` | [`.claude/rules/nuxt-config.md`](.claude/rules/nuxt-config.md) — Nitro compression and prerender, cache `routeRules`, security headers. |
-| `Dockerfile` | [`.claude/rules/deploy.md`](.claude/rules/deploy.md) — same base image in both stages, pinned Node. |
-| env vars, email, database | [`.claude/rules/integrations.md`](.claude/rules/integrations.md) — Vercel Analytics/Speed Insights, Lettermint email, opt-in Neon. |
+| `nuxt.config.ts` | [`.claude/rules/nuxt-config.md`](.claude/rules/nuxt-config.md) — local build vs. Vercel, Nitro compression and prerender, cache `routeRules`, security headers. |
+| env vars, email, database | [`.claude/rules/integrations.md`](.claude/rules/integrations.md) — Vercel Analytics/Speed Insights, Lettermint email (official SDK, never the module's open endpoint), opt-in Neon with separate development/production branches. |
+| a mail, a release, a database, logins, an admin area | the matching skill in [`.claude/skills/`](.claude/skills/) — `mail-lettermint`, `release`, `go-live`, `db-migration`, `drizzle-orm`, `better-auth-conventions`, `admin-conventions`. |
 
-Claude Code loads these three automatically via `paths:` frontmatter and reads
+Claude Code loads these automatically via `paths:` frontmatter and reads
 [`CLAUDE.md`](CLAUDE.md) for its own workflow and hook conventions. Other agents
 should open them directly from the table above.
 
@@ -50,7 +53,7 @@ pnpm lint && pnpm typecheck
 
 - [ ] Lighthouse **mobile performance ≥ 85**, measured against the real deploy.
       Not localhost: it has no realistic TTFB and flatters the score.
-- [ ] All images served as WebP, and no srcset candidate wider than its source.
+- [ ] All images served as WebP/AVIF, and no srcset candidate wider than its source.
 - [ ] Compression, cache headers and security headers confirmed with `curl`
       against the deploy — not inferred from `nuxt.config.ts`.
 - [ ] `pnpm verify:perf https://<deploy>` passes.

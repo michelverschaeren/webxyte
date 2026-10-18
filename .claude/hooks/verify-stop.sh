@@ -21,13 +21,14 @@ active=$(printf '%s' "$payload" | node -e '
 
 # --- change gate --------------------------------------------------------------
 # A turn that only answered a question must end instantly. The stamp records the
-# last passing run; if nothing under app/ or scripts/ (or a root config file) is
-# newer than it, there is nothing to re-check.
+# last passing run; if nothing under app/, server/, shared/ or scripts/ (or a
+# root config file) is newer than it, there is nothing to re-check. Paths that
+# do not exist yet (server/ and shared/ on a static site) are skipped by find.
 STAMP_DIR=".nuxt/.claude"
 STAMP="$STAMP_DIR/verified"
 mkdir -p "$STAMP_DIR" 2>/dev/null || exit 0
 
-SOURCES="app scripts nuxt.config.ts eslint.config.mjs tsconfig.json package.json"
+SOURCES="app server shared scripts nuxt.config.ts eslint.config.mjs tsconfig.json package.json"
 
 if [ -f "$STAMP" ]; then
   # find is scoped to the source paths — never node_modules, .nuxt or .output.

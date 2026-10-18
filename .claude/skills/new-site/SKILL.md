@@ -86,6 +86,29 @@ copy changes this. Run Lighthouse and read the
 
 Run `/ship`. Do not consider the site started until `verify:perf` passes.
 
+## 7. Scope the MCP servers and env to this site
+
+`.mcp.json` ships with placeholders so that no clone ever gets account-wide
+access. Ask the user for the Vercel project name and (if the site uses a
+database) the Neon project id — do not create projects yourself.
+
+1. Replace `REPLACE_WITH_VERCEL_PROJECT_NAME` and `REPLACE_WITH_NEON_PROJECT_ID`
+   in `.mcp.json` and `.codex/config.toml`. No database yet? Remove the
+   Neon entries instead.
+2. Link the CLI: `vercel link --yes --scope webxytes-projects --project <name>`.
+   It writes `.vercel/` and a `.env.local` with an OIDC token (both gitignored).
+3. Tell the user to run `/mcp` once, approve the project servers, and
+   authenticate **Neon choosing only this project** (not "All projects") and
+   **vercel choosing the team webxytes-projects**.
+4. Check: `claude mcp get Neon` must show `Project config` (or `Local config`)
+   with `projectId` in the URL. If it still shows the account-wide `User
+   config`, add a local override:
+   `claude mcp add --transport http -s local Neon "https://mcp.neon.tech/mcp?projectId=<id>"`.
+5. Env: `cp .env.example .env`, fill in development values
+   (`MAIL_REDIRECT_TO` = the developer, `NUXT_PUBLIC_DATABASE_ENV=development`
+   if there is a database). Keep production values in `.env.live`. Set the
+   Vercel env **per environment** (skill `go-live`).
+
 Finally: update `README.md` so it describes the client site rather than the
 starter, and delete the "Starting a new site from this clone" section from
 `AGENTS.md` — it no longer applies to this repo.

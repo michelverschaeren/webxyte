@@ -9,7 +9,8 @@ paths:
 
 Every site cloned from this starter deploys to Vercel. These three are the
 standard stack across all of them — read this before touching env vars or
-adding a database.
+adding a database. Deeper how-tos live in the skills `mail-lettermint`,
+`db-migration` and `release`.
 
 ## Vercel Analytics + Speed Insights
 
@@ -19,43 +20,59 @@ Vercel-only: they no-op entirely when not deployed on Vercel, and Speed
 Insights collects nothing in dev. **Do not remove them** to "simplify" the
 modules list; they are already a no-op everywhere that matters.
 
-## Lettermint (email)
+## Lettermint (email) — always, via the official SDK
 
-`nuxt-lettermint` is the official module. `autoEndpoint: true` in
-`nuxt.config.ts` exposes `POST /api/lettermint/send`, so a contact form can
-call the client composable directly without the API token ever reaching the
-browser:
+All transactional mail goes through Lettermint. Do not suggest Resend,
+SendGrid, SMTP or nodemailer.
 
-```ts
-const { send, sending, error } = useLettermint()
-await send({ from: 'Site <noreply@domain>', to: 'you@domain', subject: '…', text: '…' })
-```
-
-For a server route that needs to validate input first, import `sendEmail`
-from `#imports` inside `defineEventHandler` instead of hitting the auto
-endpoint.
-
-Requires `NUXT_LETTERMINT_API_KEY` (see `.env.example`) — a project token from
-the Lettermint dashboard. **Never read this env var, or any Lettermint call,
-from client-side code** — it only exists in server context (Nitro routes),
-which is exactly what `autoEndpoint` and `sendEmail` already give you.
+- `server/utils/mail.ts` is the **only** file that knows Lettermint:
+  `sendMail()` on top of the official SDK `lettermint` (version pinned
+  exactly, zero dependencies). Everything else calls `sendMail()` — swapping
+  providers means rewriting that one function.
+- `sendMail()` enforces: a 10 s timeout, a `tag` per kind of mail, an optional
+  `idempotencyKey` (`order:<id>`), logging the `message_id` on success, and a
+  readable error (timeout / 422 with reason / HTTP status) on failure.
+- **A failed mail never undoes the main action.** Store first, mail second,
+  in its own `try/catch`.
+- **Never** add the `nuxt-lettermint` module or its `autoEndpoint`
+  (`POST /api/lettermint/send`): it accepts `from`/`to`/`html` from any
+  visitor, unauthenticated — an open mail relay that sends phishing in the
+  client's name. Never build a mail in the browser either. A form posts only
+  its fields to its own validated route; see `server/api/contact.post.ts`
+  (honeypot + per-IP limit, fixed recipient).
+- Env: `LETTERMINT_API_TOKEN`, `MAIL_FROM_EMAIL` (domain verified in
+  Lettermint: SPF + DKIM, plus DMARC), `MAIL_FROM_NAME`, recipients such as
+  `CONTACT_NOTIFICATION_EMAIL`. **Server only** — never a `NUXT_PUBLIC_*` var.
+- `MAIL_REDIRECT_TO` (development and Vercel Preview only): every mail goes
+  to the developer with `[test → real@recipient]` in the subject. Empty in
+  production.
 
 ## Neon (database) — opt-in, not every clone needs one
 
 No database client ships in this starter on purpose: most client sites are
 static brochure pages, and this project is weight-conscious (Lighthouse
 mobile ≥ 85 is in the definition of done in `AGENTS.md`). Add one only when a
-site actually needs persistence (a form that stores submissions, a CMS-ish
-page, etc.):
+site actually needs persistence. The stack, when it does: Drizzle ORM +
+`postgres` (postgres.js) on Neon, Better Auth for logins.
 
-1. `pnpm add @neondatabase/serverless` (or `drizzle-orm` plus its Neon driver,
-   if the site is relational-model-heavy enough to want a query builder).
-2. Set `DATABASE_URL` (uncomment it in `.env.example`, set it for real in
-   Vercel's project env vars — never commit the real value).
-3. Query it only from `server/api/**` (Nitro) routes. Never import the Neon
-   client or read `DATABASE_URL` from a `.vue` file or anything that ships to
-   the browser.
+1. `pnpm add drizzle-orm postgres` and `pnpm add -D drizzle-kit`. Query only
+   from `server/**`. Never import the client or read `DATABASE_URL` in a
+   `.vue` file or anything that ships to the browser.
+2. **Two Neon branches from day one:** `production` (the live site) and
+   `development` (a copy, for local work and Vercel Preview).
+3. **Two env files:** `.env` = development (the app reads it), `.env.live` =
+   production values, read by nothing except
+   `pnpm db:migrate:production` (a `drizzle.production.config.ts` that loads
+   `DATABASE_URL` from `.env.live`). Both gitignored.
+4. **Vercel env per environment:** Production → production branch and real
+   recipients. Preview → development branch, `MAIL_REDIRECT_TO`,
+   `NUXT_PUBLIC_DATABASE_ENV=development`. Never one `DATABASE_URL` shared by
+   both: Preview would then write to live data.
+5. `NUXT_PUBLIC_DATABASE_ENV=development` shows the
+   `DEVELOPMENT · TESTDATABASE` banner (`app/components/DatabaseEnvFrame.vue`).
+   If the site has a fixed header with a z-index above 70, raise the banner's.
+6. Migrations do **not** run on deploy. Apply them to production before the
+   code that needs them reaches `main` (skill `db-migration`).
 
-The Neon MCP server is linked at the project level (`.mcp.json`) so branches,
-connection strings and migrations can be managed from here directly once a
-site needs them.
+The Neon and Vercel MCP servers in `.mcp.json` are scoped to **this site's**
+Neon project and Vercel project (see `/new-site`), never account-wide.
