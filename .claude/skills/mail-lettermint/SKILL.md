@@ -1,6 +1,6 @@
 ---
 name: mail-lettermint
-description: E-mail versturen in dit project (en elk project van deze stack) via Lettermint - de vaste maildienst voor transactionele mail (bestelmeldingen, inloglinks, uitnodigingen, contactformulier). Gebruik bij elke nieuwe of gewijzigde mail, bij server/utils/mail*.ts, bij "mail komt niet aan", bij env-variabelen LETTERMINT_* / MAIL_* / *_NOTIFICATION_EMAIL, of als iemand een andere maildienst (Resend, SendGrid, SMTP, nodemailer) voorstelt.
+description: E-mail versturen in dit project (en elk project van deze stack) via Lettermint (officiële SDK achter een eigen sendMail()) - de vaste maildienst voor transactionele mail (bestelmeldingen, inloglinks, uitnodigingen, contactformulier). Gebruik bij elke nieuwe of gewijzigde mail, bij server/utils/mail*.ts, bij "mail komt niet aan", bij env-variabelen LETTERMINT_* / MAIL_* / *_NOTIFICATION_EMAIL, of als iemand een andere maildienst (Resend, SendGrid, SMTP, nodemailer) voorstelt.
 ---
 
 # Mail via Lettermint
@@ -11,17 +11,35 @@ gebruiker daar zelf om vraagt.
 
 ## Opzet (`server/utils/mail.ts`)
 
-- Eén interne `sendMail()`: `POST https://api.lettermint.co/v1/send` met
-  header `x-lettermint-token`. **Geen SDK**: één `fetch`, geen extra dependency.
-- Body: `from` (`"<naam> <MAIL_FROM_EMAIL>"`), `to` (array), `subject`,
-  `text`, `html`, `reply_to` (array), `attachments`
-  (`{ filename, content: base64, content_type }`).
-- Een antwoord dat niet `ok` is → `throw`, met status en body in de melding.
-- `mailConfigured()` = `LETTERMINT_API_TOKEN` én `MAIL_FROM_EMAIL` gezet.
-  Lokaal zonder token: niets versturen, enkel een logregel.
-- Per soort mail een geëxporteerde functie: `sendOrderNotification`,
-  `sendContactMail`, `sendCustomerRequestMail`, `sendAuthLinkMail`,
-  `sendLaunchMail`. Nieuwe mails volgen dat patroon.
+Drie lagen; enkel de onderste kent Lettermint:
+
+1. **Mails** (`sendOrderNotification`, `sendContactMail`, `sendAuthLinkMail`, …):
+   inhoud en ontvanger, gebouwd op de server. Roepen enkel `sendMail()` aan.
+2. **`sendMail()`** (intern): afzender, `MAIL_REDIRECT_TO`, time-out, logging.
+   **Enige plek die Lettermint kent**; een andere maildienst = enkel deze
+   functie vervangen.
+3. **Officiële SDK `lettermint`** (versie exact vastgezet, 0 dependencies,
+   github.com/lettermint/lettermint-node): `Lettermint.email(token, { timeout })`.
+
+Afspraken in `sendMail()`:
+- `timeout: 10_000`: een bestelling wacht op de mail; nooit laten hangen.
+- Verplichte `tag` per soort mail (`order`, `contact`, `auth-login`, …):
+  filter in het Lettermint-dashboard en in de logs. Patroon `[A-Za-z0-9_-]`.
+- `idempotencyKey` voor mails die per gebeurtenis één keer mogen vertrekken
+  (`order:<id>`): een nieuwe poging verstuurt geen tweede mail.
+- Bij succes loggen: `[mail] <tag> verstuurd: <message_id> (<status>)`. Met
+  dat id vind je de mail terug in Lettermint.
+- Fouten vertalen naar één leesbare melding (`describeLettermintError`):
+  `TimeoutError`, `ValidationError` (422 + `errorType` + antwoord),
+  `HttpRequestError` (status + antwoord). Gooien met `{ cause }`.
+- `mailConfigured()` = `LETTERMINT_API_TOKEN` en `MAIL_FROM_EMAIL` gezet;
+  zonder: niets versturen, enkel loggen.
+
+**Niet gebruiken:** de Nuxt-module `nuxt-lettermint`. Haar `autoEndpoint`
+(`POST /api/lettermint/send`) aanvaardt `from`/`to`/`html` van elke bezoeker,
+zonder login of limiet: een open mail-relay. Ook `useLettermint()` in de
+browser niet: de inhoud van een mail hoort op de server gebouwd te worden.
+Formulieren posten enkel hun velden naar een eigen, gevalideerd endpoint.
 
 ## Env-variabelen
 
@@ -64,8 +82,13 @@ Nieuwe variabelen ook in `.env.example` en in de `go-live`-checklist zetten.
 
 ## Debuggen
 
-- Niets ontvangen? Eerst de Vercel-runtime-logs nakijken op
-  `Lettermint gaf <status>` of `[mail]` / `[orders]`. Daarna het dashboard
-  van Lettermint (verzonden, gebounced, geblokkeerd).
-- 401/403 → token fout of van een ander project. 422 → afzenderdomein niet
-  geverifieerd of veld ongeldig.
+- Niets ontvangen? Zoek in de Vercel-runtime-logs op `[mail]`:
+  `verstuurd: <message_id>` → zoek dat id op in Lettermint (afgeleverd,
+  gebounced, geblokkeerd?); `mislukt:` → de reden staat erbij.
+- `ValidationError 422` met `errors.from` → afzenderdomein niet geverifieerd;
+  andere velden → inhoud ongeldig (bv. `text` korter dan 3 tekens).
+- `HttpRequestError 401/403` → token fout of van een ander project.
+- Token testen zonder te mailen: `await Lettermint.email(token).ping()` → `"pong"`.
+- Upgrade van `lettermint`: changelog lezen, foutklassen en `send()`-antwoord
+  (`message_id`, `status`) nakijken, en de drie paden testen (ping, 422,
+  time-out).
