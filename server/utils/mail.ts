@@ -5,6 +5,7 @@ import {
   contactDetails,
   deliveryAddressLines,
   generateOrderPdf,
+  orderPdfFilename,
   promotionLines,
   type OrderPdfItem,
 } from "./order-pdf";
@@ -166,12 +167,9 @@ export async function sendOrderNotification({
   let attachments: MailAttachment[] | undefined;
   try {
     const pdf = await generateOrderPdf({ order, billing, customerNr, customerEmail, items });
-    const datePart = order.createdAt
-      .toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }); // JJJJ-MM-DD
-    const nrPart = customerNr ?? order.id.slice(0, 8);
     attachments = [
       {
-        filename: `bestelling-${nrPart}-${datePart}.pdf`,
+        filename: orderPdfFilename(order, customerNr),
         content: pdf,
         contentType: "application/pdf",
       },

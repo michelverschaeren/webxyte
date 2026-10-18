@@ -393,15 +393,14 @@
                 </dd>
               </div>
               <template v-if="data.billing">
-                <div>
-                  <dt>Bedrijf (facturatie)</dt>
-                  <dd>{{ data.billing.companyName }}</dd>
-                </div>
                 <div v-if="data.billing.vatNumber">
                   <dt>Btw-nummer</dt>
                   <dd>{{ data.billing.vatNumber }}</dd>
                 </div>
-                <div>
+                <!-- Enkel als het afwijkt van de login (hoofdletters tellen niet). -->
+                <div
+                  v-if="data.billing.invoiceEmail.toLowerCase() !== data.customer.contactEmail?.toLowerCase()"
+                >
                   <dt>Facturatie-e-mail</dt>
                   <dd>{{ data.billing.invoiceEmail }}</dd>
                 </div>

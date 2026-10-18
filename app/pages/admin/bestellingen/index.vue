@@ -5,7 +5,7 @@
         <AdminSearchField
           v-model="search"
           name="bestellingen-zoeken"
-          placeholder="Zoek op bestelnr., klant, bedrijf of adres…"
+          placeholder="Zoek op bestelnr., klant, e-mail of adres…"
           class="w-full sm:w-80"
         />
         <!-- Filter vanuit de klantenlijst (?klant=…) -->
@@ -52,7 +52,6 @@
               <th>Bestelnr.</th>
               <th>Datum</th>
               <th class="w-full">Klant</th>
-              <th class="hidden md:table-cell">Bedrijf</th>
               <th class="hidden lg:table-cell">Leveringsadres</th>
               <th class="adm-num">Artikelen</th>
               <th class="adm-num">Stuks</th>
@@ -71,9 +70,6 @@
                 <p class="truncate font-medium text-(--color-text-strong)">{{ o.customerName }}</p>
                 <p class="truncate text-[0.8125rem] text-(--color-text-muted)">{{ o.customerEmail }}</p>
               </td>
-              <td class="hidden whitespace-nowrap text-(--color-text-muted) md:table-cell">
-                {{ o.companyName ?? "—" }}
-              </td>
               <td class="hidden whitespace-nowrap lg:table-cell">
                 <template v-if="hasAddress(o)">
                   <p class="text-(--color-text-strong)">{{ o.delivery?.street }}</p>
@@ -86,6 +82,17 @@
               <td class="adm-num">{{ o.lineCount }}</td>
               <td class="adm-num">{{ o.totalQuantity }}</td>
               <td class="adm-col-actions">
+                <a
+                  :href="`/api/admin/orders/${o.id}/pdf`"
+                  download
+                  :aria-label="`Bestelbon ${orderNumber(o.id)} downloaden (PDF)`"
+                  title="Bestelbon downloaden (PDF)"
+                  class="adm-row-btn"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" />
+                  </svg>
+                </a>
                 <NuxtLink
                   :to="`/admin/bestellingen/${o.id}`"
                   :aria-label="`Bestelling ${orderNumber(o.id)} bekijken`"
@@ -99,7 +106,7 @@
               </td>
             </tr>
             <tr v-if="items.length === 0">
-              <td colspan="8" class="adm-card-empty">Geen bestellingen gevonden.</td>
+              <td colspan="7" class="adm-card-empty">Geen bestellingen gevonden.</td>
             </tr>
           </tbody>
         </table>
@@ -126,7 +133,6 @@ interface OrderDto {
   createdAt: string;
   customerName: string;
   customerEmail: string;
-  companyName: string | null;
   /** Leveringsadres zoals op de bestelling; leeg op heel oude bestellingen. */
   delivery: { street: string | null; postalCode: string | null; city: string | null } | null;
   lineCount: number;

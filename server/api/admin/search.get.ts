@@ -2,7 +2,6 @@ import { asc, desc, eq, ilike, or, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
-  billingDetails,
   customers,
   orders,
   products,
@@ -49,17 +48,16 @@ export default defineEventHandler(async (event) => {
       .select({
         id: orders.id,
         createdAt: orders.createdAt,
-        customerName: user.name,
-        companyName: billingDetails.companyName,
+        // Klantnaam; een login zonder klant toont de naam van de login.
+        customerName: raw<string>`coalesce(${customers.name}, ${user.name})`,
       })
       .from(orders)
       .innerJoin(user, eq(orders.userId, user.id))
-      .leftJoin(billingDetails, eq(billingDetails.userId, user.id))
+      .leftJoin(customers, eq(customers.userId, user.id))
       .where(
         or(
-          ilike(user.name, like),
+          ilike(raw`coalesce(${customers.name}, ${user.name})`, like),
           ilike(user.email, like),
-          ilike(billingDetails.companyName, like),
           // Bestelnummer: het begin van de id.
           ilike(raw`${orders.id}::text`, `${q}%`),
         ),

@@ -2,7 +2,6 @@ import { and, count, desc, eq, ilike, inArray, isNotNull, or, sql as raw } from 
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
-  billingDetails,
   customers,
   orderItems,
   orders,
@@ -12,7 +11,7 @@ import { requireAdmin } from "~~/server/utils/session";
 
 /**
  * GET /api/admin/orders — alle bestellingen van alle klanten, gepagineerd,
- * met klant/bedrijfsnaam en een samenvatting per bestelling. Zelfde vorm
+ * met de klantnaam en een samenvatting per bestelling. Zelfde vorm
  * als /api/account/orders, maar dan zonder userId-filter en met wie de
  * bestelling plaatste erbij.
  */
@@ -37,6 +36,9 @@ export default defineEventHandler(async (event) => {
   const street = raw<string | null>`${orders.billingSnapshot}->>'street'`;
   const postalCode = raw<string | null>`${orders.billingSnapshot}->>'postalCode'`;
   const city = raw<string | null>`${orders.billingSnapshot}->>'city'`;
+  // De klantnaam (= bedrijfsnaam, door klant en beheerder te wijzigen);
+  // een login zonder klant (beheerder, test) toont de naam van de login.
+  const customerName = raw<string>`coalesce(${customers.name}, ${user.name})`;
 
   // Klant zonder login = nog geen bestellingen: inArray op een lege
   // subquery geeft dan gewoon niets terug.
@@ -63,9 +65,8 @@ export default defineEventHandler(async (event) => {
       : undefined,
     search
       ? or(
-          ilike(user.name, `%${search}%`),
+          ilike(customerName, `%${search}%`),
           ilike(user.email, `%${search}%`),
-          ilike(billingDetails.companyName, `%${search}%`),
           ilike(street, `%${search}%`),
           ilike(postalCode, `%${search}%`),
           ilike(city, `%${search}%`),
@@ -82,19 +83,18 @@ export default defineEventHandler(async (event) => {
       .select({
         id: orders.id,
         createdAt: orders.createdAt,
-        customerName: user.name,
+        customerName,
         customerEmail: user.email,
-        companyName: billingDetails.companyName,
         delivery: { street, postalCode, city },
         lineCount: raw<number>`count(${orderItems.id})::int`,
         totalQuantity: raw<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
       })
       .from(orders)
       .innerJoin(user, eq(orders.userId, user.id))
-      .leftJoin(billingDetails, eq(billingDetails.userId, user.id))
+      .leftJoin(customers, eq(customers.userId, user.id))
       .leftJoin(orderItems, eq(orderItems.orderId, orders.id))
       .where(where)
-      .groupBy(orders.id, user.id, billingDetails.id)
+      .groupBy(orders.id, user.id, customers.id)
       .orderBy(desc(orders.createdAt))
       .limit(perPage)
       .offset((page - 1) * perPage),
@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
       .select({ value: count() })
       .from(orders)
       .innerJoin(user, eq(orders.userId, user.id))
-      .leftJoin(billingDetails, eq(billingDetails.userId, user.id))
+      .leftJoin(customers, eq(customers.userId, user.id))
       .where(where),
   ]);
 

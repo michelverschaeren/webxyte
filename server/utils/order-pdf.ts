@@ -32,6 +32,14 @@ interface OrderPdfInput {
   items: OrderPdfItem[];
 }
 
+/** "bestelling-<klantnr>-<JJJJ-MM-DD>.pdf" — bijlage van de mail én download in het beheer. */
+export function orderPdfFilename(order: Pick<Order, "id" | "createdAt">, customerNr: string | null) {
+  const datePart = order.createdAt
+    .toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }); // JJJJ-MM-DD
+  const nrPart = customerNr ?? order.id.slice(0, 8);
+  return `bestelling-${nrPart}-${datePart}.pdf`;
+}
+
 /**
  * De extra klantregels bovenaan bestelbon en bestelmail: telefoon, en het
  * factuuradres enkel als het afwijkt van het account (anders staat het er al).

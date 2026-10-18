@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       .where(eq(user.id, order.userId))
       .limit(1),
     db
-      .select({ id: customers.id, customerNr: customers.customerNr })
+      .select({ id: customers.id, customerNr: customers.customerNr, name: customers.name })
       .from(customers)
       .where(eq(customers.userId, order.userId))
       .limit(1),
@@ -52,6 +52,8 @@ export default defineEventHandler(async (event) => {
   const customer = account
     ? {
         ...account,
+        // Klantnaam; een login zonder klant houdt de naam van de login.
+        name: crmCustomer?.name ?? account.name,
         customerId: crmCustomer?.id ?? null,
         customerNr: crmCustomer?.customerNr ?? null,
       }

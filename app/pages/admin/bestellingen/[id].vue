@@ -17,6 +17,17 @@
       >
         Klantprofiel
       </NuxtLink>
+      <a
+        v-if="order"
+        :href="`/api/admin/orders/${order.id}/pdf`"
+        download
+        class="adm-btn adm-btn--primary"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" />
+        </svg>
+        Bestelbon (PDF)
+      </a>
     </template>
 
     <template v-if="order">
@@ -145,15 +156,19 @@
                 <dt>E-mail</dt>
                 <dd>{{ order.customer.email }}</dd>
               </div>
-              <div v-if="order.billing.companyName">
-                <dt>Bedrijf</dt>
+              <!-- Naam zoals bevroren op de bestelling; enkel als de klant
+                   intussen anders heet. -->
+              <div v-if="order.billing.companyName && order.billing.companyName !== order.customer.name">
+                <dt>Naam bij bestelling</dt>
                 <dd>{{ order.billing.companyName }}</dd>
               </div>
               <div v-if="order.billing.vatNumber">
                 <dt>Btw-nummer</dt>
                 <dd>{{ order.billing.vatNumber }}</dd>
               </div>
-              <div v-if="order.billing.invoiceEmail && order.billing.invoiceEmail !== order.customer.email">
+              <div
+                v-if="order.billing.invoiceEmail && order.billing.invoiceEmail.toLowerCase() !== order.customer.email.toLowerCase()"
+              >
                 <dt>Facturatie-e-mail</dt>
                 <dd>{{ order.billing.invoiceEmail }}</dd>
               </div>

@@ -93,7 +93,7 @@ const props = defineProps<{
 
 interface SearchResult {
   customers: { id: string; customerNr: string; name: string }[];
-  orders: { id: string; createdAt: string; customerName: string; companyName: string | null }[];
+  orders: { id: string; createdAt: string; customerName: string }[];
   products: { id: string; articleNr: string; name: string; isActive: boolean }[];
 }
 
@@ -169,7 +169,7 @@ const groups = computed(() => {
       entries: make(r?.orders, (o) => ({
         key: `o-${o.id}`,
         to: `/admin/bestellingen/${o.id}`,
-        title: `${o.id.slice(0, 8).toUpperCase()} · ${o.companyName || o.customerName}`,
+        title: `${o.id.slice(0, 8).toUpperCase()} · ${o.customerName}`,
         meta: dateFormat.format(new Date(o.createdAt)),
       })),
     },
