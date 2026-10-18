@@ -1,15 +1,16 @@
 import type { BillingSnapshot, Order } from "~~/server/database/schema";
 import { escapeHtml, mailButton, renderMailLayout, withTextFooter } from "./mail-layout";
 import { renderLaunchMail } from "./mail-launch";
-import { contactDetails, deliveryAddressLines, generateOrderPdf } from "./order-pdf";
+import {
+  contactDetails,
+  deliveryAddressLines,
+  generateOrderPdf,
+  promotionLines,
+  type OrderPdfItem,
+} from "./order-pdf";
 
-interface OrderMailItem {
-  articleNr: string;
-  name: string;
-  supplier: string;
-  unit: string | null;
-  quantity: number;
-}
+/** Zelfde vorm als een regel op de bestelbon, inclusief promoties. */
+type OrderMailItem = OrderPdfItem;
 
 interface OrderNotification {
   order: Order;
@@ -119,11 +120,15 @@ export async function sendOrderNotification({
   });
 
   const lines = items
-    .map(
-      (i) =>
+    .map((i) =>
+      [
         `${i.quantity}× ${i.name} (${i.articleNr}, ${i.supplier}${i.unit ? `, ${i.unit}` : ""})`,
+        ...promotionLines(i).map((line) => `   ${line}`),
+      ].join("\n"),
     )
     .join("\n");
+
+  const promoItems = items.filter((i) => (i.promotions ?? []).length > 0);
 
   const text = [
     `Nieuwe bestelling van ${billing.companyName}`,
@@ -136,6 +141,12 @@ export async function sendOrderNotification({
     `— Leveringsadres —`,
     ...deliveryAddressLines(billing),
     ``,
+    ...(promoItems.length > 0
+      ? [
+          `De klant bestelt ${promoItems.length} artikel${promoItems.length === 1 ? "" : "en"} met een lopende promotie (zie hieronder).`,
+          ``,
+        ]
+      : []),
     `— Bestelde artikelen —`,
     lines,
     ``,
@@ -144,7 +155,10 @@ export async function sendOrderNotification({
 
   const html = renderMailLayout({
     title: `Nieuwe bestelling van ${billing.companyName}`,
-    preheader: `${items.length} artikel${items.length === 1 ? "" : "en"} — bestelbon in bijlage`,
+    preheader:
+      `${items.length} artikel${items.length === 1 ? "" : "en"}` +
+      (promoItems.length > 0 ? `, ${promoItems.length} met promotie` : "") +
+      ` — bestelbon in bijlage`,
     content: orderMailContent({ order, billing, items, customerEmail, customerNr }, placedAt),
   });
 
@@ -199,11 +213,24 @@ function orderMailContent(
   // Bewust zonder `order.name`: dat is een persoonlijk geheugensteuntje van
   // de klant, niet bedoeld voor de zaak.
 
+  // Promotie onder de productnaam: rood label als de voorwaarde gehaald is,
+  // grijs als de klant (nog) onder het minimum zit.
+  const promoHtml = (i: OrderMailItem) =>
+    (i.promotions ?? [])
+      .map(
+        (p) => `<br><span style="display:inline-block;margin-top:4px;padding:1px 6px;border-radius:4px;font-size:12px;font-weight:600;${
+          p.reached ? "background:#fbe9e9;color:#b8252a" : "background:#f0f0f0;color:#666"
+        }">Promotie: ${e(p.label)}</span> <span style="font-size:12px;color:#666">${e(p.note)}</span>`,
+      )
+      .join("");
+
+  const promoCount = items.filter((i) => (i.promotions ?? []).length > 0).length;
+
   const rows = items.map(
     (i) => `<tr>
     <td style="${cell};font-weight:600">${e(i.articleNr)}</td>
     <td style="${cell};text-align:right;font-weight:600">${i.quantity}</td>
-    <td style="${cell};padding-left:12px">${e(i.name)}${i.unit ? ` <span style="color:#666">(${e(i.unit)})</span>` : ""}</td>
+    <td style="${cell};padding-left:12px">${e(i.name)}${i.unit ? ` <span style="color:#666">(${e(i.unit)})</span>` : ""}${promoHtml(i)}</td>
     <td style="${cell}">${e(i.supplier)}</td>
   </tr>`,
   );
@@ -215,6 +242,7 @@ function orderMailContent(
 <p style="margin:0 0 24px;font-size:14px">${deliveryAddressLines(billing).map(e).join("<br>")}</p>
 ${order.note ? `<h2 style="${h2}">Opmerking</h2>
 <p style="margin:0 0 24px;font-size:14px;white-space:pre-line">${e(order.note)}</p>` : ""}
+${promoCount > 0 ? `<p style="margin:0 0 16px;padding:10px 12px;border-left:3px solid #b8252a;background:#fbe9e9;font-size:14px">De klant bestelt <strong>${promoCount} artikel${promoCount === 1 ? "" : "en"} met een lopende promotie</strong>. Ze staan hieronder bij het product aangeduid.</p>` : ""}
 <h2 style="${h2}">Bestelde artikelen</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px">
   <tr>

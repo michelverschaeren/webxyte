@@ -182,12 +182,15 @@ export default defineNuxtConfig({
     exclude: BLOCKED_PATHS,
   },
 
-  // Standaard "ipx"-provider verwerkt afbeeldingen in de Nuxt-server zelf
-  // (geen externe dienst nodig) — past bij de self-hosted Dokploy-setup.
+  // Op Vercel kiest @nuxt/image zelf de "vercel"-provider (/_vercel/image).
+  // Lokaal (nuxt dev / node-server) valt hij terug op "ipx" in de Nuxt-server.
+  // Oude /_ipx-URL's uit de VPS-tijd worden in vercel.json doorgestuurd naar
+  // het origineel: de IPX-handler crasht op Vercel (ERR_REQUIRE_ESM).
   image: {
     format: ["webp"],
     quality: 80,
 
+    // Enkel van toepassing op de ipx-provider (lokaal / self-hosted).
     // IPX zet standaard `max-age=60`: elke bezoeker lokte na een minuut een
     // verse transform van een bron-PNG van megabytes uit (gemeten TTFB tot
     // ~1 s op de hero). Elke /_ipx-URL draagt zijn transformatie in het pad,

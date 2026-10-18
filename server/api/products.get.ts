@@ -1,14 +1,9 @@
-import { and, asc, count, desc, eq, ilike, inArray, max, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import {
-  categories,
-  customerPurchaseHistory,
-  customers,
-  orderItems,
-  orders,
-  products,
-} from "~~/server/database/schema";
+import { categories, products } from "~~/server/database/schema";
+import { customerProducts } from "~~/server/utils/customer-products";
+import { activePromotionsForUser } from "~~/server/utils/customer-promotions";
 import { getAuthSession } from "~~/server/utils/session";
 
 /**
@@ -37,6 +32,8 @@ const querySchema = z.object({
   perPage: z.coerce.number().int().min(1).max(200).default(50),
   /** Enkel producten die de ingelogde klant ooit al bestelde. */
   purchased: z.coerce.boolean().optional(),
+  /** Enkel producten met een promotie die vandaag geldt voor deze klant. */
+  promotions: z.coerce.boolean().optional(),
   /** Komma-gescheiden artikelnummers — gebruikt om de productenlijst te
    * beperken tot exact de inhoud van het winkelmandje. */
   articleNrs: z.string().trim().optional(),
@@ -62,54 +59,40 @@ export default defineEventHandler(async (event) => {
   const supplier = isGuest ? undefined : query.supplier;
   const sort = isGuest && query.sort && !GUEST_SORTS.has(query.sort) ? undefined : query.sort;
   const purchased = isGuest ? undefined : query.purchased;
+  const promotionsOnly = isGuest ? undefined : query.promotions;
+
+  // Promoties van deze klant (enkel ingelogd): voor het label per product,
+  // de filter "Promoties" en de teller die bepaalt of die knop verschijnt.
+  const promoByProduct = session
+    ? await activePromotionsForUser(session.user.id)
+    : new Map<string, never[]>();
+  const promotionProductIds = [...promoByProduct.keys()];
   const articleNrs = isGuest ? undefined : query.articleNrs;
 
   const emptyResult = () => ({
     items: [],
     pagination: { page, perPage, total: 0, pageCount: 0 },
     listCategoryCounts: {},
+    promotionCount: promotionProductIds.length,
   });
 
-  // "Enkel eerder afgenomen": beperkt tot artikelnummers die ooit in een
-  // bestelling van deze klant zaten (gasten: zie hierboven, genegeerd).
-  // Zonder bestelhistoriek kan er nooit een match zijn — dan meteen een leeg
+  if (promotionsOnly && promotionProductIds.length === 0) return emptyResult();
+
+  // "Mijn producten": eerder afgenomen (webshop + CRM, de laatste
+  // PURCHASED_MONTHS maanden) plus de correcties van de beheerder — zie
+  // server/utils/customer-products.ts. Gasten: zie hierboven, genegeerd.
+  // Zonder producten kan er nooit een match zijn — dan meteen een leeg
   // resultaat teruggeven.
   let purchasedArticleNrs: string[] | undefined;
   /** Artikelnr → laatste aankoopdatum (JJJJ-MM-DD), enkel bij `purchased`. */
   const lastPurchased = new Map<string, string>();
   if (purchased && session) {
-    // Twee bronnen: webshopbestellingen van deze login, en de CRM-historiek
-    // van de klant achter deze login. Per bron de laatste datum; de
-    // bestellingen als kalenderdag in Belgische tijd, zoals het CRM.
-    const [orderRows, crmRows] = await Promise.all([
-      db
-        .select({
-          articleNr: orderItems.articleNr,
-          last: sql<string>`(max(${orders.createdAt}) at time zone 'Europe/Brussels')::date::text`,
-        })
-        .from(orderItems)
-        .innerJoin(orders, eq(orderItems.orderId, orders.id))
-        .where(eq(orders.userId, session.user.id))
-        .groupBy(orderItems.articleNr),
-      db
-        .select({
-          articleNr: products.articleNr,
-          last: sql<string>`${max(customerPurchaseHistory.lastPurchasedAt)}::text`,
-        })
-        .from(customerPurchaseHistory)
-        .innerJoin(customers, eq(customerPurchaseHistory.customerId, customers.id))
-        .innerJoin(products, eq(customerPurchaseHistory.productId, products.id))
-        .where(eq(customers.userId, session.user.id))
-        .groupBy(products.articleNr),
-    ]);
-
-    // ISO-datums vergelijken als tekst = chronologisch.
-    for (const { articleNr, last } of [...orderRows, ...crmRows]) {
-      const current = lastPurchased.get(articleNr);
-      if (!current || last > current) lastPurchased.set(articleNr, last);
+    const mine = await customerProducts({ userId: session.user.id });
+    for (const [articleNr, entry] of mine) {
+      if (entry.lastPurchasedAt) lastPurchased.set(articleNr, entry.lastPurchasedAt);
     }
 
-    purchasedArticleNrs = [...lastPurchased.keys()];
+    purchasedArticleNrs = [...mine.keys()];
     if (purchasedArticleNrs.length === 0) return emptyResult();
   }
 
@@ -139,6 +122,7 @@ export default defineEventHandler(async (event) => {
       : undefined,
     purchasedArticleNrs ? inArray(products.articleNr, purchasedArticleNrs) : undefined,
     cartArticleNrs ? inArray(products.articleNr, cartArticleNrs) : undefined,
+    promotionsOnly ? inArray(products.id, promotionProductIds) : undefined,
   ].filter((filter) => filter !== undefined);
 
   const where = and(...filters);
@@ -148,6 +132,11 @@ export default defineEventHandler(async (event) => {
   // van de gekozen categorie en zoekterm, zodat de categorielijst niet krimpt
   // terwijl de klant erin filtert.
   const listArticleNrs = purchasedArticleNrs ?? cartArticleNrs;
+  const listFilter = listArticleNrs
+    ? inArray(products.articleNr, listArticleNrs)
+    : promotionsOnly
+      ? inArray(products.id, promotionProductIds)
+      : undefined;
 
   const orderBy = sort
     ? [sortDir === "asc" ? asc(SORT_COLUMNS[sort]) : desc(SORT_COLUMNS[sort])]
@@ -183,17 +172,12 @@ export default defineEventHandler(async (event) => {
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(where),
 
-    listArticleNrs
+    listFilter
       ? db
           .select({ slug: categories.slug, count: count() })
           .from(products)
           .innerJoin(categories, eq(products.categoryId, categories.id))
-          .where(
-            and(
-              eq(products.isActive, true),
-              inArray(products.articleNr, listArticleNrs),
-            ),
-          )
+          .where(and(eq(products.isActive, true), listFilter))
           .groupBy(categories.slug)
       : null,
   ]);
@@ -209,11 +193,19 @@ export default defineEventHandler(async (event) => {
           unit: null,
           infoPdf: null,
           lastPurchasedAt: null,
+          promotions: [],
         }))
       : items.map((item) => ({
           ...item,
           /** Laatste aankoop door deze klant; enkel bij "eerder afgenomen". */
           lastPurchasedAt: lastPurchased.get(item.articleNr) ?? null,
+          /** Promoties die vandaag voor deze klant op dit product gelden. */
+          promotions: (promoByProduct.get(item.id) ?? []).map((p) => ({
+            id: p.id,
+            label: p.label,
+            hint: p.hint,
+            endsOn: p.endsOn,
+          })),
         })),
     pagination: {
       page,
@@ -226,5 +218,7 @@ export default defineEventHandler(async (event) => {
     listCategoryCounts: listCategories
       ? Object.fromEntries(listCategories.map((c) => [c.slug, c.count]))
       : null,
+    /** Aantal producten met een promotie voor deze klant; 0 = geen knop. */
+    promotionCount: promotionProductIds.length,
   };
 });

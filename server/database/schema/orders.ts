@@ -8,6 +8,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { OrderLinePromotion } from "../../../shared/promotion";
 import { user } from "./auth";
 import { products } from "./catalog";
 
@@ -66,6 +67,12 @@ export const orderItems = pgTable(
     supplier: text().notNull(),
     unit: text(),
     quantity: integer().notNull(),
+    /**
+     * Promoties die bij het bestellen voor deze klant op dit product golden,
+     * bevroren zoals de rest van de regel. `null` op bestellingen van vóór de
+     * promoties en op regels zonder promotie.
+     */
+    promotions: jsonb().$type<OrderLinePromotion[]>(),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index("order_items_order_id_idx").on(table.orderId)],

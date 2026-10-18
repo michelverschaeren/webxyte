@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 /**
  * Tabellen die Better Auth verwacht (core schema, v1.6).
@@ -73,6 +73,20 @@ export const verification = pgTable("verification", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
+});
+
+/**
+ * Tellers van Better Auth's rate limiter (`rateLimit.storage: "database"`).
+ * In de database i.p.v. in het geheugen, zodat alle Vercel-instanties
+ * dezelfde stand zien. Better Auth ruimt verlopen rijen zelf op.
+ */
+export const rateLimit = pgTable("rate_limit", {
+  id: text().primaryKey(),
+  /** IP + pad, bv. "1.2.3.4/sign-in/email". */
+  key: text().notNull().unique(),
+  count: integer().notNull(),
+  /** Tijdstip van de laatste aanvraag in ms sinds epoch (Date.now()). */
+  lastRequest: bigint({ mode: "number" }).notNull(),
 });
 
 export type User = typeof user.$inferSelect;

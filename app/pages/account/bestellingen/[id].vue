@@ -48,6 +48,20 @@
                 · {{ item.supplier }}
                 <span v-if="item.unit"> · {{ item.unit }}</span>
               </p>
+              <!-- Promotie die gold bij het bestellen -->
+              <p
+                v-for="promo in item.promotions"
+                :key="promo.label"
+                class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.8rem]"
+              >
+                <span
+                  class="rounded-md px-2 py-0.5 font-bold"
+                  :class="promo.reached ? 'bg-[#b8252a] text-white' : 'bg-(--color-hover) text-(--color-text-muted)'"
+                >
+                  Promotie: {{ promo.label }}
+                </span>
+                <span class="text-(--color-text-muted)">{{ promo.note }}</span>
+              </p>
               <p v-if="!item.available" class="mt-1 text-[0.8rem] text-[#d9a05b]">
                 Niet meer beschikbaar
               </p>

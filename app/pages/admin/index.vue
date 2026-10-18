@@ -1,71 +1,166 @@
 <template>
   <AdminShell
-    title="Beheer"
-    subtitle="Overzicht van de productcatalogus, verkoop en klanten."
+    title="Overzicht"
+    subtitle="Productcatalogus, verkoop en klanten in één oogopslag."
   >
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <NuxtLink to="/admin/producten" class="adm-card">
-        <span class="adm-card-value">{{ stats?.totalProducts ?? "—" }}</span>
-        <span class="adm-card-title">Producten</span>
-        <span class="adm-card-hint"
-          >{{ stats?.activeProducts ?? 0 }} actief</span
-        >
+    <template #actions>
+      <NuxtLink to="/admin/bezoekers" class="adm-btn adm-btn--secondary">Bezoekers</NuxtLink>
+      <NuxtLink to="/admin/producten/nieuw" class="adm-btn adm-btn--primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+        </svg>
+        Nieuw product
       </NuxtLink>
+    </template>
 
-      <NuxtLink to="/admin/klanten" class="adm-card">
-        <span class="adm-card-value">{{ stats?.customerCount ?? "—" }}</span>
-        <span class="adm-card-title">Klanten</span>
-        <span class="adm-card-hint">Klanten uit het CRM</span>
+    <div class="adm-kpis">
+      <NuxtLink v-for="kpi in kpis" :key="kpi.label" :to="kpi.to" class="adm-kpi">
+        <span class="adm-kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" :d="kpi.icon" />
+          </svg>
+        </span>
+        <span class="min-w-0">
+          <span class="adm-kpi-label block">{{ kpi.label }}</span>
+          <span class="adm-kpi-value block">{{ kpi.value }}</span>
+          <span class="adm-kpi-sub block">{{ kpi.sub }}</span>
+        </span>
       </NuxtLink>
-
-      <div class="adm-card">
-        <span class="adm-card-value">{{ stats?.soldQuantity ?? "—" }}</span>
-        <span class="adm-card-title">Stuks verkocht</span>
-        <span class="adm-card-hint">Totaal, geannuleerd niet meegeteld</span>
-      </div>
     </div>
 
-    <section v-if="stats && stats.topProducts.length > 0" class="mt-12">
-      <h2
-        class="mb-4 text-[0.8rem] font-semibold tracking-[0.2em] text-(--color-accent) uppercase"
-      >
-        — Meest verkocht —
-      </h2>
-
-      <div class="rounded-xl border border-(--color-border) overflow-hidden">
-        <div class="overflow-x-auto">
-        <table class="w-full text-base border-collapse">
-          <thead>
-            <tr
-              class="border-b border-(--color-border) text-[0.8rem] uppercase tracking-widest text-(--color-text-muted)"
-            >
-              <th class="px-4 py-3 text-left font-semibold">Artikelnr</th>
-              <th class="px-4 py-3 text-left font-semibold">Product</th>
-              <th class="px-4 py-3 text-right font-semibold">Aantal verkocht</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="p in stats.topProducts"
-              :key="p.articleNr"
-              class="border-b border-(--color-border) last:border-0 hover:bg-(--color-hover)"
-            >
-              <td class="px-4 py-2.5 text-(--color-accent)">{{ p.articleNr }}</td>
-              <td class="px-4 py-2.5 text-(--color-text-strong)">{{ p.name }}</td>
-              <td class="px-4 py-2.5 text-right font-semibold text-(--color-text-strong)">
-                {{ p.totalQuantity }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="grid items-start gap-6 lg:grid-cols-2">
+      <!-- Recente bestellingen -->
+      <section class="adm-card">
+        <div class="adm-card-head">
+          <h2 class="adm-card-title">Recente bestellingen</h2>
+          <NuxtLink to="/admin/bestellingen" class="adm-btn adm-btn--ghost adm-btn--sm">
+            Alle bestellingen
+          </NuxtLink>
         </div>
-      </div>
-    </section>
+        <p v-if="recentOrders.length === 0" class="adm-card-empty">Nog geen bestellingen.</p>
+        <div v-else class="overflow-x-auto">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Bestelnr.</th>
+                <th class="w-full">Klant</th>
+                <th>Datum</th>
+                <th class="adm-num">Stuks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="o in recentOrders" :key="o.id">
+                <td class="font-mono text-[0.8125rem]">
+                  <NuxtLink :to="`/admin/bestellingen/${o.id}`" class="text-(--color-accent) hover:underline">
+                    {{ o.id.slice(0, 8).toUpperCase() }}
+                  </NuxtLink>
+                </td>
+                <td class="w-full max-w-0">
+                  <p class="truncate font-medium text-(--color-text-strong)">{{ o.customerName }}</p>
+                  <p v-if="o.companyName" class="truncate text-[0.8125rem] text-(--color-text-muted)">
+                    {{ o.companyName }}
+                  </p>
+                </td>
+                <td class="whitespace-nowrap text-(--color-text-muted)">{{ formatDate(o.createdAt) }}</td>
+                <td class="adm-num">{{ o.totalQuantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Meest verkocht -->
+      <section class="adm-card">
+        <div class="adm-card-head">
+          <h2 class="adm-card-title">Meest verkocht</h2>
+          <NuxtLink to="/admin/producten" class="adm-btn adm-btn--ghost adm-btn--sm">
+            Alle producten
+          </NuxtLink>
+        </div>
+        <p v-if="topProducts.length === 0" class="adm-card-empty">Nog niets verkocht.</p>
+        <div v-else class="overflow-x-auto">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th class="w-full">Product</th>
+                <th class="adm-num">Verkocht</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(p, i) in topProducts" :key="p.articleNr">
+                <td class="text-(--color-text-muted) tabular-nums">{{ i + 1 }}</td>
+                <td class="w-full max-w-0">
+                  <p class="truncate font-medium text-(--color-text-strong)" :title="p.name">{{ p.name }}</p>
+                  <div class="adm-share" aria-hidden="true">
+                    <span :style="{ width: `${(p.totalQuantity / topMax) * 100}%` }" />
+                  </div>
+                </td>
+                <td class="adm-num font-semibold text-(--color-text-strong)">{{ p.totalQuantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Lopende promoties -->
+      <section class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <h2 class="adm-card-title">
+            Lopende promoties
+            <span class="adm-tab-count">{{ promoSummary.active }}</span>
+          </h2>
+          <NuxtLink to="/admin/promoties" class="adm-btn adm-btn--ghost adm-btn--sm">
+            Alle promoties
+          </NuxtLink>
+        </div>
+        <p v-if="activePromotions.length === 0" class="adm-card-empty">
+          Er loopt vandaag geen promotie.
+        </p>
+        <div v-else class="overflow-x-auto">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th class="w-full">Product</th>
+                <th>Korting</th>
+                <th>Loopt tot</th>
+                <th class="hidden sm:table-cell">Klanten</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="p in activePromotions" :key="p.id">
+                <td class="w-full max-w-0">
+                  <p class="truncate font-medium text-(--color-text-strong)" :title="p.product.name">
+                    {{ p.product.name }}
+                  </p>
+                  <p class="truncate text-[0.8125rem] text-(--color-text-muted)">{{ p.product.articleNr }}</p>
+                </td>
+                <td class="whitespace-nowrap font-medium text-(--color-text-strong)">{{ promotionLabel(p) }}</td>
+                <td class="whitespace-nowrap">
+                  {{ formatIsoDate(p.endsOn) }}
+                  <span class="block text-[0.8125rem] text-(--color-text-muted)">{{ daysLeftLabel(p.endsOn) }}</span>
+                </td>
+                <td class="hidden whitespace-nowrap text-(--color-text-muted) sm:table-cell">
+                  {{ p.allCustomers ? "Alle klanten" : `${p.customers.length} klant${p.customers.length !== 1 ? "en" : ""}` }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </AdminShell>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: "main", middleware: "admin" });
+import {
+  promotionLabel,
+  todayInBrussels,
+  type PromotionDiscount,
+  type PromotionStatus,
+} from "#shared/promotion";
+
+definePageMeta({ layout: "admin", middleware: "admin" });
 useHead({ title: "Beheer — Vleeswaren Vermeir" });
 
 interface Stats {
@@ -76,54 +171,109 @@ interface Stats {
   topProducts: { articleNr: string; name: string; totalQuantity: number }[];
 }
 
-const { data: stats } = await useFetch<Stats>("/api/admin/stats");
-</script>
+interface RecentOrders {
+  items: {
+    id: string;
+    createdAt: string;
+    customerName: string;
+    companyName: string | null;
+    totalQuantity: number;
+  }[];
+  pagination: { total: number };
+}
 
-<style scoped>
-.adm-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.75rem;
-  background: var(--color-surface);
-  padding: 1.5rem 1.75rem;
-  text-align: left;
-  text-decoration: none;
-  transition:
-    border-color 0.2s,
-    transform 0.2s;
+interface ActivePromotions {
+  items: (PromotionDiscount & {
+    id: string;
+    endsOn: string;
+    allCustomers: boolean;
+    product: { articleNr: string; name: string };
+    customers: { id: string }[];
+  })[];
+  summary: Record<PromotionStatus, number>;
 }
-a.adm-card:hover {
-  border-color: rgba(200, 152, 104, 0.5);
-  transform: translateY(-2px);
+
+const [{ data: stats }, { data: orders }, { data: promotions }] = await Promise.all([
+  useFetch<Stats>("/api/admin/stats"),
+  useFetch<RecentOrders>("/api/admin/orders", { query: { perPage: 6 } }),
+  useFetch<ActivePromotions>("/api/admin/promotions", {
+    query: { status: "active", perPage: 5 },
+  }),
+]);
+
+const recentOrders = computed(() => orders.value?.items ?? []);
+const activePromotions = computed(() => promotions.value?.items ?? []);
+const promoSummary = computed(
+  () => promotions.value?.summary ?? { active: 0, scheduled: 0, expired: 0 },
+);
+const topProducts = computed(() => stats.value?.topProducts ?? []);
+const topMax = computed(() => Math.max(1, ...topProducts.value.map((p) => p.totalQuantity)));
+
+/** Zelfde icoon als in de zijbalk (app/utils/admin-nav.ts). */
+function navIcon(to: string): string {
+  return adminNavLinks.find((link) => link.to === to)?.icon ?? "";
 }
-.adm-card--action {
-  border-style: dashed;
-  color: var(--color-accent);
+
+function formatNumber(value: number | undefined): string {
+  return value === undefined ? "—" : value.toLocaleString("nl-BE");
 }
-/* Bewust geen Playfair: die heeft old-style cijfers (5, 9 zakken onder de
-   regel) en leest slecht als kerncijfer. Body-font met rechte cijfers. */
-.adm-card-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: lining-nums tabular-nums;
-  color: var(--color-text-strong);
+
+const kpis = computed(() => [
+  {
+    label: "Producten",
+    value: formatNumber(stats.value?.totalProducts),
+    sub: `${formatNumber(stats.value?.activeProducts)} actief in de catalogus`,
+    to: "/admin/producten",
+    icon: navIcon("/admin/producten"),
+  },
+  {
+    label: "Klanten",
+    value: formatNumber(stats.value?.customerCount),
+    sub: "Klanten uit het CRM",
+    to: "/admin/klanten",
+    icon: navIcon("/admin/klanten"),
+  },
+  {
+    label: "Bestellingen",
+    value: formatNumber(orders.value?.pagination.total),
+    sub: "Via de webshop",
+    to: "/admin/bestellingen",
+    icon: navIcon("/admin/bestellingen"),
+  },
+  {
+    label: "Stuks verkocht",
+    value: formatNumber(stats.value?.soldQuantity),
+    sub: "Totaal, geannuleerd niet meegeteld",
+    to: "/admin/producten",
+    icon: navIcon("/admin/bezoekers"),
+  },
+  {
+    label: "Actieve promoties",
+    value: formatNumber(promotions.value?.summary.active),
+    sub: `${formatNumber(promoSummary.value.scheduled)} gepland`,
+    to: "/admin/promoties",
+    icon: navIcon("/admin/promoties"),
+  },
+]);
+
+/** Kalenderdag "YYYY-MM-DD" zonder tijdzoneverschuiving. */
+function formatIsoDate(iso: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("nl-BE", {
+    day: "2-digit",
+    month: "short",
+    timeZone: "UTC",
+  });
 }
-.adm-card--action .adm-card-value {
-  color: var(--color-accent);
+
+function daysLeftLabel(endsOn: string): string {
+  const days = Math.round(
+    (Date.parse(`${endsOn}T00:00:00Z`) - Date.parse(`${todayInBrussels()}T00:00:00Z`)) / 86_400_000,
+  );
+  if (days <= 0) return "laatste dag";
+  return `nog ${days} dag${days !== 1 ? "en" : ""}`;
 }
-.adm-card-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-accent);
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString("nl-BE", { day: "2-digit", month: "short" });
 }
-.adm-card-hint {
-  font-size: 1rem;
-  color: var(--color-text);
-}
-</style>
+</script>

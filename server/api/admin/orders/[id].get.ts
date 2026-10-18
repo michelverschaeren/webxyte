@@ -70,6 +70,8 @@ export default defineEventHandler(async (event) => {
       supplier: item.supplier,
       unit: item.unit,
       quantity: item.quantity,
+      /** Promoties die bij het bestellen golden (leeg op oudere bestellingen). */
+      promotions: item.promotions ?? [],
       available: item.product?.isActive === true,
     })),
   };
