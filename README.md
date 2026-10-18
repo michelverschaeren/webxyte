@@ -140,6 +140,18 @@ Use this when a client wants their outdated site redesigned and you need its tex
 
 ## Starting a new project from this template
 
+In Claude Code, run `/new-site` — it walks through everything below. By hand:
+
+- [ ] **Scope the MCP servers to this site** (`/new-site` step 7): replace
+      `REPLACE_WITH_VERCEL_PROJECT_NAME` and `REPLACE_WITH_NEON_PROJECT_ID` in
+      `.mcp.json` and `.codex/config.toml` (no database → remove the Neon
+      entries), then `vercel link --yes --scope webxytes-projects --project <name>`.
+- [ ] **Authenticate once:** in Claude Code type `/mcp`, approve the project
+      servers, and log in — Neon: choose **only this site's project**, never
+      "All projects"; Vercel: choose the team **webxytes-projects**.
+- [ ] **Env files:** `cp .env.example .env` with development values
+      (`MAIL_REDIRECT_TO` = your address, `NUXT_PUBLIC_DATABASE_ENV=development`
+      with a database); production values in `.env.live`. Both are gitignored.
 - [ ] Update `name` in `package.json`
 - [ ] Update the title/description in `README.md` (this section and above)
 - [ ] Set the site's fonts via the `fonts` config in `nuxt.config.ts` if the client uses something other than the system default
@@ -155,6 +167,22 @@ Use this when a client wants their outdated site redesigned and you need its tex
 - [ ] Remove `content-import/` before shipping, if it was used
 - [ ] Run through the definition of done in [AGENTS.md](AGENTS.md) against the
       deployed site before handing it over
+
+## Claude Code skills and conventions
+
+The standing agreements for every site are in [CLAUDE.md](CLAUDE.md)
+("Standing agreements"). Skills in `.claude/skills/`:
+
+| Skill | Use it for |
+| --- | --- |
+| `/new-site` | turning a fresh clone into a client site (incl. MCP + env setup) |
+| `/ship` | build + performance verification before launch |
+| `go-live` | launch checklist: indexing, env per environment, mail/DNS, security |
+| `release` | development → main → follow the Vercel deploy |
+| `mail-lettermint` | any mail: Lettermint SDK behind `sendMail()`, never the open module endpoint |
+| `db-migration`, `drizzle-orm` | adding Neon (development/production branches) and schema changes |
+| `better-auth-conventions`, `admin-conventions` | logins, roles (agency admin > client admin > customer), admin pages |
+| `best-practices`, `security` | official Better Auth skills, pinned in `.skills/skilld-lock.yaml` (`npx skilld install` restores them) |
 
 ## Recommended VS Code extensions
 
