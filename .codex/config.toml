@@ -1,6 +1,0 @@
-# Scoped to this site's own projects, like .mcp.json — fill in during /new-site step 7.
-[mcp_servers.neon]
-url = "https://mcp.neon.tech/mcp?projectId=REPLACE_WITH_NEON_PROJECT_ID"
-
-[mcp_servers.vercel]
-url = "https://mcp.vercel.com/webxytes-projects/REPLACE_WITH_VERCEL_PROJECT_NAME"

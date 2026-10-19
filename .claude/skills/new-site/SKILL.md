@@ -93,8 +93,7 @@ access. Ask the user for the Vercel project name and (if the site uses a
 database) the Neon project id — do not create projects yourself.
 
 1. Replace `REPLACE_WITH_VERCEL_PROJECT_NAME` and `REPLACE_WITH_NEON_PROJECT_ID`
-   in `.mcp.json` and `.codex/config.toml`. No database yet? Remove the
-   Neon entries instead.
+   in `.mcp.json`. No database yet? Remove the Neon entries instead.
 2. Link the CLI: `vercel link --yes --scope webxytes-projects --project <name>`.
    It writes `.vercel/` and a `.env.local` with an OIDC token (both gitignored).
 3. Tell the user to run `/mcp` once, approve the project servers, and

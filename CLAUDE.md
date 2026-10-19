@@ -68,8 +68,7 @@ not repeated here:
 
 Skills for sites that grow beyond a brochure: `release`, `go-live`,
 `db-migration`, `drizzle-orm`, `better-auth-conventions` (plus the official
-Better Auth skills `best-practices` and `security`, installed with skilld —
-`.skills/skilld-lock.yaml` pins them; `npx skilld install` restores them).
+Better Auth skills `best-practices` and `security`, copied into `.claude/skills/`).
 
 ## Workflow
 

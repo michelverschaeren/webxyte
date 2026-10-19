@@ -144,8 +144,7 @@ In Claude Code, run `/new-site` — it walks through everything below. By hand:
 
 - [ ] **Scope the MCP servers to this site** (`/new-site` step 7): replace
       `REPLACE_WITH_VERCEL_PROJECT_NAME` and `REPLACE_WITH_NEON_PROJECT_ID` in
-      `.mcp.json` and `.codex/config.toml` (no database → remove the Neon
-      entries), then `vercel link --yes --scope webxytes-projects --project <name>`.
+      `.mcp.json` (no database → remove the Neon entries), then `vercel link --yes --scope webxytes-projects --project <name>`.
 - [ ] **Authenticate once:** in Claude Code type `/mcp`, approve the project
       servers, and log in — Neon: choose **only this site's project**, never
       "All projects"; Vercel: choose the team **webxytes-projects**.
@@ -182,7 +181,7 @@ The standing agreements for every site are in [CLAUDE.md](CLAUDE.md)
 | `mail-lettermint` | any mail: Lettermint SDK behind `sendMail()`, never the open module endpoint |
 | `db-migration`, `drizzle-orm` | adding Neon (development/production branches) and schema changes |
 | `better-auth-conventions`, `admin-conventions` | logins, roles (agency admin > client admin > customer), admin pages |
-| `best-practices`, `security` | official Better Auth skills, pinned in `.skills/skilld-lock.yaml` (`npx skilld install` restores them) |
+| `best-practices`, `security` | official Better Auth skills (copied from github.com/better-auth/skills) |
 
 ## Recommended VS Code extensions
 
