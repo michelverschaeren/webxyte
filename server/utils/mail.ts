@@ -273,8 +273,10 @@ function orderMailContent(
 </table>
 <h2 style="${h2}">Leveringsadres</h2>
 <p style="margin:0 0 24px;font-size:14px">${deliveryAddressLines(billing).map(e).join("<br>")}</p>
-${order.note ? `<h2 style="${h2}">Opmerking</h2>
-<p style="margin:0 0 24px;font-size:14px;white-space:pre-line">${e(order.note)}</p>` : ""}
+${order.note ? `<div style="margin:0 0 24px;padding:12px 14px;border:2px solid #b8252a;border-radius:6px;background:#fbe9e9">
+<p style="margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:0.5px;color:#b8252a">OPMERKING VAN DE KLANT</p>
+<p style="margin:0;font-size:17px;font-weight:700;line-height:1.4;color:#b8252a;white-space:pre-line">${e(order.note)}</p>
+</div>` : ""}
 ${promoCount > 0 ? `<p style="margin:0 0 16px;padding:10px 12px;border-left:3px solid #b8252a;background:#fbe9e9;font-size:14px">De klant bestelt <strong>${promoCount} artikel${promoCount === 1 ? "" : "en"} met een lopende promotie</strong>. Ze staan hieronder bij het product aangeduid.</p>` : ""}
 <h2 style="${h2}">Bestelde artikelen</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px">
