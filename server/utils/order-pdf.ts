@@ -257,28 +257,6 @@ export async function generateOrderPdf({
     y -= 25;
   }
 
-  // — Opmerking van de klant —
-  if (order.note) {
-    text("Opmerking", MARGIN, { font: bold, size: 9, color: MUTED });
-    y -= 14;
-    for (const paragraph of order.note.split(/\r?\n/)) {
-      for (const line of wrapText(
-        clean(paragraph),
-        regular,
-        10,
-        CONTENT_WIDTH,
-      )) {
-        if (y < MARGIN + 40) {
-          page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-          y = PAGE_HEIGHT - MARGIN;
-        }
-        text(line, MARGIN);
-        y -= 13;
-      }
-    }
-    y -= 10;
-  }
-
   // — Samenvatting boven de tabel —
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
   const promoCount = items.filter((i) =>
@@ -383,6 +361,35 @@ export async function generateOrderPdf({
     y -= rowHeight - ROW_LINE_HEIGHT + ROW_PADDING;
     hr();
     y -= ROW_LINE_HEIGHT + ROW_PADDING - 3;
+  }
+
+  // — Opmerking van de klant, onder de tabel: groot en rood zodat het
+  // magazijn ze niet over het hoofd ziet —
+  if (order.note) {
+    const noteSize = 13;
+    const noteLineHeight = 17;
+    const noteLines = order.note
+      .split(/\r?\n/)
+      .flatMap((paragraph) =>
+        wrapText(clean(paragraph), bold, noteSize, CONTENT_WIDTH),
+      );
+    y -= 10;
+    // Kop + minstens twee regels samen houden.
+    if (y - 18 - Math.min(noteLines.length, 2) * noteLineHeight < MARGIN + 20) {
+      page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+      y = PAGE_HEIGHT - MARGIN;
+    }
+    text("OPMERKING VAN DE KLANT", MARGIN, { font: bold, size: 11, color: BRAND });
+    y -= 18;
+    for (const line of noteLines) {
+      if (y < MARGIN + 20) {
+        page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+        y = PAGE_HEIGHT - MARGIN;
+      }
+      text(line, MARGIN, { font: bold, size: noteSize, color: BRAND });
+      y -= noteLineHeight;
+    }
+    y -= 4;
   }
 
   // — Leveringsadres, onder de tabel —
