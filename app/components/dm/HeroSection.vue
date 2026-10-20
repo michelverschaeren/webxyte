@@ -106,10 +106,26 @@
           :key="feat.label"
           class="group relative flex items-center gap-2 border-r border-white/10 px-2 py-2.5 text-white transition-colors duration-300 last:border-r-0 even:border-r-0 hover:bg-black/20 md:gap-4 md:px-5 md:py-5 md:even:border-r"
         >
+          <!-- Vast merk-goud, niet --color-accent: die wordt in light mode
+               donker brons (bedoeld voor crème), maar deze strook is in
+               beide thema's rood. -->
           <div
-            class="h-6 w-6 shrink-0 text-(--color-accent) [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current md:h-8 md:w-8"
-            v-html="feat.icon"
-          />
+            class="h-6 w-6 shrink-0 text-[#c89868] [&>svg]:h-full [&>svg]:w-full [&>svg]:stroke-current md:h-8 md:w-8"
+          >
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <component
+                :is="shape.tag"
+                v-for="(shape, i) in feat.icon"
+                :key="i"
+                v-bind="shape.attrs"
+              />
+            </svg>
+          </div>
           <p
             class="m-0 text-[0.65rem] leading-[1.3] tracking-[0.06em] wrap-break-word uppercase md:text-[0.85rem]"
           >
@@ -158,26 +174,46 @@ const bgOpacity = computed(() => {
   return Math.max(0, Math.min(1, 1 - scrollY.value / (h * 0.55)));
 });
 
-const features = [
+// Iconen als losse SVG-vormen (64×64), in de template gerenderd — geen v-html.
+type IconShape = {
+  tag: "path" | "rect" | "circle";
+  attrs: Record<string, string>;
+};
+
+const features: { label: string; sub: string; icon: IconShape[] }[] = [
   {
     label: "familiebedrijf",
     sub: "Hecht ",
-    icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 28c0-10 8-18 20-18s20 8 20 18v8c0 12-8 20-20 20s-20-8-20-20v-8z"/><path d="M22 36c0-4 4-8 10-8s10 4 10 8"/></svg>`,
+    icon: [
+      { tag: "path", attrs: { d: "M12 28c0-10 8-18 20-18s20 8 20 18v8c0 12-8 20-20 20s-20-8-20-20v-8z" } },
+      { tag: "path", attrs: { d: "M22 36c0-4 4-8 10-8s10 4 10 8" } },
+    ],
   },
   {
     label: "vertrouwensband",
     sub: "Persoonlijke ",
-    icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 22l18-10 18 10v20l-18 10-18-10V22z"/><path d="M14 22l18 10 18-10M32 32v20"/></svg>`,
+    icon: [
+      { tag: "path", attrs: { d: "M14 22l18-10 18 10v20l-18 10-18-10V22z" } },
+      { tag: "path", attrs: { d: "M14 22l18 10 18-10M32 32v20" } },
+    ],
   },
   {
     label: "online bestellen",
     sub: "Vlot ",
-    icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="14" width="40" height="36" rx="2"/><path d="M20 24h24M20 32h24M20 40h14"/><circle cx="48" cy="44" r="6"/><path d="M48 50v6M44 54l4-4 4 4"/></svg>`,
+    icon: [
+      { tag: "rect", attrs: { x: "12", y: "14", width: "40", height: "36", rx: "2" } },
+      { tag: "path", attrs: { d: "M20 24h24M20 32h24M20 40h14" } },
+      { tag: "circle", attrs: { cx: "48", cy: "44", r: "6" } },
+      { tag: "path", attrs: { d: "M48 50v6M44 54l4-4 4 4" } },
+    ],
   },
   {
     label: "productgamma",
     sub: "Uitgebreid ",
-    icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l8 8-20 20-8-8z" transform="translate(20 8)"/><path d="M44 28l12 12-8 8-12-12z"/></svg>`,
+    icon: [
+      { tag: "path", attrs: { d: "M20 12l8 8-20 20-8-8z", transform: "translate(20 8)" } },
+      { tag: "path", attrs: { d: "M44 28l12 12-8 8-12-12z" } },
+    ],
   },
 ];
 </script>

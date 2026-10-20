@@ -42,7 +42,7 @@ Daarna, verplicht:
 
 ```bash
 npx nuxt typecheck
-npx eslint .        # bekende, aanvaarde waarschuwing: v-html in HeroSection.vue
+npx eslint .        # verwacht: 0 problemen
 npx nuxt build      # zelfde build als Vercel
 ```
 
