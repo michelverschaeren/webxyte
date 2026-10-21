@@ -15,7 +15,7 @@
  * Nieuwe taken vertrekken altijd van de laatste origin/main.
  */
 import { execFileSync, spawnSync } from 'node:child_process'
-import { copyFileSync, existsSync, readdirSync } from 'node:fs'
+import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 
@@ -144,6 +144,8 @@ function create(scopeArg, ...taskWords) {
     }
   }
   console.log(`→ ${copied} .env-bestand(en) gekopieerd`)
+  setupVscode(dir)
+  console.log('→ VS Code-knoppen en -kleur voor deze taak ingesteld')
 
   console.log('→ pnpm install (snel: pakketten komen uit de gedeelde pnpm-opslag)…\n')
   if (!run('pnpm', ['install', '--prefer-offline'], dir)) {
@@ -240,6 +242,78 @@ async function done(name, ...flags) {
   console.log('\n✓ Opgeruimd.\n')
 }
 
+// ── VS Code in een taakmap: eigen knoppen en kleur ─────────────────────────
+/**
+ * Schrijft in de taakmap een eigen .vscode/tasks.json (knoppen voor déze taak)
+ * en zet een andere kleur op het venster. Beide bestanden krijgen
+ * `skip-worktree`: git negeert de wijziging in deze map, ze komt nooit in een
+ * commit, en de hoofdmap houdt haar eigen knoppen.
+ */
+function setupVscode(dir) {
+  const branch = git(['branch', '--show-current'], { cwd: dir })
+  const [prefix, ...rest] = branch.split('/')
+  const task = rest.join('/') || branch
+  const siteDir = path.join(dir, 'sites', prefix)
+  const isSite = existsSync(path.join(siteDir, 'package.json'))
+  const port = isSite
+    ? /--port[ =](\d+)/.exec(JSON.parse(readFileSync(path.join(siteDir, 'package.json'), 'utf8')).scripts?.dev ?? '')?.[1]
+    : null
+
+  const button = (label, command, statusbar, extra = {}) => ({
+    label,
+    type: 'shell',
+    command,
+    problemMatcher: [],
+    presentation: { panel: 'shared', clear: true, focus: true },
+    options: { statusbar },
+    ...extra
+  })
+
+  const tasks = [
+    button(`Taak ${branch}`, 'pnpm task status',
+      { label: `$(git-branch) ${task}`, tooltip: `Taakmap voor ${isSite ? `sites/${prefix}` : prefix}. Klik: wat is er veranderd?`, color: '#ffffff' }),
+    isSite
+      ? button(`Start ${prefix}`, `pnpm dev ${prefix}`,
+          { label: `$(play) Start ${prefix}`, tooltip: port ? `http://localhost:${port}` : 'Start deze site', color: '#89d185' },
+          { isBackground: true, presentation: { panel: 'dedicated', focus: true } })
+      : button('Start site', 'pnpm dev',
+          { label: '$(play) Start site', tooltip: 'Kies welke site(s) je start', color: '#89d185' },
+          { isBackground: true, presentation: { panel: 'dedicated', focus: true, clear: true } }),
+    button('Push', 'pnpm task push',
+      { label: '$(cloud-upload) Push', tooltip: 'Commit eerst (Source Control links). Dan: naar GitHub, Preview en link om te mergen', color: '#75beff' }),
+    button('Check', isSite ? `pnpm turbo run lint typecheck --filter=./sites/${prefix}` : 'pnpm turbo run lint typecheck',
+      { label: '$(check-all) Check', tooltip: isSite ? `Lint + typecheck van ${prefix}` : 'Lint + typecheck van alles' }),
+    button('Naar hoofdmap', `code "${mainRoot}"`,
+      { label: '$(home) Hoofdmap', tooltip: 'Open het venster van de hoofdmap (daar: Taak afronden na de merge)', color: '#cca700' }),
+    button('Hulp', 'pnpm task help', { label: '$(question) Hulp', tooltip: 'Uitleg bij de knoppen' })
+  ]
+
+  const vscodeDir = path.join(dir, '.vscode')
+  writeFileSync(path.join(vscodeDir, 'tasks.json'), `${JSON.stringify({
+    // Gegenereerd door pnpm task (scripts/task.mjs) voor deze taakmap.
+    // git negeert dit bestand hier (skip-worktree).
+    version: '2.0.0',
+    tasks
+  }, null, 2)}\n`)
+
+  // Andere kleur voor titel- en statusbalk: je ziet meteen dat dit een taakmap is.
+  const settingsPath = path.join(vscodeDir, 'settings.json')
+  const settings = existsSync(settingsPath) ? JSON.parse(readFileSync(settingsPath, 'utf8')) : {}
+  settings['workbench.colorCustomizations'] = {
+    'statusBar.background': '#5b2c83',
+    'statusBar.foreground': '#ffffff',
+    'statusBarItem.hoverBackground': '#7a3fae',
+    'titleBar.activeBackground': '#5b2c83',
+    'titleBar.activeForeground': '#ffffff',
+    'titleBar.inactiveBackground': '#3f1f5c',
+    'titleBar.inactiveForeground': '#dddddd'
+  }
+  settings['window.title'] = `TAAK ${branch} — \${activeEditorShort}`
+  writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`)
+
+  git(['update-index', '--skip-worktree', '.vscode/tasks.json', '.vscode/settings.json'], { cwd: dir })
+}
+
 // ── pnpm task push ─────────────────────────────────────────────────────────
 function push() {
   const branch = git(['branch', '--show-current'])
@@ -290,6 +364,22 @@ function help() {
 const [cmd, ...rest] = process.argv.slice(2)
 if (!cmd || cmd === 'help' || cmd === '--help') {
   help()
+} else if (cmd === 'status') {
+  // Knop met de taaknaam: wat is er veranderd in deze taak?
+  const branch = git(['branch', '--show-current'])
+  const changed = git(['status', '--short'])
+  const commits = branch === 'main' ? '' : git(['log', '--oneline', `origin/main..${branch}`])
+  console.log(`\nTaak: ${branch}\n`)
+  console.log(changed ? `Nog niet gecommit:\n${changed.split('\n').map(l => `  ${l}`).join('\n')}\n` : 'Alles gecommit.\n')
+  console.log(commits ? `Commits in deze taak (nog niet in main):\n${commits.split('\n').map(l => `  ${l}`).join('\n')}\n` : 'Nog geen commits die niet in main zitten.\n')
+  console.log(changed ? 'Volgende stap: Source Control (links) → bericht typen → Commit, dan Push.' : commits ? 'Volgende stap: Push (en daarna mergen via de link).' : 'Nog niets te pushen.')
+  console.log()
+} else if (cmd === 'vscode') {
+  // Knoppen en kleur (opnieuw) zetten in de taakmap waar je nu staat.
+  const top = git(['rev-parse', '--show-toplevel'])
+  if (path.resolve(top) === mainRoot) fail('Dit is de hoofdmap; die houdt de gewone knoppen.')
+  setupVscode(top)
+  console.log('✓ Knoppen en kleur ingesteld. Herlaad het venster: Ctrl+Shift+P → Developer: Reload Window')
 } else if (cmd === 'push') {
   push()
 } else if (cmd === 'list') {
