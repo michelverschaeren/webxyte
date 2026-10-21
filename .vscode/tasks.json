@@ -1,53 +1,85 @@
 {
-  // Knoppen: met de extensie "Tasks" (actboy168.tasks) verschijnen de taken
-  // met een `statusbar`-label onderaan in de statusbalk. Zonder extensie:
-  // Ctrl+Shift+P → "Tasks: Run Task".
+  // KNOPPEN in de statusbalk (onderaan), via de extensie "Tasks"
+  // (actboy168.tasks). Een taak zonder `statusbar.hide` wordt een knop.
+  // Zonder extensie: Ctrl+Shift+P → "Tasks: Run Task".
+  //
+  // Een nieuwe site een eigen startknop geven: kopieer "Start Vermeir" en pas
+  // label, command en tooltip aan.
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Start site…",
-      "detail": "Kies een of meer sites uit een lijst (pnpm dev)",
+      "label": "Start site",
+      "detail": "Kies welke site(s) je lokaal wil draaien",
       "type": "shell",
       "command": "pnpm dev",
       "isBackground": true,
       "problemMatcher": [],
       "presentation": { "panel": "dedicated", "focus": true, "clear": true },
-      "options": { "statusbar": { "label": "$(play) Start site", "tooltip": "Kies welke site(s) je wil starten" } }
+      "options": { "statusbar": { "label": "$(play) Start site", "tooltip": "Kies welke site(s) je lokaal start (pnpm dev)", "color": "#89d185" } }
     },
     {
-      "label": "Start Vleeswaren Vermeir",
-      "detail": "http://localhost:3000",
+      "label": "Start Vermeir",
+      "detail": "Vleeswaren Vermeir op http://localhost:3000",
       "type": "shell",
       "command": "pnpm dev vleeswaren-vermeir",
       "isBackground": true,
       "problemMatcher": [],
-      "presentation": { "panel": "dedicated" },
-      "options": { "statusbar": { "label": "$(play) Vermeir", "tooltip": "pnpm dev vleeswaren-vermeir → http://localhost:3000" } }
+      "presentation": { "panel": "dedicated", "focus": true },
+      "options": { "statusbar": { "label": "$(play-circle) Vermeir", "tooltip": "Vleeswaren Vermeir starten → http://localhost:3000", "color": "#89d185" } }
     },
     {
-      "label": "Lint + typecheck alles",
-      "detail": "Alle sites en layers via Turborepo (cache: enkel wat veranderde)",
-      "type": "shell",
-      "command": "pnpm lint && pnpm typecheck",
-      "problemMatcher": [],
-      "presentation": { "panel": "shared", "clear": true },
-      "options": { "statusbar": { "label": "$(check-all) Check", "tooltip": "pnpm lint && pnpm typecheck" } }
-    },
-    {
-      "label": "Nieuwe taak…",
-      "detail": "Branch + eigen map (worktree) + VS Code-venster (pnpm task)",
+      "label": "Nieuwe taak",
+      "detail": "Eigen branch + eigen map + nieuw VS Code-venster",
       "type": "shell",
       "command": "pnpm task ${input:taskScope} ${input:taskName}",
       "problemMatcher": [],
       "presentation": { "panel": "shared", "clear": true, "focus": true },
-      "options": { "statusbar": { "label": "$(git-branch) Nieuwe taak", "tooltip": "pnpm task <site|layer> <taak>" } }
+      "options": { "statusbar": { "label": "$(git-branch) Nieuwe taak", "tooltip": "Start een taak voor één site of layer: eigen branch, eigen map, nieuw venster", "color": "#75beff" } }
+    },
+    {
+      "label": "Push",
+      "detail": "Gecommit werk naar GitHub → Vercel Preview + link om te mergen",
+      "type": "shell",
+      "command": "pnpm task push",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(cloud-upload) Push", "tooltip": "Commit eerst (Source Control links). Dan: naar GitHub, Preview-deploy en link om te mergen", "color": "#75beff" } }
+    },
+    {
+      "label": "Taak afronden",
+      "detail": "Na de merge: taakmap en branch opruimen (vanuit de hoofdmap)",
+      "type": "shell",
+      "command": "pnpm task done",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(archive) Taak afronden", "tooltip": "Na de merge, in het venster van de hoofdmap: kies een taak, map + branch worden opgeruimd", "color": "#cca700" } }
+    },
+    {
+      "label": "Check",
+      "detail": "Lint + typecheck van alle sites en layers",
+      "type": "shell",
+      "command": "pnpm lint && pnpm typecheck",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(check-all) Check", "tooltip": "Lint + typecheck van alles (Turborepo: enkel wat veranderde)" } }
+    },
+    {
+      "label": "Hulp",
+      "detail": "Wat doet elke knop, en een taak van begin tot einde",
+      "type": "shell",
+      "command": "pnpm task help",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(question) Hulp", "tooltip": "Uitleg bij de knoppen" } }
     },
     {
       "label": "Open taken",
+      "detail": "Lijst van taken met een eigen map",
       "type": "shell",
       "command": "pnpm task list",
       "problemMatcher": [],
-      "presentation": { "panel": "shared", "clear": true }
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "hide": true } }
     },
     {
       "label": "Installeer dependencies",
@@ -55,19 +87,20 @@
       "type": "shell",
       "command": "pnpm install",
       "problemMatcher": [],
-      "presentation": { "panel": "shared", "clear": true }
+      "presentation": { "panel": "shared", "clear": true },
+      "options": { "statusbar": { "hide": true } }
     }
   ],
   "inputs": [
     {
       "id": "taskScope",
       "type": "promptString",
-      "description": "Site of layer (een deel van de mapnaam volstaat), bv. vermeir, base, tooling"
+      "description": "Voor welke site of layer? (een deel van de naam volstaat, bv. vermeir, base, tooling)"
     },
     {
       "id": "taskName",
       "type": "promptString",
-      "description": "Korte naam van de taak, bv. promoties-filter"
+      "description": "Korte naam van de taak (bv. promoties-filter)"
     }
   ]
 }
