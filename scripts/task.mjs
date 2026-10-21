@@ -163,6 +163,24 @@ function create(scopeArg, ...taskWords) {
 `)
 }
 
+/**
+ * "Squash and merge" of "Rebase and merge" op GitHub maakt nieuwe commits:
+ * de commits van de branch staan dan niet letterlijk in main, de inhoud wel.
+ * Dus: is elk bestand dat de branch wijzigde in origin/main identiek aan de
+ * versie op de branch? Dan is het werk gemerged.
+ */
+function contentInMain(branch) {
+  const base = git(['merge-base', 'origin/main', branch], { cwd: mainRoot })
+  const files = git(['diff', '--name-only', base, branch], { cwd: mainRoot }).split('\n').filter(Boolean)
+  if (!files.length) return true
+  try {
+    git(['diff', '--quiet', branch, 'origin/main', '--', ...files], { cwd: mainRoot })
+    return true
+  } catch {
+    return false
+  }
+}
+
 // ── pnpm task done <branch> ────────────────────────────────────────────────
 function done(name, ...flags) {
   const force = flags.includes('--force')
@@ -181,7 +199,7 @@ function done(name, ...flags) {
 
   git(['fetch', '--quiet', 'origin', 'main'], { cwd: mainRoot })
   const notMerged = git(['log', '--oneline', `origin/main..${t.branch}`], { cwd: mainRoot })
-  if (notMerged && !force) {
+  if (notMerged && !force && !contentInMain(t.branch)) {
     fail(`${t.branch} heeft commits die nog niet in main zitten:\n${notMerged.split('\n').map(l => `    ${l}`).join('\n')}\n\n  Eerst mergen (skill release). Echt weggooien? pnpm task done ${t.branch} --force`)
   }
 
@@ -190,7 +208,19 @@ function done(name, ...flags) {
   // -D: hierboven al nagekeken dat alles in origin/main zit (of --force).
   git(['branch', '-D', t.branch], { cwd: mainRoot })
   console.log(`→ Lokale branch ${t.branch} verwijderd`)
-  console.log(`\n✓ Opgeruimd. Remote branch nog weg? git push origin --delete ${t.branch}\n`)
+
+  // De branch op GitHub ook weg (als hij er nog is: de knop "Delete branch"
+  // na een pull request doet hetzelfde). Niet bij --force: niet-gemerged werk
+  // op GitHub laten staan.
+  if (!force) {
+    const onRemote = git(['ls-remote', '--heads', 'origin', t.branch], { cwd: mainRoot })
+    if (onRemote) {
+      git(['push', '--quiet', 'origin', '--delete', t.branch], { cwd: mainRoot })
+      console.log(`→ Branch ${t.branch} op GitHub verwijderd`)
+    }
+  }
+  git(['fetch', '--quiet', '--prune', 'origin'], { cwd: mainRoot })
+  console.log('\n✓ Opgeruimd.\n')
 }
 
 const [cmd, ...rest] = process.argv.slice(2)
