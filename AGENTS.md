@@ -50,6 +50,19 @@ Configuratie zonder code (merk, menu-items van het beheer) staat in
 Tailwind scant enkel de map van de site. Een site die Tailwind-klassen uit de
 layers gebruikt, zet in haar `main.css`: `@source "../../../../../packages";`.
 
+## Branches
+
+- `main` = productie voor **alle** sites. Een merge naar `main` zet live wat
+  veranderde (Vercel + `turbo-ignore` bouwen enkel de geraakte sites).
+- Per taak één korte branch vanaf `main`, genoemd naar wat hij raakt:
+  `vermeir/promoties-filter`, `bakkerij-x/contactpagina`, `base/security-headers`.
+- **Eén site óf één layer per branch.** Raakt je werk ongemerkt een andere
+  site of `packages/`? Stop en vraag het, of splits het in een aparte branch.
+- Geen langlevende `development`-branch. Elke push naar een taakbranch geeft
+  een Vercel Preview (Neon-branch `development`, mail naar `MAIL_REDIRECT_TO`).
+- Een layer-branch: bekijk de Preview van **elke** site die de layer gebruikt.
+- Mergen en live opvolgen: skill `release`.
+
 ## Commando's
 
 Vanuit de root:

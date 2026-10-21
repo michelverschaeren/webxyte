@@ -39,6 +39,13 @@ Elke site is een eigen Vercel-project dat naar deze repo wijst:
    gewijzigde layer gebruiken.
 4. Environment variables blijven per project, zoals voorheen.
 
+## Branches
+
+`main` = productie. Per taak een korte branch: `<site>/<taak>` of
+`<layer>/<taak>`, één site of één layer per branch. Elke push geeft een
+Preview-deploy van de geraakte sites; mergen naar `main` zet ze live
+(skill `release`). Geen aparte `development`-branch.
+
 ## Updates
 
 [Renovate](https://github.com/apps/renovate) (`renovate.json`): op de eerste

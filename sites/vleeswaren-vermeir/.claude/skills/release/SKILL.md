@@ -1,9 +1,14 @@
 ---
 name: release
-description: Development naar main zetten en de Vercel-productiedeploy opvolgen voor vleeswarenvermeir.be. Gebruik wanneer de gebruiker vraagt om "development naar main", "mergen", "pushen naar productie", "live zetten", "release", of om development eerst na te kijken op bugs voor een merge.
+description: Een taakbranch van Vermeir (vermeir/<taak>) naar main zetten en de Vercel-productiedeploy opvolgen voor vleeswarenvermeir.be. Gebruik wanneer de gebruiker vraagt om "mergen", "pushen naar productie", "live zetten", "release", of om een branch eerst na te kijken op bugs voor een merge. Vult de algemene release-skill van de monorepo aan met wat specifiek is voor Vermeir.
 ---
 
-# Release: development → main → Vercel
+# Release: vermeir/<taak> → main → Vercel
+
+Werkwijze met branches: zie de algemene skill `release` in de root
+(`.claude/skills/release/SKILL.md`). Kort: geen `development`-branch meer;
+per taak een korte branch `vermeir/<taak>` vanaf `main`, Preview-deploy per
+push, merge naar `main` = live. `B` hieronder = die taakbranch.
 
 Productie = branch `main`. Vercel deployt `main` automatisch naar
 vleeswarenvermeir.be. Migraties lopen **niet** mee met de deploy (zie
@@ -15,15 +20,16 @@ eerlijk: wat faalde, wat overgeslagen werd.
 ## 1. Wat gaat er mee?
 
 ```bash
-git status --short                      # niets ongecommit vergeten?
-git log --oneline main..development     # commits die meegaan
-git log --oneline development..main     # main voor? Dan eerst bespreken
-git diff --stat main...development
+git status --short                 # niets ongecommit vergeten?
+git fetch origin
+git log --oneline main..$B         # commits die meegaan
+git log --oneline $B..origin/main  # main verder? Eerst main erin halen
+git diff --stat main...$B          # enkel sites/vleeswaren-vermeir/? Anders eerst vragen
 ```
 
 ## 2. Review (vóór de merge)
 
-Lees de volledige diff `git diff main...development`. Let vooral op:
+Lees de volledige diff `git diff main...$B`. Let vooral op:
 
 - **Bestelflow** (`server/api/account/orders.post.ts`, `useCartCheckout`,
   mail/PDF): controles op login, onbeschikbare producten en leveringsadres
@@ -57,7 +63,7 @@ select max(created_at) as laatste from drizzle.__drizzle_migrations;
 ```
 
 Gelijk aan de laatste `when` → in orde. Lager → **stop**: eerst migreren via
-`db-migration` (`npm run db:migrate:production`), met akkoord van de
+`db-migration` (`pnpm db:migrate:production`, in de map van de site), met akkoord van de
 gebruiker. Let op: lokaal wijst `DATABASE_URL` naar de branch `development`,
 dus een geslaagde lokale test zegt niets over productie. Het aantal rijen telt niet: de
 tabel kan een rij meer hebben dan de journal.
@@ -65,10 +71,10 @@ tabel kan een rij meer hebben dan de journal.
 ## 4. Mergen en pushen
 
 ```bash
-git checkout main && git pull --ff-only \
-  && git merge --no-ff development -m "Merge development: <korte samenvatting>" \
+git switch main && git pull --ff-only \
+  && git merge --no-ff $B -m "Merge $B: <korte samenvatting>" \
   && git push origin main \
-  && git checkout development
+  && git branch -d $B && git push origin --delete $B
 ```
 
 ## 5. Deploy opvolgen
