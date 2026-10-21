@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import {
   billingDetails,
+  categories,
   customerProductOverrides,
   customers,
   orderItems,
@@ -70,10 +71,12 @@ export default defineEventHandler(async (event) => {
             articleNr: products.articleNr,
             name: products.name,
             supplier: products.supplier,
+            category: categories.name,
             unit: products.unit,
             isActive: products.isActive,
           })
           .from(products)
+          .innerJoin(categories, eq(products.categoryId, categories.id))
           .where(inArray(products.articleNr, [...mine.keys()]))
       : [];
   // Recentst afgenomen eerst; handmatig toegevoegd zonder aankoop achteraan.

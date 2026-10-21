@@ -129,7 +129,7 @@
                 v-if="data.myProducts.length > 0"
                 v-model="historySearch"
                 name="producten-filteren"
-                placeholder="Filter op artikelnr, naam of leverancier…"
+                placeholder="Filter op artikelnr, naam, leverancier of categorie…"
                 class="w-full sm:w-72"
               />
             </div>
@@ -184,8 +184,26 @@
               <table class="adm-table">
                 <thead class="sticky top-0 z-1">
                   <tr>
-                    <th>Artikelnr.</th>
-                    <th class="w-full">Product</th>
+                    <th :aria-sort="productSortAria('articleNr')">
+                      <button type="button" class="adm-sort" @click="toggleProductSort('articleNr')">
+                        Artikelnr. {{ productSortIndicator("articleNr") }}
+                      </button>
+                    </th>
+                    <th class="w-full" :aria-sort="productSortAria('name')">
+                      <button type="button" class="adm-sort" @click="toggleProductSort('name')">
+                        Product {{ productSortIndicator("name") }}
+                      </button>
+                    </th>
+                    <th class="hidden md:table-cell" :aria-sort="productSortAria('supplier')">
+                      <button type="button" class="adm-sort" @click="toggleProductSort('supplier')">
+                        Leverancier {{ productSortIndicator("supplier") }}
+                      </button>
+                    </th>
+                    <th class="hidden lg:table-cell" :aria-sort="productSortAria('category')">
+                      <button type="button" class="adm-sort" @click="toggleProductSort('category')">
+                        Categorie {{ productSortIndicator("category") }}
+                      </button>
+                    </th>
                     <th class="hidden md:table-cell">Bron</th>
                     <th>Laatst gekocht</th>
                     <th class="adm-col-actions"><span class="sr-only">Acties</span></th>
@@ -201,8 +219,10 @@
                     <td>
                       <span class="font-medium text-(--color-text-strong)">{{ item.name }}</span>
                       <span v-if="!item.isActive" class="adm-badge adm-badge--neutral ml-2">Inactief</span>
-                      <span class="block text-[0.8125rem] text-(--color-text-muted)">{{ item.supplier }}</span>
+                      <span class="block text-[0.8125rem] text-(--color-text-muted) md:hidden">{{ item.supplier }}</span>
                     </td>
+                    <td class="hidden whitespace-nowrap md:table-cell">{{ item.supplier }}</td>
+                    <td class="hidden whitespace-nowrap lg:table-cell">{{ item.category }}</td>
                     <td class="hidden whitespace-nowrap md:table-cell">
                       <span
                         v-for="source in item.sources"
@@ -232,7 +252,7 @@
                     </td>
                   </tr>
                   <tr v-if="filteredProducts.length === 0">
-                    <td colspan="5" class="adm-card-empty">Geen producten gevonden.</td>
+                    <td colspan="7" class="adm-card-empty">Geen producten gevonden.</td>
                   </tr>
                 </tbody>
               </table>
@@ -464,6 +484,7 @@ interface CustomerDetail {
     articleNr: string;
     name: string;
     supplier: string;
+    category: string;
     unit: string | null;
     isActive: boolean;
     /** Null als enkel de beheerder het toevoegde. */
@@ -586,15 +607,49 @@ async function invite() {
   }
 }
 
+// Zonder sortering: de volgorde van de API (recentst afgenomen eerst).
+type ProductSortKey = "articleNr" | "name" | "supplier" | "category";
+const productSortKey = ref<ProductSortKey | null>(null);
+const productSortDir = ref<"asc" | "desc">("asc");
+
+function toggleProductSort(key: ProductSortKey) {
+  if (productSortKey.value === key) {
+    productSortDir.value = productSortDir.value === "asc" ? "desc" : "asc";
+  } else {
+    productSortKey.value = key;
+    productSortDir.value = "asc";
+  }
+}
+
+function productSortIndicator(key: ProductSortKey) {
+  if (productSortKey.value !== key) return "";
+  return productSortDir.value === "asc" ? "▲" : "▼";
+}
+
+function productSortAria(key: ProductSortKey) {
+  if (productSortKey.value !== key) return undefined;
+  return productSortDir.value === "asc" ? "ascending" : "descending";
+}
+
 const historySearch = ref("");
 const filteredProducts = computed(() => {
   const items = data.value?.myProducts ?? [];
   const term = historySearch.value.trim().toLowerCase();
-  if (!term) return items;
-  return items.filter((item) =>
-    [item.articleNr, item.name, item.supplier].some((field) =>
-      field.toLowerCase().includes(term),
-    ),
+  const filtered = term
+    ? items.filter((item) =>
+        [item.articleNr, item.name, item.supplier, item.category].some((field) =>
+          field.toLowerCase().includes(term),
+        ),
+      )
+    : items;
+  const key = productSortKey.value;
+  if (!key) return filtered;
+  const sign = productSortDir.value === "asc" ? 1 : -1;
+  // Bij gelijke waarde (bv. zelfde leverancier) op naam, altijd A→Z.
+  return [...filtered].sort(
+    (a, b) =>
+      a[key].localeCompare(b[key], "nl-BE", { sensitivity: "base", numeric: true }) * sign ||
+      a.name.localeCompare(b.name, "nl-BE", { sensitivity: "base", numeric: true }),
   );
 });
 
