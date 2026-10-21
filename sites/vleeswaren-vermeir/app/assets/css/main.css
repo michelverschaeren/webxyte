@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "./admin.css";
+
+@theme {
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
+/* ── Design tokens ───────────────────────────────────────────────
+ * Neutrals (bg/surface/text/border) flip between the two themes.
+ * Brand (rood/goud) en statuskleuren blijven in beide thema's gelijk.
+ */
+:root {
+  --color-bg: #0f0d0d;
+  --color-surface: #1a1414;
+  --color-surface-2: #150f0f;
+  --color-surface-strong: #0a0808;
+  --color-text-strong: #ffffff;
+  --color-text: #e8e2dc;
+  --color-text-muted: #a89a8e;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-hover: rgba(255, 255, 255, 0.05);
+
+  --color-primary: #b8252a;
+  --color-primary-hover: #8b1f1f;
+  --color-accent: #c89868;
+
+  --color-success: #8fc98f;
+  --color-error: #e06a6a;
+  --color-info: #6ba3d9;
+  --color-warning: #d9a05b;
+
+  /* Rode "spotlight"-banners (hero, paginakoppen, nieuwsbrief) — altijd
+     donker genoeg voor witte tekst erop, in beide thema's. */
+  --gradient-banner-1: #7a1a1a;
+  --gradient-banner-2: #4a0e0e;
+  --gradient-banner-3: #1a0808;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f7f3ee;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2ede6;
+  --color-surface-strong: #ece5da;
+  --color-text-strong: #0f0d0d;
+  --color-text: #1a1614;
+  --color-text-muted: #6b6058;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+  --color-hover: rgba(0, 0, 0, 0.04);
+
+  --gradient-banner-1: #9c2f27;
+  --gradient-banner-2: #7a231d;
+  --gradient-banner-3: #5c1912;
+
+  /* Het merk-goud (#c89868) heeft te weinig contrast als tekstkleur op een
+     crème/witte achtergrond (~2.6:1) — hier een dieper brons voor tekst en
+     iconen (~5.9:1 op wit). Achtergronden/randen die #c89868 zelf gebruiken
+     (knoppen, badges) blijven bewust ongewijzigd. */
+  --color-accent: #8a5f2e;
+}
+
+/* ── Thema-afhankelijke elementen ────────────────────────────────────
+ * Sinds het thema in localStorage zit (en niet meer in een cookie) kent de
+ * server het niet meer: tijdens SSR is `theme` altijd "light". Alles wat per
+ * thema verschilt én meteen zichtbaar is, wordt daarom in beide varianten
+ * gerenderd en hier geschakeld op `data-theme` — dat attribuut staat er al
+ * vóór de eerste paint, dus zo is er geen flits.
+ *
+ * `display: none` haalt het verborgen element ook uit de accessibility-tree,
+ * dus screenreaders zien er altijd precies één.
+ */
+[data-theme="light"] .only-dark,
+:root:not([data-theme="light"]) .only-light {
+  display: none;
+}
+
+/* ── Global base ─────────────────────────────────────────────────── */
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  /* "Inter" stond hier wel in de stack maar werd nergens ingeladen, dus de
+     bodytekst rendert sinds jaar en dag in system-ui. Nu @nuxt/fonts elke
+     font-family automatisch zelf host, zou het teruggezet worden op een
+     échte download — bewust weggelaten. Wil je Inter alsnog: zet hem terug
+     en de module regelt de rest. */
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

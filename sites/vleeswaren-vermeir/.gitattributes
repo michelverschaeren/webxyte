@@ -1,0 +1,12 @@
+# Binaire bestanden nooit regeleinden laten omzetten (core.autocrlf op
+# Windows verminkte anders enkele productfiches in de werkmap).
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.avif  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary

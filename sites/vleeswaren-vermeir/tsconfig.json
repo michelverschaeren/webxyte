@@ -1,0 +1,17 @@
+{
+  // Nuxt 4 genereert vier aparte TS-projecten: app (browser), server (Nitro),
+  // shared en node (config-bestanden). Elk met eigen globals en auto-imports.
+  // Zonder deze references wordt server/-code tegen de browser-config gecheckt
+  // en kent TypeScript `process` niet.
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
+}
