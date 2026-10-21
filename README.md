@@ -25,8 +25,9 @@ pnpm dev                 # menu: kies welke site(s) je start
 pnpm dev vermeir         # of meteen één site
 ```
 
-In VS Code: installeer de aanbevolen extensie **Tasks** (actboy168.tasks) voor
-knoppen in de statusbalk (*Start site*, *Vermeir*, *Check*), of gebruik
+In VS Code: met de extensie **Tasks** (actboy168.tasks) staan er knoppen in de
+statusbalk onderaan: *Start site*, *Vermeir*, *Nieuwe taak*, *Push*,
+*Taak afronden*, *Check* en *Hulp* (uitleg bij alles). Zonder extensie:
 Ctrl+Shift+P → *Tasks: Run Task*. De scripts van elke site staan ook onder
 *NPM Scripts* in de Verkenner, met een afspeelknop.
 

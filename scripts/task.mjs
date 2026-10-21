@@ -17,6 +17,7 @@
 import { execFileSync, spawnSync } from 'node:child_process'
 import { copyFileSync, existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+import { createInterface } from 'node:readline/promises'
 
 const isWin = process.platform === 'win32'
 
@@ -182,9 +183,25 @@ function contentInMain(branch) {
 }
 
 // ── pnpm task done <branch> ────────────────────────────────────────────────
-function done(name, ...flags) {
+async function ask(question) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  const answer = await rl.question(question)
+  rl.close()
+  return answer.trim()
+}
+
+async function done(name, ...flags) {
   const force = flags.includes('--force')
-  if (!name) fail('Gebruik: pnpm task done <branch>, bv. pnpm task done vermeir/promoties-filter (zie pnpm task list)')
+  if (!name) {
+    const open = worktrees().filter(w => path.resolve(w.path) !== mainRoot)
+    if (!open.length) fail('Geen open taken om af te ronden.')
+    if (!process.stdin.isTTY) fail('Gebruik: pnpm task done <taak> (zie pnpm task list)')
+    console.log('\nWelke taak afronden?\n')
+    open.forEach((t, i) => console.log(`  ${i + 1}. ${t.branch}`))
+    const pick = open[Number(await ask('\nNummer: ')) - 1]
+    if (!pick) fail('Geen geldige keuze.')
+    name = pick.branch
+  }
 
   const tasks = worktrees().filter(w => path.resolve(w.path) !== mainRoot)
   const t = tasks.find(w => w.branch === name) ?? tasks.find(w => w.branch.includes(name))
@@ -223,17 +240,62 @@ function done(name, ...flags) {
   console.log('\n✓ Opgeruimd.\n')
 }
 
+// ── pnpm task push ─────────────────────────────────────────────────────────
+function push() {
+  const branch = git(['branch', '--show-current'])
+  if (!branch) fail('Je zit niet op een branch.')
+  if (branch === 'main') {
+    fail('Je staat op main: pushen zet dat meteen live. Werk op een taakbranch (knop "Nieuwe taak").')
+  }
+  if (git(['status', '--porcelain'])) {
+    fail('Er zijn nog niet-gecommitte wijzigingen. Commit ze eerst (Source Control, links: bericht typen → Commit).')
+  }
+  console.log(`\n→ ${branch} naar GitHub pushen…`)
+  git(['push', '--quiet', '-u', 'origin', 'HEAD'])
+  const remote = git(['remote', 'get-url', 'origin']).replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/')
+  console.log(`
+✓ Gepusht. Vercel maakt nu een Preview-deploy van de geraakte site(s).
+
+  Klaar om live te zetten? Open de pull request en klik "Merge":
+  ${remote}/compare/main...${encodeURIComponent(branch).replace(/%2F/g, '/')}?expand=1
+
+  Daarna: knop "Taak afronden" in het venster van de hoofdmap.
+`)
+}
+
+// ── uitleg ─────────────────────────────────────────────────────────────────
+function help() {
+  console.log(`
+  KNOPPEN (statusbalk onderaan in VS Code)
+
+  ▶ Start site       kies welke site(s) je lokaal wil draaien
+  ⎇ Nieuwe taak      vraagt site + taaknaam → eigen branch + eigen map + nieuw venster
+  ☁ Push             je gecommitte werk naar GitHub → Vercel Preview + link om te mergen
+  ▣ Taak afronden    na de merge: map en branch opruimen (in het venster van de hoofdmap)
+  ✓ Check            lint + typecheck van alles
+
+  EEN TAAK, VAN BEGIN TOT EINDE
+
+  1. Nieuwe taak       (hoofdvenster)   → er opent een nieuw venster
+  2. Werken            (taakvenster)    → zelf of met Claude
+  3. Commit            (taakvenster)    → Source Control links: bericht typen, Commit
+  4. Push              (taakvenster)    → Preview nakijken, link openen, Merge op GitHub
+  5. Taakvenster sluiten
+  6. Taak afronden     (hoofdvenster)   → kies de taak uit de lijst
+
+  In de terminal: pnpm dev | pnpm task <site> <taak> | pnpm task push | pnpm task done
+`)
+}
+
 const [cmd, ...rest] = process.argv.slice(2)
 if (!cmd || cmd === 'help' || cmd === '--help') {
-  console.log(`
-  pnpm task <site|layer> <taak>   nieuwe taak in een eigen map, bv. pnpm task vermeir promoties-filter
-  pnpm task list                  open taken
-  pnpm task done <branch>         opruimen na de merge
-`)
+  help()
+} else if (cmd === 'push') {
+  push()
 } else if (cmd === 'list') {
   list()
 } else if (cmd === 'done') {
-  done(...rest)
+  await done(...rest)
 } else {
   create(cmd, ...rest)
 }
