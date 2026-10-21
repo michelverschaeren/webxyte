@@ -21,8 +21,14 @@ Regels voor mens en AI-agent: [AGENTS.md](AGENTS.md).
 ```bash
 corepack enable          # gebruikt de pnpm-versie uit package.json
 pnpm install             # in de root, voor alle sites
-pnpm --filter vleewaren-vermeir dev
+pnpm dev                 # menu: kies welke site(s) je start
+pnpm dev vermeir         # of meteen één site
 ```
+
+In VS Code: installeer de aanbevolen extensie **Tasks** (actboy168.tasks) voor
+knoppen in de statusbalk (*Start site*, *Vermeir*, *Check*), of gebruik
+Ctrl+Shift+P → *Tasks: Run Task*. De scripts van elke site staan ook onder
+*NPM Scripts* in de Verkenner, met een afspeelknop.
 
 Per site blijft de `.env` in de map van de site staan (`sites/<klant>/.env`).
 
