@@ -10,7 +10,7 @@ description: Merge a task branch (<site>/<task> or <layer>/<task>) into main in 
 - `main` = production for **every** site. Vercel deploys each site's project
   from `main`; `turbo-ignore` skips sites that did not change.
 - **One short-lived branch per task**, named after what it touches:
-  `vermeir/promoties-filter`, `bakkerij-x/contactpagina`,
+  `vleeswaren-vermeir/promoties-filter`, `bakkerij-x/contactpagina`,
   `base/security-headers`. One site **or** one layer per branch — never a mix.
 - No long-lived `development` branch: it would bundle unfinished work of one
   site with a release of another.
@@ -19,11 +19,15 @@ description: Merge a task branch (<site>/<task> or <layer>/<task>) into main in 
 - A branch under `packages/` affects every site that extends that layer: check
   the Preview of **each** of them before merging.
 
-Start a task (only when the user asks to start one):
+Start a task (only when the user asks to start one) — from the repo root:
 
 ```bash
-git switch main && git pull --ff-only && git switch -c <site-or-layer>/<task>
+pnpm task <site-or-layer> <task>   # branch <folder>/<task> + own folder ../webxyte-<folder>-<task>
 ```
+
+It creates a git worktree (separate folder per branch, so several tasks and
+Claude sessions can run side by side), copies the gitignored `.env` files,
+runs `pnpm install` and opens VS Code. `pnpm task list` shows open tasks.
 
 Migrations do **not** run on deploy (skill `db-migration`). Commit or push only
 when the user asks. Report every step honestly: what failed, what was skipped.
@@ -82,14 +86,19 @@ passing local test says nothing about production.
 
 ## 4. Merge and push
 
-Via a GitHub pull request (preferred: the PR shows the Preview links), or:
+Via a GitHub pull request (preferred: the PR shows the Preview links), or by
+hand **from the main folder** (`webxyte/`, where `main` is checked out — a
+task folder cannot switch to `main`):
 
 ```bash
 git switch main && git pull --ff-only \
   && git merge --no-ff $B -m "Merge $B: <short summary>" \
   && git push origin main \
-  && git branch -d $B && git push origin --delete $B
+  && git push origin --delete $B
 ```
+
+Then clean up the task folder and local branch, from the main folder (not from
+inside the task folder): `pnpm task done $B`.
 
 ## 5. Follow the deploy
 
