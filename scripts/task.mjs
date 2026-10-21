@@ -279,6 +279,8 @@ function setupVscode(dir) {
       : button('Start site', 'pnpm dev',
           { label: '$(play) Start site', tooltip: 'Kies welke site(s) je start', color: '#89d185' },
           { isBackground: true, presentation: { panel: 'dedicated', focus: true, clear: true } }),
+    button('Bijwerken', 'pnpm task update',
+      { label: '$(sync) Bijwerken', tooltip: 'Laatste main in deze taak halen (bv. na een merge van een layer)', color: '#75beff' }),
     button('Push', 'pnpm task push',
       { label: '$(cloud-upload) Push', tooltip: 'Commit eerst (Source Control links). Dan: naar GitHub, Preview en link om te mergen', color: '#75beff' }),
     button('Check', isSite ? `pnpm turbo run lint typecheck --filter=./sites/${prefix}` : 'pnpm turbo run lint typecheck',
@@ -314,6 +316,68 @@ function setupVscode(dir) {
   git(['update-index', '--skip-worktree', '.vscode/tasks.json', '.vscode/settings.json'], { cwd: dir })
 }
 
+// ── pnpm task update ───────────────────────────────────────────────────────
+/**
+ * Haalt de laatste main binnen. In de hoofdmap: main bijwerken. In een
+ * taakmap: origin/main in de taakbranch mergen (bv. na een layer-merge).
+ * Daarna pnpm install als de lockfile veranderde.
+ */
+function update() {
+  const top = path.resolve(git(['rev-parse', '--show-toplevel']))
+  const branch = git(['branch', '--show-current'])
+  const inTask = top !== mainRoot
+  if (git(['status', '--porcelain'])) {
+    fail('Er zijn nog niet-gecommitte wijzigingen. Commit ze eerst (Source Control links), dan opnieuw Bijwerken.')
+  }
+  const lockBefore = git(['rev-parse', 'HEAD:pnpm-lock.yaml'])
+  const headBefore = git(['rev-parse', 'HEAD'])
+
+  console.log('\n→ Laatste versie van main ophalen…')
+  git(['fetch', '--quiet', 'origin', 'main'])
+
+  if (!inTask) {
+    if (branch !== 'main') fail(`De hoofdmap staat op ${branch} in plaats van main. Ga eerst terug naar main.`)
+    try {
+      git(['merge', '--ff-only', 'origin/main'])
+    } catch {
+      fail('main kan niet gewoon bijgewerkt worden (lokale commits op main?). Vraag het aan Claude.')
+    }
+  } else {
+    // De gegenereerde knoppen even terugzetten, anders weigert git de merge
+    // als main .vscode/ veranderde. Na de merge opnieuw genereren.
+    const vscodeFiles = ['.vscode/tasks.json', '.vscode/settings.json']
+    git(['update-index', '--no-skip-worktree', ...vscodeFiles])
+    git(['checkout', '--', ...vscodeFiles])
+    let ok = true
+    try {
+      git(['merge', '--no-edit', 'origin/main'])
+    } catch {
+      ok = false
+    }
+    if (!ok) {
+      console.error(`
+✗ main en je taak veranderden dezelfde regels (conflict).
+
+  VS Code toont de conflicten in Source Control (links), met knoppen
+  "Accept Current / Incoming / Both". Los ze op, commit, en klik opnieuw
+  Bijwerken. Of vraag het aan Claude: "los de merge-conflicten op".
+  Liever terug naar hoe het was? In de terminal: git merge --abort
+`)
+      process.exit(1)
+    }
+    setupVscode(top)
+  }
+
+  const commits = git(['log', '--oneline', `${headBefore}..HEAD`]).split('\n').filter(Boolean).length
+  console.log(commits ? `→ ${commits} nieuwe commit(s) binnengehaald` : '→ Al up-to-date')
+
+  if (git(['rev-parse', 'HEAD:pnpm-lock.yaml']) !== lockBefore) {
+    console.log('→ Dependencies veranderden: pnpm install…\n')
+    if (!run('pnpm', ['install', '--prefer-offline'], top)) fail('pnpm install mislukte.')
+  }
+  console.log(`\n✓ Bijgewerkt${inTask ? ': je taak bevat nu de laatste main' : ''}.\n`)
+}
+
 // ── pnpm task push ─────────────────────────────────────────────────────────
 function push() {
   const branch = git(['branch', '--show-current'])
@@ -344,6 +408,7 @@ function help() {
 
   ▶ Start site       kies welke site(s) je lokaal wil draaien
   ⎇ Nieuwe taak      vraagt site + taaknaam → eigen branch + eigen map + nieuw venster
+  ⟳ Bijwerken        laatste main binnenhalen (hoofdmap: main; taakmap: main in je taak)
   ☁ Push             je gecommitte werk naar GitHub → Vercel Preview + link om te mergen
   ▣ Taak afronden    na de merge: map en branch opruimen (in het venster van de hoofdmap)
   ✓ Check            lint + typecheck van alles
@@ -380,6 +445,8 @@ if (!cmd || cmd === 'help' || cmd === '--help') {
   if (path.resolve(top) === mainRoot) fail('Dit is de hoofdmap; die houdt de gewone knoppen.')
   setupVscode(top)
   console.log('✓ Knoppen en kleur ingesteld. Herlaad het venster: Ctrl+Shift+P → Developer: Reload Window')
+} else if (cmd === 'update') {
+  update()
 } else if (cmd === 'push') {
   push()
 } else if (cmd === 'list') {

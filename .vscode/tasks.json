@@ -55,6 +55,15 @@
       "options": { "statusbar": { "label": "$(archive) Taak afronden", "tooltip": "Na de merge, in het venster van de hoofdmap: kies een taak, map + branch worden opgeruimd", "color": "#cca700" } }
     },
     {
+      "label": "Bijwerken",
+      "detail": "Laatste versie van main binnenhalen (+ pnpm install als nodig)",
+      "type": "shell",
+      "command": "pnpm task update",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(sync) Bijwerken", "tooltip": "Laatste main van GitHub halen (bv. na een merge, of op een andere computer)", "color": "#75beff" } }
+    },
+    {
       "label": "Check",
       "detail": "Lint + typecheck van alle sites en layers",
       "type": "shell",
