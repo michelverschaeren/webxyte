@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "vue.volar",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "editorconfig.editorconfig",
+    "antfu.iconify",
+    "nuxtr.nuxtr-vscode",
+    "ms-playwright.playwright",
+    "formulahendry.auto-rename-tag",
+    "mikestead.dotenv"
+  ]
+}
