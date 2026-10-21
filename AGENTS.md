@@ -15,6 +15,39 @@ templates/     startpunten voor nieuwe sites (skill /new-site)
 scripts/       verify-perf.mjs, fetch-site.mjs (draaien vanuit een sitemap)
 ```
 
+## Werkwijze bij elke vraag (eerst dit, dan pas code)
+
+Dit is een **monorepo met meerdere klantensites**. Bij elke vraag die iets wil
+wijzigen (code, teksten, beelden, config):
+
+1. **Voor welke site of layer?** Staat het niet expliciet in de vraag, en zit
+   je niet al in een taakmap voor één site (zie stap 2)? **Vraag het**, met de
+   lijst van `sites/` en `packages/` als keuze. Raad nooit. "De homepage",
+   "het contactformulier" of "het beheer" bestaan in meerdere sites.
+2. **Waar sta je?** Kijk naar de map en de branch (`git branch --show-current`;
+   Claude Code krijgt dit al bij de start van de sessie):
+   - **Hoofdmap op `main`** → wijzig hier niets. Stel een taak voor:
+     > Zal ik een taak starten? `pnpm task <site> <korte-taaknaam>`
+     > (knop *Nieuwe taak*): eigen branch `<site>/<taak>` en eigen map, in een
+     > nieuw VS Code-venster.
+
+     Stel zelf een korte taaknaam voor (kebab-case, 2–4 woorden). Na een ja:
+     voer het uit en zeg dat het werk verdergaat in het **nieuwe venster**
+     (de sessie daar start met deze context). Geef een samenvatting van de
+     vraag die de gebruiker daar kan plakken.
+   - **Taakmap voor dezelfde site/layer** → gewoon doen.
+   - **Taakmap voor een andere site/layer** → niet hier wijzigen. Zeg het en
+     stel een aparte taak voor.
+3. **Raakt de vraag ook `packages/`** (een layer, dus álle sites die hem
+   gebruiken)? Zeg welke sites geraakt worden en vraag of het in de layer moet
+   of enkel in deze site (override met hetzelfde pad). Een layer-wijziging is
+   een eigen taak: `pnpm task <layer> <taak>`.
+4. **Klaar met een stuk werk?** Herinner aan de volgende knop: commit (Source
+   Control) → *Push* → mergen via de link → *Taak afronden* in de hoofdmap.
+
+Vragen die niets wijzigen (uitleg, zoeken, code lezen) mogen meteen,
+op elke branch.
+
 ## De belangrijkste regel
 
 **Werk enkel in de site die de gebruiker noemt.** Een wijziging in

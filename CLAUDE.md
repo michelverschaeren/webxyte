@@ -2,6 +2,22 @@
 
 @AGENTS.md
 
+## Context and safety nets (Claude Code)
+
+- **SessionStart hook** (`.claude/hooks/session-context.mjs`): at the start of
+  every session you get the folder (main folder or task folder), branch, the
+  site/layer that branch is for, all sites and layers, and the open tasks. Use
+  it for step 1–2 of "Werkwijze bij elke vraag" in AGENTS.md instead of
+  asking things it already answers.
+- **PreToolUse hook** (`.claude/hooks/guard-main.mjs`): a Write/Edit to a repo
+  file while on `main` asks the user to confirm. Expect that prompt; it means
+  you skipped step 2. Propose a task instead of pushing past it, unless the
+  user explicitly wants the change on `main` (e.g. a README typo).
+- The user is learning git, worktrees and this setup. Explain the *next
+  button to press* in plain Dutch (the VS Code status bar: Start site,
+  Nieuwe taak, Push, Taak afronden, Check, Hulp) rather than raw git commands.
+  Answer in Dutch.
+
 ## Verification policy (Claude Code)
 
 **Do not run `pnpm lint` or `pnpm typecheck` after each edit.** Hooks own this
