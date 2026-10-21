@@ -55,12 +55,16 @@ layers gebruikt, zet in haar `main.css`: `@source "../../../../../packages";`.
 - `main` = productie voor **alle** sites. Een merge naar `main` zet live wat
   veranderde (Vercel + `turbo-ignore` bouwen enkel de geraakte sites).
 - Per taak één korte branch vanaf `main`, genoemd naar wat hij raakt:
-  `vermeir/promoties-filter`, `bakkerij-x/contactpagina`, `base/security-headers`.
+  `vleeswaren-vermeir/promoties-filter`, `bakkerij-x/contactpagina`, `base/security-headers`.
 - **Eén site óf één layer per branch.** Raakt je werk ongemerkt een andere
   site of `packages/`? Stop en vraag het, of splits het in een aparte branch.
 - Geen langlevende `development`-branch. Elke push naar een taakbranch geeft
   een Vercel Preview (Neon-branch `development`, mail naar `MAIL_REDIRECT_TO`).
 - Een layer-branch: bekijk de Preview van **elke** site die de layer gebruikt.
+- Nieuwe taak: `pnpm task <site|layer> <taak>` maakt de branch in een eigen
+  map naast de repo (git worktree), zodat meerdere taken en Claude-sessies
+  naast elkaar kunnen lopen. `pnpm task list` toont ze, `pnpm task done <taak>`
+  ruimt op na de merge.
 - Mergen en live opvolgen: skill `release`.
 
 ## Commando's

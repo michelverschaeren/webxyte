@@ -52,6 +52,18 @@ Elke site is een eigen Vercel-project dat naar deze repo wijst:
 Preview-deploy van de geraakte sites; mergen naar `main` zet ze live
 (skill `release`). Geen aparte `development`-branch.
 
+## Meerdere taken tegelijk (worktrees)
+
+```bash
+pnpm task vermeir promoties-filter   # branch + eigen map + pnpm install + VS Code
+pnpm task list                       # open taken
+pnpm task done promoties-filter      # opruimen na de merge (vanuit deze hoofdmap)
+```
+
+Elke taak krijgt een eigen map naast deze repo (`../webxyte-<site>-<taak>`)
+met haar eigen branch. Zo werk je in twee VS Code-vensters (en twee
+Claude-sessies) aan twee klanten zonder dat ze elkaars bestanden veranderen.
+
 ## Updates
 
 [Renovate](https://github.com/apps/renovate) (`renovate.json`): op de eerste

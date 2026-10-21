@@ -1,14 +1,15 @@
 ---
 name: release
-description: Een taakbranch van Vermeir (vermeir/<taak>) naar main zetten en de Vercel-productiedeploy opvolgen voor vleeswarenvermeir.be. Gebruik wanneer de gebruiker vraagt om "mergen", "pushen naar productie", "live zetten", "release", of om een branch eerst na te kijken op bugs voor een merge. Vult de algemene release-skill van de monorepo aan met wat specifiek is voor Vermeir.
+description: Een taakbranch van Vermeir (vleeswaren-vermeir/<taak>) naar main zetten en de Vercel-productiedeploy opvolgen voor vleeswarenvermeir.be. Gebruik wanneer de gebruiker vraagt om "mergen", "pushen naar productie", "live zetten", "release", of om een branch eerst na te kijken op bugs voor een merge. Vult de algemene release-skill van de monorepo aan met wat specifiek is voor Vermeir.
 ---
 
-# Release: vermeir/<taak> → main → Vercel
+# Release: vleeswaren-vermeir/<taak> → main → Vercel
 
 Werkwijze met branches: zie de algemene skill `release` in de root
 (`.claude/skills/release/SKILL.md`). Kort: geen `development`-branch meer;
-per taak een korte branch `vermeir/<taak>` vanaf `main`, Preview-deploy per
-push, merge naar `main` = live. `B` hieronder = die taakbranch.
+per taak een korte branch `vleeswaren-vermeir/<taak>` vanaf `main` (maak hem
+met `pnpm task vermeir <taak>`), Preview-deploy per push, merge naar `main` =
+live. Na de merge: `pnpm task done <taak>`. `B` hieronder = die taakbranch.
 
 Productie = branch `main`. Vercel deployt `main` automatisch naar
 vleeswarenvermeir.be. Migraties lopen **niet** mee met de deploy (zie
@@ -70,11 +71,15 @@ tabel kan een rij meer hebben dan de journal.
 
 ## 4. Mergen en pushen
 
+Via een pull request op GitHub, of met de hand **vanuit de hoofdmap**
+(`webxyte/`, daar staat `main`; een taakmap kan niet naar `main` wisselen):
+
 ```bash
 git switch main && git pull --ff-only \
   && git merge --no-ff $B -m "Merge $B: <korte samenvatting>" \
   && git push origin main \
-  && git branch -d $B && git push origin --delete $B
+  && git push origin --delete $B
+# daarna, vanuit de hoofdmap: pnpm task done $B
 ```
 
 ## 5. Deploy opvolgen

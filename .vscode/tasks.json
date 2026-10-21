@@ -34,12 +34,40 @@
       "options": { "statusbar": { "label": "$(check-all) Check", "tooltip": "pnpm lint && pnpm typecheck" } }
     },
     {
+      "label": "Nieuwe taak…",
+      "detail": "Branch + eigen map (worktree) + VS Code-venster (pnpm task)",
+      "type": "shell",
+      "command": "pnpm task ${input:taskScope} ${input:taskName}",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(git-branch) Nieuwe taak", "tooltip": "pnpm task <site|layer> <taak>" } }
+    },
+    {
+      "label": "Open taken",
+      "type": "shell",
+      "command": "pnpm task list",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true }
+    },
+    {
       "label": "Installeer dependencies",
       "detail": "pnpm install in de root (na een pull of een nieuwe site)",
       "type": "shell",
       "command": "pnpm install",
       "problemMatcher": [],
       "presentation": { "panel": "shared", "clear": true }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "taskScope",
+      "type": "promptString",
+      "description": "Site of layer (een deel van de mapnaam volstaat), bv. vermeir, base, tooling"
+    },
+    {
+      "id": "taskName",
+      "type": "promptString",
+      "description": "Korte naam van de taak, bv. promoties-filter"
     }
   ]
 }
