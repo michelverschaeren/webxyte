@@ -6,9 +6,6 @@ dist
 .env
 *.log
 old-data
-# Productfiches staan in de fiche-opslag (bucket of DOCS_DIR), niet in de repo
-data/docs/*
-!data/docs/README.txt
 .env*
 !.env.example
 .skills/.skilld-store-lock
