@@ -58,7 +58,7 @@
       "label": "Check",
       "detail": "Lint + typecheck van alle sites en layers",
       "type": "shell",
-      "command": "pnpm lint && pnpm typecheck",
+      "command": "pnpm turbo run lint typecheck",
       "problemMatcher": [],
       "presentation": { "panel": "shared", "clear": true, "focus": true },
       "options": { "statusbar": { "label": "$(check-all) Check", "tooltip": "Lint + typecheck van alles (Turborepo: enkel wat veranderde)" } }
