@@ -69,10 +69,17 @@ Vanuit de root:
 
 ```bash
 pnpm install                                   # alles, één lockfile
+pnpm dev                                       # menu: kies een of meer sites
+pnpm dev vermeir                               # één site (deel van de mapnaam volstaat)
+pnpm dev vermeir bakkerij                      # meerdere tegelijk
+pnpm dev --list                                # sites en hun vaste poort
 pnpm build | lint | typecheck                  # alle sites via Turborepo
-pnpm --filter vleewaren-vermeir dev            # één site
 pnpm --filter vleewaren-vermeir add <pakket>   # dependency voor één site
 ```
+
+Elke site heeft een vaste dev-poort in haar `dev`-script (`nuxt dev --port …`),
+zodat `BETTER_AUTH_URL` in haar `.env` klopt. Een nieuwe site krijgt de
+volgende vrije poort.
 
 Of in de map van de site: `pnpm dev`, `pnpm build`, `pnpm lint`,
 `pnpm typecheck`, `pnpm verify:perf <url>`.

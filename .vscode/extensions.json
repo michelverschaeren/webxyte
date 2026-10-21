@@ -8,6 +8,7 @@
     "nuxtr.nuxtr-vscode",
     "ms-playwright.playwright",
     "formulahendry.auto-rename-tag",
-    "mikestead.dotenv"
+    "mikestead.dotenv",
+    "actboy168.tasks"
   ]
 }

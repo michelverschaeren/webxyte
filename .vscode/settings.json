@@ -10,5 +10,8 @@
   ],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "npm.packageManager": "pnpm",
+  "npm.enableScriptExplorer": true,
+  "npm.scriptExplorerExclude": ["^postinstall$", "^preview$", "^lint:fix$", "^db:"]
 }

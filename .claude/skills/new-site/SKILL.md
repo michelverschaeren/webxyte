@@ -20,8 +20,11 @@ cp -r templates/starter sites/<name>
 rm -rf sites/<name>/node_modules sites/<name>/.nuxt sites/<name>/.output
 ```
 
-Set `"name": "<name>"` in `sites/<name>/package.json`, run `pnpm install` in
-the root, and do every following step **inside `sites/<name>`**. Need a login
+Set `"name": "<name>"` in `sites/<name>/package.json`. Give the site its own
+fixed dev port: run `pnpm dev --list`, take the highest port in use + 1 and
+set it in the `dev` script (`nuxt dev --port <port>`; the template's 3099 is a
+placeholder). Optionally add a "Start <klant>" task to `.vscode/tasks.json`
+(copy the Vermeir one). Run `pnpm install` in the root, and do every following step **inside `sites/<name>`**. Need a login
 or admin area? Add `@webxyte/auth`, `@webxyte/admin` (and optionally
 `@webxyte/analytics`) to `extends` and as `workspace:*` dependencies — read
 the header of each layer's `nuxt.config.ts` for what the site must provide.

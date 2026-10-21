@@ -1,0 +1,45 @@
+{
+  // Knoppen: met de extensie "Tasks" (actboy168.tasks) verschijnen de taken
+  // met een `statusbar`-label onderaan in de statusbalk. Zonder extensie:
+  // Ctrl+Shift+P → "Tasks: Run Task".
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start site…",
+      "detail": "Kies een of meer sites uit een lijst (pnpm dev)",
+      "type": "shell",
+      "command": "pnpm dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "focus": true, "clear": true },
+      "options": { "statusbar": { "label": "$(play) Start site", "tooltip": "Kies welke site(s) je wil starten" } }
+    },
+    {
+      "label": "Start Vleeswaren Vermeir",
+      "detail": "http://localhost:3000",
+      "type": "shell",
+      "command": "pnpm dev vleeswaren-vermeir",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" },
+      "options": { "statusbar": { "label": "$(play) Vermeir", "tooltip": "pnpm dev vleeswaren-vermeir → http://localhost:3000" } }
+    },
+    {
+      "label": "Lint + typecheck alles",
+      "detail": "Alle sites en layers via Turborepo (cache: enkel wat veranderde)",
+      "type": "shell",
+      "command": "pnpm lint && pnpm typecheck",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true },
+      "options": { "statusbar": { "label": "$(check-all) Check", "tooltip": "pnpm lint && pnpm typecheck" } }
+    },
+    {
+      "label": "Installeer dependencies",
+      "detail": "pnpm install in de root (na een pull of een nieuwe site)",
+      "type": "shell",
+      "command": "pnpm install",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true }
+    }
+  ]
+}
