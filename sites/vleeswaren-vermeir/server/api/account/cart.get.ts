@@ -1,4 +1,4 @@
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /** GET /api/account/cart — het winkelmandje van de ingelogde klant. */
 export default defineEventHandler(async (event) => {

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "timezone": "Europe/Brussels",
+  "schedule": ["before 6am on the first day of the month"],
+  "minimumReleaseAge": "3 days",
+  "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "packageRules": [
+    {
+      "description": "Alle patch- en minor-updates in één PR voor de hele monorepo; automatisch mergen als de checks slagen.",
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "non-major",
+      "automerge": true
+    },
+    {
+      "description": "Nuxt-ecosysteem samen, zodat nuxt, @nuxt/* en nitro nooit uit elkaar lopen.",
+      "matchPackageNames": ["nuxt", "@nuxt/**", "nitropack", "vue", "vue-tsc"],
+      "groupName": "nuxt"
+    },
+    {
+      "description": "Major-updates enkel na goedkeuring in het Dependency Dashboard.",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Lettermint is bewust vastgepind (zie packages/mail).",
+      "matchPackageNames": ["lettermint"],
+      "rangeStrategy": "pin"
+    }
+  ]
+}

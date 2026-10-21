@@ -1,0 +1,35 @@
+{
+  "name": "@webxyte/template-starter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "verify:perf": "node ../../scripts/verify-perf.mjs",
+    "fetch:site": "node ../../scripts/fetch-site.mjs",
+    "playwright:install": "playwright install chromium"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.142",
+    "@nuxt/ui": "^4.11.3",
+    "@vueuse/motion": "^3.0.3",
+    "@vueuse/nuxt": "^14.4.0",
+    "@webxyte/base": "workspace:*",
+    "@webxyte/mail": "workspace:*",
+    "nuxt": "^4.6.1",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "eslint": "^10.12.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.12"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

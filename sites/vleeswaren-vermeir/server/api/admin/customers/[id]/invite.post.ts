@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { inviteCustomer } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers/:id/invite — maakt de login van de klant aan

@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { savedListItems, savedLists } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * PUT /api/account/lists/:id — naam en/of inhoud van een lijstje bijwerken.

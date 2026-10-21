@@ -1,7 +1,7 @@
 import { asc, count } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/suppliers — alle leveranciers uit de catalogus (ook van

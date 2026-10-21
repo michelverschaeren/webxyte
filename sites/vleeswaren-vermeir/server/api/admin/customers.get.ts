@@ -8,7 +8,7 @@ import {
   orders,
 } from "~~/server/database/schema";
 import { loginStatusSql } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/customers — klanten uit het CRM, gepagineerd, met hun

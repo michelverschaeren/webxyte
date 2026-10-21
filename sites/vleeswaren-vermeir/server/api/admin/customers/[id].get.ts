@@ -14,7 +14,7 @@ import {
 import { listAddresses } from "~~/server/utils/customer-addresses";
 import { loginStatusSql } from "~~/server/utils/customer-login";
 import { customerProducts } from "~~/server/utils/customer-products";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/customers/:id — één CRM-klant, admin-only: contactgegevens,

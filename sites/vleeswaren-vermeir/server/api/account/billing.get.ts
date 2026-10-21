@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { billingDetails, customers } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/account/billing — de facturatiegegevens van de ingelogde klant,

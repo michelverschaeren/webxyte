@@ -1,0 +1,18 @@
+packages:
+  - packages/*
+  - sites/*
+  - templates/*
+
+# Supply-chain cooldown: a version must be public for 24h before pnpm installs
+# it. Renovate respects the same delay (minimumReleaseAge in renovate.json).
+minimumReleaseAge: 1440
+
+# Install scripts are off unless listed here. None of these needs one: they
+# ship prebuilt binaries via optional dependencies.
+allowBuilds:
+  '@parcel/watcher': false
+  '@tailwindcss/oxide': false
+  esbuild: false
+  unrs-resolver: false
+  vue-demi: false
+  sharp: false

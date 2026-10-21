@@ -7,7 +7,7 @@ import {
   parseContactBody,
   saveCustomerContact,
 } from "~~/server/utils/customer-contact";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * PUT /api/account/billing — de gegevens van "Mijn account → Gegevens"

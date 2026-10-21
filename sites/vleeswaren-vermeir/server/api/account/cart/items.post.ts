@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { cartItems } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/account/cart/items — één product aan het mandje toevoegen.

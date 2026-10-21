@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { cartItems } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * PATCH /api/account/cart/items/:productId — aantal van één mandjeregel

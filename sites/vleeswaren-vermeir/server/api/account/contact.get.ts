@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { customers } from "~~/server/database/schema";
 import { listAddresses } from "~~/server/utils/customer-addresses";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/account/contact — telefoon en leveringsadressen van de ingelogde

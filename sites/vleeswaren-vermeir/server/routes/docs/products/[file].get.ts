@@ -1,5 +1,5 @@
 import { readProductDoc } from "~~/server/utils/product-docs";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /docs/products/:file — serveert een productfiche uit de fiche-opslag

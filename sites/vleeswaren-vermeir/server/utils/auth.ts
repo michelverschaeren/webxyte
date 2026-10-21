@@ -80,7 +80,7 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    // Verplicht achter de reverse proxy van Dokploy (Traefik) op https.
+    // Secure cookies in productie (Vercel serveert enkel via https).
     useSecureCookies: process.env.NODE_ENV === "production",
   },
 

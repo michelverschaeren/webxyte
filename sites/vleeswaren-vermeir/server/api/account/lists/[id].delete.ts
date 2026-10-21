@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { savedLists } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /** DELETE /api/account/lists/:id — items verdwijnen mee via de foreign key. */
 const paramsSchema = z.object({ id: z.uuid() });

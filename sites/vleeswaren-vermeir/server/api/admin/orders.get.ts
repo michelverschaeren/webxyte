@@ -7,7 +7,7 @@ import {
   orders,
   user,
 } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/orders — alle bestellingen van alle klanten, gepagineerd,

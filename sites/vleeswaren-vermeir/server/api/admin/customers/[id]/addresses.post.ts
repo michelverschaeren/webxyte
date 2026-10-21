@@ -4,7 +4,7 @@ import { db } from "~~/server/database/client";
 import { customers } from "~~/server/database/schema";
 import { addressSchema, createAddress } from "~~/server/utils/customer-addresses";
 import { parseContactBody } from "~~/server/utils/customer-contact";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers/:id/addresses — de beheerder voegt een

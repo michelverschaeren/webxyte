@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { deleteAddress, requireCustomerId } from "~~/server/utils/customer-addresses";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /** DELETE /api/account/addresses/:id — de klant verwijdert een eigen leveringsadres. */
 const paramsSchema = z.object({ id: z.uuid() });

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { orders } from "~~/server/database/schema";
-import { requireAgencyAdmin } from "~~/server/utils/session";
+import { requireAgencyAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * DELETE /api/admin/orders/:id — verwijdert één bestelling definitief, met

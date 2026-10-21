@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
 import { writeProductDoc } from "~~/server/utils/product-docs";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/products/:id/pdf — upload/vervang de productfiche.

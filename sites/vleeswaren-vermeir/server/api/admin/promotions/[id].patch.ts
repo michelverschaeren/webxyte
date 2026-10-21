@@ -7,7 +7,7 @@ import {
   promotionColumns,
   promotionFieldsSchema,
 } from "~~/server/utils/promotions";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * PATCH /api/admin/promotions/:id — vervangt product, korting, periode en

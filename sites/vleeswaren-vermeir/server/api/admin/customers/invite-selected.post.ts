@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers } from "~~/server/database/schema";
 import { inviteCustomer, loginStatusSql } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers/invite-selected — stuurt de lanceringsmail naar

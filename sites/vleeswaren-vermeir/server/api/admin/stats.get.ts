@@ -1,7 +1,7 @@
 import { desc, eq, sql as raw } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { customers, orderItems, orders, products } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/stats — kerncijfers voor het dashboard-overzicht.

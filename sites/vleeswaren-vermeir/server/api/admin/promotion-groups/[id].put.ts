@@ -7,7 +7,7 @@ import {
   insertPromotions,
   promotionGroupFieldsSchema,
 } from "~~/server/utils/promotions";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * PUT /api/admin/promotion-groups/:id — vervangt naam, producten (elk met

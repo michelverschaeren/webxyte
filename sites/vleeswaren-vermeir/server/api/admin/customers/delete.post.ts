@@ -2,7 +2,7 @@ import { inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers, user } from "~~/server/database/schema";
-import { requireAgencyAdmin } from "~~/server/utils/session";
+import { requireAgencyAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers/delete — verwijdert een selectie klanten uit het

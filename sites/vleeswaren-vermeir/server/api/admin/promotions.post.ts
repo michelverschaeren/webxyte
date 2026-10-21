@@ -6,7 +6,7 @@ import {
   insertPromotions,
   promotionGroupFieldsSchema,
 } from "~~/server/utils/promotions";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/promotions — maakt een promotie aan: een groep met naam,

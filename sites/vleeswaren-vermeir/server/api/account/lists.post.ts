@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { savedListItems, savedLists } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/account/lists — nieuw bestellijstje aanmaken.

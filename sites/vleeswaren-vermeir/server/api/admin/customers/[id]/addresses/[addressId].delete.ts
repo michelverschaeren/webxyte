@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { deleteAddress } from "~~/server/utils/customer-addresses";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * DELETE /api/admin/customers/:id/addresses/:addressId — de beheerder

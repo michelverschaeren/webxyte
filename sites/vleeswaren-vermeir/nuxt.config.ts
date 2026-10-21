@@ -65,17 +65,13 @@ const CONTENT_SECURITY_POLICY =
     : null;
 
 export default defineNuxtConfig({
-  compatibilityDate: "2025-01-01",
-  devtools: { enabled: false },
+  // Gedeelde basis uit de monorepo (packages/*). Wat hier staat wint van de
+  // layers. base: images, fonts, security headers, Vercel Analytics, devtools uit.
+  extends: ["@webxyte/base", "@webxyte/auth", "@webxyte/admin", "@webxyte/analytics"],
 
-  modules: [
-    "@nuxt/image",
-    "@nuxt/eslint",
-    "@nuxt/fonts",
-    "@nuxtjs/seo",
-    "@vercel/analytics",
-    "@vercel/speed-insights",
-  ],
+  compatibilityDate: "2025-01-01",
+
+  modules: ["@nuxtjs/seo"],
 
   // Zelf-gehoste fonts i.p.v. de render-blokkerende stylesheet van Google:
   // die kostte twee extra origins (preconnect naar fonts.googleapis.com én
@@ -205,21 +201,19 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   runtimeConfig: {
-    // Server-only. Leeg laten: wordt gevuld vanuit .env / Dokploy env-vars.
+    // Server-only. Leeg laten: wordt gevuld vanuit .env / Vercel env-vars.
     // NUXT_DATABASE_URL en NUXT_BETTER_AUTH_SECRET overschrijven deze.
     databaseUrl: "",
     betterAuthSecret: "",
     betterAuthUrl: "",
 
-    public: {
-      /**
-       * Naam van de databasebranch als dat níét productie is (lokaal en op
-       * Vercel Preview: NUXT_PUBLIC_DATABASE_ENV=development). Toont dan een
-       * kader rond het scherm (components/DatabaseEnvFrame.vue). Leeg in
-       * productie: klanten zien niets.
-       */
-      databaseEnv: "",
+    // @webxyte/analytics: lokaal het project-ID (op Vercel zet Vercel zelf
+    // VERCEL_PROJECT_ID). Geen geheim.
+    vercelAnalytics: {
+      projectId: "prj_mhZcspbWIYWX4UOiadrSVvUEn1S5",
     },
+
+    // public.databaseEnv (de DEVELOPMENT-balk) komt uit @webxyte/base.
   },
 
   routeRules: {
@@ -267,17 +261,8 @@ export default defineNuxtConfig({
     },
   },
 
-  nitro: {
-    // Comprimeert alles onder .output/public (JS, CSS, fonts) tijdens de build
-    // en serveert de .br/.gz-variant op basis van Accept-Encoding. Dat is de
-    // helft van het compressieverhaal die zónder proxy-wijziging kan: brotli
-    // op maximale kwaliteit, één keer betaald bij het bouwen in plaats van
-    // bij elke request.
-    //
-    // De SSR-HTML valt hier NIET onder — die wordt per request gerenderd en
-    // kan enkel door Traefik gecomprimeerd worden (zie README/Dokploy).
-    compressPublicAssets: { gzip: true, brotli: true },
-  },
+  // nitro.compressPublicAssets komt uit @webxyte/base. Op Vercel comprimeert
+  // de CDN ook de SSR-HTML.
 
   vite: {
     plugins: [tailwindcss()],

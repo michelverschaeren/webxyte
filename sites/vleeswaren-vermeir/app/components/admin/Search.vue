@@ -72,7 +72,7 @@
             role="option"
             :aria-selected="entry.index === activeIndex"
             class="flex items-baseline justify-between gap-3 rounded-md px-3 py-2 text-sm text-(--color-text)"
-            :class="entry.index === activeIndex ? 'bg-[#b8252a]/15 text-(--color-text-strong)' : 'hover:bg-(--color-hover)'"
+            :class="entry.index === activeIndex ? 'bg-(--color-primary)/15 text-(--color-text-strong)' : 'hover:bg-(--color-hover)'"
             @mouseenter="activeIndex = entry.index"
             @click="close()"
           >

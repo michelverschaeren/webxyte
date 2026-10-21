@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { cartItems } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /** DELETE /api/account/cart/items/:productId — één mandjeregel verwijderen. */
 const paramsSchema = z.object({ productId: z.uuid() });

@@ -2,7 +2,7 @@ import { and, asc, isNotNull, isNull } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { customers } from "~~/server/database/schema";
 import { inviteCustomer } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers/invite-all — nodigt elke klant uit die een

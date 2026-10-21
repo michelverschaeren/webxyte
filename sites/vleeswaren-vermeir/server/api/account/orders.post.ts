@@ -11,7 +11,7 @@ import {
 import { promotionOutcome } from "#shared/promotion";
 import { listAddresses } from "~~/server/utils/customer-addresses";
 import { activePromotionsForUser } from "~~/server/utils/customer-promotions";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/account/orders — bestelling plaatsen vanuit het winkelmandje.

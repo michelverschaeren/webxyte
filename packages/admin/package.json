@@ -1,0 +1,13 @@
+{
+  "name": "@webxyte/admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "peerDependencies": {
+    "@webxyte/auth": "workspace:*",
+    "nuxt": "^4.6.1",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.43"
+  }
+}

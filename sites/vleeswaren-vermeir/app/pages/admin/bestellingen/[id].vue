@@ -281,7 +281,7 @@
 </template>
 
 <script setup lang="ts">
-import { isAgencyAdminEmail } from "#shared/agency-admin";
+import { isAgencyAdminEmail } from "#layers/auth/shared/agency-admin";
 import type { OrderLinePromotion } from "#shared/promotion";
 
 const route = useRoute();
@@ -335,7 +335,7 @@ const order = computed(() => data.value ?? null);
 useHead({ title: "Bestelling — Beheer — Vleeswaren Vermeir" });
 
 /**
- * Verwijderen is voorbehouden aan de agency-admin (shared/agency-admin.ts);
+ * Verwijderen is voorbehouden aan de agency-admin (packages/auth/shared/agency-admin.ts);
  * DELETE /api/admin/orders/:id controleert dat opnieuw.
  */
 const auth = useAuth();

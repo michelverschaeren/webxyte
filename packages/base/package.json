@@ -1,0 +1,19 @@
+{
+  "name": "@webxyte/base",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "dependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/fonts": "^0.14.0",
+    "@nuxt/image": "2.1.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "sharp": "^0.35.5"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.6.1",
+    "vue": "^3.5.43"
+  }
+}

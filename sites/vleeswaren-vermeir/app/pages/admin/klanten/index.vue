@@ -356,14 +356,14 @@
 
 <script setup lang="ts">
 import { addressError } from "#shared/address";
-import { isAgencyAdminEmail } from "#shared/agency-admin";
+import { isAgencyAdminEmail } from "#layers/auth/shared/agency-admin";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 useHead({ title: "Klanten — Vleeswaren Vermeir" });
 
 const auth = useAuth();
 /**
- * Klanten verwijderen is voorbehouden aan de agency-admin (shared/agency-admin.ts).
+ * Klanten verwijderen is voorbehouden aan de agency-admin (packages/auth/shared/agency-admin.ts).
  * De lanceringsmail naar een selectie mag elke beheerder versturen.
  * De server herhaalt deze check: dit is enkel om de UI te verbergen.
  */

@@ -8,7 +8,7 @@ import {
   promotionGroups,
   promotions,
 } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/promotion-groups/:id — de volledige groep voor de wizard,

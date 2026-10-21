@@ -7,7 +7,7 @@ import {
   orders,
   products,
 } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/products — zoals /api/products, maar admin-only en zonder

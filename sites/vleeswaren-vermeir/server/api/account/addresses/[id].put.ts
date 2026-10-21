@@ -5,7 +5,7 @@ import {
   updateAddress,
 } from "~~/server/utils/customer-addresses";
 import { parseContactBody } from "~~/server/utils/customer-contact";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * PUT /api/account/addresses/:id — de klant wijzigt een eigen leveringsadres

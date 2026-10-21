@@ -4,7 +4,7 @@ import { db } from "~~/server/database/client";
 import { categories, products } from "~~/server/database/schema";
 import { customerProducts } from "~~/server/utils/customer-products";
 import { activePromotionsForUser } from "~~/server/utils/customer-promotions";
-import { getAuthSession } from "~~/server/utils/session";
+import { getAuthSession } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/products

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "~~/server/database/client";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/products/:id

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { orderItems, orders } from "~~/server/database/schema";
 import type { BillingSnapshot } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/account/orders/:id — één bestelling van de ingelogde klant.

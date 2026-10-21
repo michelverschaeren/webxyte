@@ -1,5 +1,8 @@
 @import "tailwindcss";
-@import "./admin.css";
+@import "@webxyte/admin/app/assets/css/admin.css";
+
+/* Tailwind scant enkel deze site; de layers (packages/*) liggen erbuiten. */
+@source "../../../../../packages";
 
 @theme {
   --font-sans: system-ui, -apple-system, sans-serif;
@@ -10,6 +13,9 @@
  * Brand (rood/goud) en statuskleuren blijven in beide thema's gelijk.
  */
 :root {
+  /* Lettertypes van het beheer (@webxyte/admin). */
+  --adm-font-display: "Playfair Display", Georgia, serif;
+  --adm-font-accent: "Dancing Script", cursive;
   --color-bg: #0f0d0d;
   --color-surface: #1a1414;
   --color-surface-2: #150f0f;

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { products } from "~~/server/database/schema";
 import { deleteProductDoc } from "~~/server/utils/product-docs";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * DELETE /api/admin/products/:id/pdf — koppelt de productfiche los en

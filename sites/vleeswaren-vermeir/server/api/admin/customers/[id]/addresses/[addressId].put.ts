@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { addressSchema, updateAddress } from "~~/server/utils/customer-addresses";
 import { parseContactBody } from "~~/server/utils/customer-contact";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * PUT /api/admin/customers/:id/addresses/:addressId — de beheerder wijzigt

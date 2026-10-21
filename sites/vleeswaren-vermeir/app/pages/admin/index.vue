@@ -235,9 +235,10 @@ const promoSummary = computed(
 const topProducts = computed(() => stats.value?.topProducts ?? []);
 const topMax = computed(() => Math.max(1, ...topProducts.value.map((p) => p.totalQuantity)));
 
-/** Zelfde icoon als in de zijbalk (app/utils/admin-nav.ts). */
+/** Zelfde icoon als in de zijbalk (app.config.ts, `admin.nav`). */
+const navLinks = useAdminNavLinks();
 function navIcon(to: string): string {
-  return adminNavLinks.find((link) => link.to === to)?.icon ?? "";
+  return navLinks.find((link) => link.to === to)?.icon ?? "";
 }
 
 function formatNumber(value: number | undefined): string {

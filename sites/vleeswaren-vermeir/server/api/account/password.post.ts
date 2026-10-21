@@ -13,7 +13,7 @@ import {
   parseContactBody,
   saveCustomerContact,
 } from "~~/server/utils/customer-contact";
-import { getAuthSession } from "~~/server/utils/session";
+import { getAuthSession } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/account/password — nieuw wachtwoord instellen na "wachtwoord

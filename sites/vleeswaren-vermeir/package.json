@@ -19,16 +19,21 @@
     "db:pull": "drizzle-kit pull",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
-    "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\""
+    "auth:secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\"",
+    "verify:perf": "node ../../scripts/verify-perf.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",
-    "@nuxt/image": "^2.1.0",
+    "@nuxt/image": "2.1.0",
     "@nuxtjs/seo": "5.3.12",
     "@takumi-rs/core": "^2.14.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "better-auth": "^1.7.7",
+    "@webxyte/admin": "workspace:*",
+    "@webxyte/analytics": "workspace:*",
+    "@webxyte/auth": "workspace:*",
+    "@webxyte/base": "workspace:*",
+    "better-auth": "1.7.7",
     "drizzle-orm": "^0.45.4",
     "lettermint": "2.8.0",
     "nuxt": "4.6.1",
@@ -55,6 +60,5 @@
     "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.13"
-  },
-  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
+  }
 }

@@ -2,7 +2,7 @@ import { eq, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { orderItems, orders, products } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/products/:id — één product met alle velden, voor het

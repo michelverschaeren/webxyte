@@ -10,7 +10,7 @@ import {
   promotions,
   products,
 } from "~~/server/database/schema";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/promotions — promoties met product, korting, periode en

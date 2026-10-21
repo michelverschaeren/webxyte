@@ -1,0 +1,23 @@
+{
+  "name": "webxyte",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "dev": "turbo run dev --filter"
+  },
+  "devDependencies": {
+    "@types/turndown": "^5.0.6",
+    "cheerio": "^1.2.0",
+    "playwright": "^1.64.0",
+    "sharp": "^0.35.5",
+    "turbo": "^2.7.0",
+    "turndown": "^7.2.4"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "pnpm@11.20.0"
+}

@@ -4,7 +4,7 @@ import { db } from "~~/server/database/client";
 import { customers, orderItems, orders, user } from "~~/server/database/schema";
 import type { BillingSnapshot } from "~~/server/database/schema";
 import { generateOrderPdf, orderPdfFilename } from "~~/server/utils/order-pdf";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/admin/orders/:id/pdf — de bestelbon zoals hij als bijlage bij de

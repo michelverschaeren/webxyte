@@ -2,7 +2,7 @@ import { count, desc, eq, sql as raw } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { orderItems, orders } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * GET /api/account/orders — bestelgeschiedenis van de ingelogde klant,

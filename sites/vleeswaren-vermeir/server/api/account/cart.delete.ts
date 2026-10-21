@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~~/server/database/client";
 import { cartItems } from "~~/server/database/schema";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /** DELETE /api/account/cart — het volledige winkelmandje leegmaken. */
 export default defineEventHandler(async (event) => {

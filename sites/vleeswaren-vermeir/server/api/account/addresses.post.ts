@@ -4,7 +4,7 @@ import {
   requireCustomerId,
 } from "~~/server/utils/customer-addresses";
 import { parseContactBody } from "~~/server/utils/customer-contact";
-import { requireUser } from "~~/server/utils/session";
+import { requireUser } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/account/addresses — de klant voegt zelf een leveringsadres toe.

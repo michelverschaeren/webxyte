@@ -4,7 +4,7 @@ import { db } from "~~/server/database/client";
 import { customers, user } from "~~/server/database/schema";
 import { addressSchema, createAddress } from "~~/server/utils/customer-addresses";
 import { inviteCustomer, isUniqueViolation } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * POST /api/admin/customers — klant toevoegen met klantnummer en e-mail, en

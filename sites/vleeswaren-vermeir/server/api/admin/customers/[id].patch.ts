@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "~~/server/database/client";
 import { customers, user } from "~~/server/database/schema";
 import { isUniqueViolation } from "~~/server/utils/customer-login";
-import { requireAdmin } from "~~/server/utils/session";
+import { requireAdmin } from "#layers/auth/server/utils/session";
 
 /**
  * PATCH /api/admin/customers/:id — naam en contactgegevens van een

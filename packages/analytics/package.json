@@ -1,0 +1,16 @@
+{
+  "name": "@webxyte/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "peerDependencies": {
+    "@webxyte/admin": "workspace:*",
+    "@webxyte/auth": "workspace:*",
+    "nuxt": "^4.6.1",
+    "vue": "^3.5.43"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}
