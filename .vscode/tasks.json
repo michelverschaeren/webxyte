@@ -37,6 +37,15 @@
       "options": { "statusbar": { "label": "$(git-branch) Nieuwe taak", "tooltip": "Start een taak voor één site of layer: eigen branch, eigen map, nieuw venster", "color": "#75beff" } }
     },
     {
+      "label": "Nieuwe site",
+      "detail": "Nieuwe klantensite uit de template, als taak in een eigen venster",
+      "type": "shell",
+      "command": "pnpm task ${input:siteName} start --nieuw",
+      "problemMatcher": [],
+      "presentation": { "panel": "shared", "clear": true, "focus": true },
+      "options": { "statusbar": { "label": "$(new-folder) Nieuwe site", "tooltip": "Nieuwe klantensite: kopie van de template in sites/<naam>, eigen branch en venster", "color": "#75beff" } }
+    },
+    {
       "label": "Push",
       "detail": "Gecommit werk naar GitHub → Vercel Preview + link om te mergen",
       "type": "shell",
@@ -101,6 +110,11 @@
     }
   ],
   "inputs": [
+    {
+      "id": "siteName",
+      "type": "promptString",
+      "description": "Naam van de nieuwe site (domein zonder .be, bv. bakkerij-janssens)"
+    },
     {
       "id": "taskScope",
       "type": "promptString",
