@@ -640,7 +640,8 @@ async function merge(...flags) {
   }
 
   const files = git(['diff', '--name-only', 'origin/main...HEAD']).split('\n').filter(Boolean)
-  const touched = [...new Set(files.map(f => /^(sites|packages)\/[^/]+/.exec(f)?.[0] ?? 'root (scripts, config)'))]
+  // pnpm-lock.yaml staat in de root maar hoort bij elke site met nieuwe pakketten.
+  const touched = [...new Set(files.filter(f => f !== 'pnpm-lock.yaml').map(f => /^(sites|packages)\/[^/]+/.exec(f)?.[0] ?? 'root (scripts, config)'))]
   const layers = touched.filter(t => t.startsWith('packages/'))
   const migrations = files.filter(f => /(^|\/)(migrations?|drizzle)\/.+\.(sql|ts)$/.test(f))
 
@@ -675,32 +676,36 @@ async function merge(...flags) {
     }
   }
 
-  // In de hoofdmap: daar staat main.
-  if (git(['branch', '--show-current'], { cwd: mainRoot }) !== 'main') {
-    fail(`De hoofdmap (${mainRoot}) staat niet op main. Vraag het aan Claude.`)
-  }
-  if (git(['status', '--porcelain', '--untracked-files=no'], { cwd: mainRoot })) {
-    fail(`De hoofdmap heeft niet-gecommitte wijzigingen:\n${git(['status', '--short', '--untracked-files=no'], { cwd: mainRoot })}\n  Ruim die eerst op (of vraag het aan Claude). Er is niets live gezet.`)
-  }
+  // De merge-commit maken zonder de hoofdmap aan te raken: de taak bevat
+  // origin/main al (zie hierboven), dus de inhoud van main wordt exact die
+  // van de taak. Zo maakt het niet uit wat er in de hoofdmap openstaat.
   console.log('\n→ Mergen naar main…')
-  try {
-    git(['merge', '--ff-only', '--quiet', 'origin/main'], { cwd: mainRoot })
-  } catch {
-    fail('main in de hoofdmap heeft eigen commits die niet op GitHub staan. Vraag het aan Claude. Er is niets live gezet.')
+  const mainSha = git(['rev-parse', 'origin/main'])
+  if (git(['log', '--oneline', 'HEAD..origin/main'])) {
+    fail('main veranderde net opnieuw. Er is niets live gezet. Klik opnieuw 4 Push & merge.')
   }
-  const before = git(['rev-parse', 'HEAD'], { cwd: mainRoot })
+  const mergeSha = git(['commit-tree', 'HEAD^{tree}', '-p', mainSha, '-p', 'HEAD', '-m', `Merge ${branch}`])
   try {
-    git(['merge', '--no-ff', '--quiet', '-m', `Merge ${branch}`, branch], { cwd: mainRoot })
+    // Geen --force: is main op GitHub intussen veranderd, dan weigert GitHub.
+    git(['push', '--quiet', 'origin', `${mergeSha}:refs/heads/main`])
   } catch (error) {
-    git(['reset', '--quiet', '--merge', before], { cwd: mainRoot })
-    fail(`Mergen in de hoofdmap lukte niet:\n  ${String(error.stderr || error.message).trim().split('\n')[0]}\n  Er is niets live gezet. Vraag het aan Claude.`)
-  }
-  try {
-    git(['push', '--quiet', 'origin', 'main'], { cwd: mainRoot })
-  } catch (error) {
-    // Merge in de hoofdmap terugdraaien: main = weer gelijk aan GitHub.
-    git(['reset', '--quiet', '--keep', before], { cwd: mainRoot })
     fail(`Pushen naar GitHub lukte niet (main veranderde net, of geen verbinding).\n  ${String(error.stderr || error.message).trim().split('\n')[0]}\n  Er is niets live gezet. Klik opnieuw 4 Push & merge.`)
+  }
+  git(['fetch', '--quiet', 'origin', 'main'])
+
+  // De hoofdmap bijwerken als dat zonder risico kan.
+  let mainNote = ''
+  const mainDirty = git(['status', '--porcelain', '--untracked-files=no'], { cwd: mainRoot })
+  if (git(['branch', '--show-current'], { cwd: mainRoot }) === 'main' && !mainDirty) {
+    try {
+      git(['merge', '--ff-only', '--quiet', 'origin/main'], { cwd: mainRoot })
+    } catch {
+      mainNote = '\n  De hoofdmap is nog niet bijgewerkt: klik daar op Bijwerken.'
+    }
+  } else if (mainDirty) {
+    mainNote = `\n  ⚠ De hoofdmap heeft eigen, niet-gecommitte wijzigingen (${mainDirty.split('\n').map(l => l.trim().split(/\s+/).pop()).join(', ')}).
+    Die bleven onaangeroerd. Kijk ze na in Source Control van de hoofdmap
+    (meestal iets van pnpm: dan "Discard Changes"), en klik daarna Bijwerken.`
   }
   // De taakbranch op GitHub (als je ooit "Push zonder merge" deed) mag weg.
   try {
@@ -713,7 +718,7 @@ async function merge(...flags) {
 ✓ Live gezet: ${branch} zit in main.
   Vercel bouwt nu ${touched.filter(t => t.startsWith('sites/')).map(t => t.slice(6)).join(', ') || 'de geraakte site(s)'}: 1 à 3 minuten (vercel.com → Deployments).${migrations.length ? '\n  ⚠ Vergeet de productiemigratie niet.' : ''}
 
-  Volgende stap: sluit dit venster, en klik in de hoofdmap op Taak afronden.
+  Volgende stap: sluit dit venster, en klik in de hoofdmap op Taak afronden.${mainNote}
 `)
   run('code', [mainRoot], mainRoot)
 }
