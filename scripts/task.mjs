@@ -6,6 +6,8 @@
  *   pnpm task vermeir promoties-filter   nieuwe taak → branch vleeswaren-vermeir/promoties-filter
  *                                        in map ../webxyte-vleeswaren-vermeir-promoties-filter
  *   pnpm task base security-headers      taak aan een layer (packages/base)
+ *   pnpm task bakkerij-x start --nieuw   nieuwe site sites/bakkerij-x uit templates/<template>
+ *                                        (--template <naam> kiest een andere template)
  *   pnpm task list                       alle open taken
  *   pnpm task done promoties-filter
  *                                        map en lokale branch opruimen (na de merge)
@@ -15,7 +17,7 @@
  * Nieuwe taken vertrekken altijd van de laatste origin/main.
  */
 import { execFileSync, spawnSync } from 'node:child_process'
-import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, cpSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 
@@ -81,7 +83,43 @@ function list() {
 }
 
 // ── pnpm task <site|layer> <taak> ──────────────────────────────────────────
-function create(scopeArg, ...taskWords) {
+/** Vaste dev-poorten: de hoogste poort van de sites + 1 (start: package.json → webxyte.firstDevPort). */
+function nextDevPort() {
+  const rootPkg = JSON.parse(readFileSync(path.join(mainRoot, 'package.json'), 'utf8'))
+  const first = rootPkg.webxyte?.firstDevPort ?? 3001
+  const used = subdirs('sites').map((site) => {
+    const pkgPath = path.join(mainRoot, 'sites', site, 'package.json')
+    if (!existsSync(pkgPath)) return 0
+    return Number(/--port[ =](\d+)/.exec(JSON.parse(readFileSync(pkgPath, 'utf8')).scripts?.dev ?? '')?.[1]) || 0
+  })
+  return Math.max(first - 1, ...used) + 1
+}
+
+/** Kopieert templates/<template> naar sites/<name> in de taakmap, met eigen naam en poort. */
+function scaffoldSite(dir, name, template) {
+  const from = path.join(dir, 'templates', template)
+  if (!existsSync(from)) fail(`Template templates/${template} bestaat niet. Beschikbaar: ${subdirs('templates').join(', ')}`)
+  const to = path.join(dir, 'sites', name)
+  cpSync(from, to, {
+    recursive: true,
+    filter: src => !/[\\/](node_modules|\.nuxt|\.output|\.turbo|content-import)([\\/]|$)/.test(src)
+  })
+  const pkgPath = path.join(to, 'package.json')
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'))
+  const port = nextDevPort()
+  pkg.name = name
+  pkg.scripts.dev = `nuxt dev --port ${port}`
+  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
+  for (const env of ['.env', '.env.live', '.env.local']) rmSync(path.join(to, env), { force: true })
+  return port
+}
+
+function create(scopeArg, ...args) {
+  const flags = args.filter(a => a.startsWith('--'))
+  const taskWords = args.filter((a, i) => !a.startsWith('--') && !(args[i - 1] === '--template'))
+  const isNew = flags.includes('--nieuw')
+  const noOpen = flags.includes('--no-open')
+  const template = args.includes('--template') ? args[args.indexOf('--template') + 1] ?? null : null
   if (!scopeArg || !taskWords.length) {
     fail('Gebruik: pnpm task <site of layer> <taak>, bv. pnpm task vermeir promoties-filter')
   }
@@ -93,6 +131,12 @@ function create(scopeArg, ...taskWords) {
   let scope = query
   if (query === 'tooling') {
     target = 'de root (scripts, config)'
+  } else if (isNew) {
+    if (sites.includes(query)) fail(`sites/${query} bestaat al. Laat --nieuw weg om eraan te werken.`)
+    const similar = sites.filter(s => s.includes(query) || query.includes(s))
+    if (similar.length) fail(`"${query}" lijkt op een bestaande site: ${similar.join(', ')}. Bedoel je die? Laat dan --nieuw weg. Echt een nieuwe site? Kies een duidelijk andere naam.`)
+    if (layers.includes(query) || query === 'tooling') fail(`"${query}" is gereserveerd. Kies een andere sitenaam.`)
+    target = `sites/${query} (nieuw)`
   } else {
     const hits = [
       ...sites.filter(s => s.includes(query)).map(s => `sites/${s}`),
@@ -144,6 +188,13 @@ function create(scopeArg, ...taskWords) {
     }
   }
   console.log(`→ ${copied} .env-bestand(en) gekopieerd`)
+
+  if (isNew) {
+    const rootPkg = JSON.parse(readFileSync(path.join(mainRoot, 'package.json'), 'utf8'))
+    const tpl = template ?? rootPkg.webxyte?.defaultTemplate ?? 'starter'
+    const port = scaffoldSite(dir, scope, tpl)
+    console.log(`→ Nieuwe site sites/${scope} uit templates/${tpl} (dev-poort ${port})`)
+  }
   setupVscode(dir)
   console.log('→ VS Code-knoppen en -kleur voor deze taak ingesteld')
 
@@ -152,6 +203,10 @@ function create(scopeArg, ...taskWords) {
     fail(`pnpm install mislukte. De map staat er wel: ${dir}`)
   }
 
+  if (noOpen) {
+    console.log(`\n✓ Taakmap klaar: ${dir}`)
+    return dir
+  }
   const opened = run('code', ['--new-window', dir], dir)
   console.log(`
 ✓ Klaar.
@@ -212,7 +267,7 @@ async function done(name, ...flags) {
   if (path.resolve(process.cwd()).startsWith(path.resolve(t.path))) {
     fail(`Je staat zelf in die map. Ga eerst naar de hoofdmap:\n  cd "${mainRoot}"\n  pnpm task done ${t.branch}`)
   }
-  if (git(['status', '--porcelain'], { cwd: t.path })) {
+  if (!force && git(['status', '--porcelain'], { cwd: t.path })) {
     fail(`${t.branch} heeft nog niet-gecommitte wijzigingen in ${t.path}. Commit of gooi ze weg, dan opnieuw.`)
   }
 
@@ -408,6 +463,7 @@ function help() {
 
   ▶ Start site       kies welke site(s) je lokaal wil draaien
   ⎇ Nieuwe taak      vraagt site + taaknaam → eigen branch + eigen map + nieuw venster
+  🗀 Nieuwe site      nieuwe site uit de template, als taak in een eigen venster
   ⟳ Bijwerken        laatste main binnenhalen (hoofdmap: main; taakmap: main in je taak)
   ☁ Push             je gecommitte werk naar GitHub → Vercel Preview + link om te mergen
   ▣ Taak afronden    na de merge: map en branch opruimen (in het venster van de hoofdmap)

@@ -98,6 +98,9 @@ layers gebruikt, zet in haar `main.css`: `@source "../../../../../packages";`.
   map naast de repo (git worktree), zodat meerdere taken en Claude-sessies
   naast elkaar kunnen lopen. `pnpm task list` toont ze, `pnpm task done <taak>`
   ruimt op na de merge.
+- Nieuwe site: `pnpm task <naam> start --nieuw` (knop *Nieuwe site*) kopieert
+  `templates/starter` naar `sites/<naam>` in een eigen taakmap, met de
+  volgende vrije dev-poort. Daarna skill `new-site`.
 - Mergen en live opvolgen: skill `release`.
 
 ## Commando's

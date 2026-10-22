@@ -13,21 +13,20 @@ existing site, if this is a rebuild rather than a greenfield build.
 
 In the webxyte monorepo a new site is a copy of `templates/starter`, never an
 edit of the template itself. Ask the user for the folder name (the client's
-domain without TLD, e.g. `bakkerij-x`), then from the repo root:
+domain without TLD, e.g. `bakkerij-x`), then from the repo root (main folder):
 
 ```bash
-cp -r templates/starter sites/<name>
-rm -rf sites/<name>/node_modules sites/<name>/.nuxt sites/<name>/.output
+pnpm task <name> start --nieuw     # or the VS Code button "Nieuwe site"
 ```
 
-Set `"name": "<name>"` in `sites/<name>/package.json`. Give the site its own
-fixed dev port: run `pnpm dev --list`, take the highest port in use + 1 and
-set it in the `dev` script (`nuxt dev --port <port>`; the template's 3099 is a
-placeholder). Optionally add a "Start <klant>" task to `.vscode/tasks.json`
-(copy the Vermeir one). Run `pnpm install` in the root, and do every following step **inside `sites/<name>`**. Need a login
-or admin area? Add `@webxyte/auth`, `@webxyte/admin` (and optionally
+That creates branch `<name>/start` in its own folder (worktree), copies the
+template to `sites/<name>` with its own package name and the next free dev
+port, installs and opens a new VS Code window. Do every following step
+**in that window / folder, inside `sites/<name>`**. Need a login or admin
+area? Add `@webxyte/auth`, `@webxyte/admin` (and optionally
 `@webxyte/analytics`) to `extends` and as `workspace:*` dependencies — read
 the header of each layer's `nuxt.config.ts` for what the site must provide.
+Optionally add a "Start <klant>" button to `.vscode/tasks.json` on main later.
 
 Vercel: create a project from the `webxyte` repo with **Root Directory**
 `sites/<name>`, and as **Ignored Build Step** `npx turbo-ignore --fallback=HEAD^1`
