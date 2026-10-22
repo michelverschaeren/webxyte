@@ -1,7 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
+  "ignoreCommand": "npx turbo-ignore --fallback=HEAD^1",
   "redirects": [
-    { "source": "/_ipx/:mods/:path*", "destination": "/:path*", "permanent": true }
+    {
+      "source": "/_ipx/:mods/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    }
   ]
 }
