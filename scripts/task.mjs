@@ -573,7 +573,19 @@ async function merge(...flags) {
   console.log('\n→ Laatste versie van main ophalen…')
   git(['fetch', '--quiet', 'origin', 'main'])
   const commits = git(['log', '--oneline', 'origin/main..HEAD'])
-  if (!commits) fail('Er is niets om live te zetten: deze taak heeft geen commits die nog niet in main zitten.')
+  // Geen eigen commits, of enkel merges van main (Bijwerken): de inhoud staat
+  // al in main. VS Code toont dan soms toch "↑ n" t.o.v. de oude taakbranch
+  // op GitHub; dat zijn de commits van main die Bijwerken binnenhaalde.
+  if (!commits || !git(['diff', '--name-only', 'origin/main...HEAD'])) {
+    console.log(`
+✓ Alles van deze taak staat al in main (en is dus live). Niets te doen.
+  Ziet VS Code nog "↑" of "Sync Changes"? Negeer dat: het zijn de commits van
+  main die Bijwerken binnenhaalde, niet je eigen werk.
+
+  Volgende stap: sluit dit venster, en klik in de hoofdmap op Taak afronden.
+`)
+    return
+  }
 
   const files = git(['diff', '--name-only', 'origin/main...HEAD']).split('\n').filter(Boolean)
   const touched = [...new Set(files.map(f => /^(sites|packages)\/[^/]+/.exec(f)?.[0] ?? 'root (scripts, config)'))]
