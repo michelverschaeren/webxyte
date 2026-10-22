@@ -41,7 +41,7 @@ const tasks = git(['worktree', 'list', '--porcelain']).split('\n\n').filter(Bool
 }).filter(t => path.resolve(t.path) !== mainRoot)
 
 const lines = [
-  '[webxyte monorepo — sessiecontext]',
+  `[${path.basename(mainRoot)} monorepo — sessiecontext]`,
   `Map: ${top} (${isMain ? 'HOOFDMAP' : 'TAAKMAP (git worktree)'})`,
   `Branch: ${branch}${scope ? ` → werkt aan ${scope}` : ''}${dirty ? ` — ${dirty} niet-gecommitte wijziging(en)` : ''}`,
   `Sites: ${sites.join(', ') || '(geen)'}`,
@@ -50,7 +50,7 @@ const lines = [
 ]
 
 if (isMain && branch === 'main') {
-  lines.push('LET OP: dit is main = productie. Volg "Werkwijze bij elke vraag" in AGENTS.md: vraag voor welke site, en stel een taak voor (pnpm task <site> <taak>) voor je iets wijzigt.')
+  lines.push('LET OP: dit is main. Volg "Werkwijze bij elke vraag" in AGENTS.md: vraag waarvoor, en stel een taak voor (pnpm task …, of pnpm voorstel <url> in webxyte-voorstellen) voor je iets wijzigt.')
 } else if (!isMain && scope) {
   lines.push(`Deze taakmap is voor ${scope}. Wijzig niets daarbuiten; vraagt de gebruiker iets voor een andere site, stel dan een aparte taak voor.`)
 }
