@@ -47,12 +47,12 @@
     },
     {
       "label": "Push",
-      "detail": "Gecommit werk naar GitHub → Vercel Preview + link om te mergen",
+      "detail": "Taakbranch naar GitHub (Vercel Preview), zonder te mergen. In een taakvenster: 4 Push & merge",
       "type": "shell",
       "command": "pnpm task push",
       "problemMatcher": [],
       "presentation": { "panel": "shared", "clear": true, "focus": true },
-      "options": { "statusbar": { "label": "$(cloud-upload) Push", "tooltip": "Commit eerst (Source Control links). Dan: naar GitHub, Preview-deploy en link om te mergen", "color": "#75beff" } }
+      "options": { "statusbar": { "hide": true } }
     },
     {
       "label": "Taak afronden",

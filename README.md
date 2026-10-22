@@ -26,8 +26,10 @@ pnpm dev vermeir         # of meteen één site
 ```
 
 In VS Code: met de extensie **Tasks** (actboy168.tasks) staan er knoppen in de
-statusbalk onderaan: *Start site*, *Vermeir*, *Nieuwe taak*, *Push*,
-*Taak afronden*, *Check* en *Hulp* (uitleg bij alles). Zonder extensie:
+statusbalk onderaan: *Start site*, *Vermeir*, *Nieuwe taak*,
+*Taak afronden*, *Check* en *Hulp* (uitleg bij alles). In een taakvenster
+(paarse balk) rond je af met *1 Check* → *2 Preview* → *3 Commit* →
+*4 Push & merge*. Zonder extensie:
 Ctrl+Shift+P → *Tasks: Run Task*. De scripts van elke site staan ook onder
 *NPM Scripts* in de Verkenner, met een afspeelknop.
 
@@ -50,9 +52,8 @@ Elke site is een eigen Vercel-project dat naar deze repo wijst:
 ## Branches
 
 `main` = productie. Per taak een korte branch: `<site>/<taak>` of
-`<layer>/<taak>`, één site of één layer per branch. Elke push geeft een
-Preview-deploy van de geraakte sites; mergen naar `main` zet ze live
-(skill `release`). Geen aparte `development`-branch.
+`<layer>/<taak>`, één site of één layer per branch. *4 Push & merge* zet de
+taak in `main` en dus live (Vercel bouwt enkel de geraakte sites). Geen aparte `development`-branch.
 
 ## Meerdere taken tegelijk (worktrees)
 

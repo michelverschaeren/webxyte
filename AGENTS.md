@@ -42,8 +42,10 @@ wijzigen (code, teksten, beelden, config):
    gebruiken)? Zeg welke sites geraakt worden en vraag of het in de layer moet
    of enkel in deze site (override met hetzelfde pad). Een layer-wijziging is
    een eigen taak: `pnpm task <layer> <taak>`.
-4. **Klaar met een stuk werk?** Herinner aan de volgende knop: commit (Source
-   Control) → *Push* → mergen via de link → *Taak afronden* in de hoofdmap.
+4. **Klaar met een stuk werk?** Herinner aan de knoppen in het taakvenster,
+   in volgorde: *1 Check* → *2 Preview* → *3 Commit* → *4 Push & merge*
+   (zet live, na bevestiging), daarna *Taak afronden* in de hoofdmap.
+   Mergen naar `main` gebeurt via *4 Push & merge*, niet via GitHub.
 
 Vragen die niets wijzigen (uitleg, zoeken, code lezen) mogen meteen,
 op elke branch.
@@ -91,9 +93,13 @@ layers gebruikt, zet in haar `main.css`: `@source "../../../../../packages";`.
   `vleeswaren-vermeir/promoties-filter`, `bakkerij-x/contactpagina`, `base/security-headers`.
 - **Eén site óf één layer per branch.** Raakt je werk ongemerkt een andere
   site of `packages/`? Stop en vraag het, of splits het in een aparte branch.
-- Geen langlevende `development`-branch. Elke push naar een taakbranch geeft
-  een Vercel Preview (Neon-branch `development`, mail naar `MAIL_REDIRECT_TO`).
+- Geen langlevende `development`-branch. *2 Preview* toont de productiebuild
+  lokaal. Een online Vercel Preview (Neon-branch `development`, mail naar
+  `MAIL_REDIRECT_TO`) krijg je met de verborgen taak *Push zonder merge*.
 - Een layer-branch: bekijk de Preview van **elke** site die de layer gebruikt.
+- *4 Push & merge* (`pnpm task merge`) toont wat live gaat (sites, layers,
+  migraties) en vraagt bevestiging; bracht `main` intussen iets nieuws, dan
+  merget hij dat eerst in de taak en draait lint + typecheck opnieuw.
 - Nieuwe taak: `pnpm task <site|layer> <taak>` maakt de branch in een eigen
   map naast de repo (git worktree), zodat meerdere taken en Claude-sessies
   naast elkaar kunnen lopen. `pnpm task list` toont ze, `pnpm task done <taak>`

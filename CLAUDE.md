@@ -15,7 +15,8 @@
   user explicitly wants the change on `main` (e.g. a README typo).
 - The user is learning git, worktrees and this setup. Explain the *next
   button to press* in plain Dutch (the VS Code status bar: Start site,
-  Nieuwe taak, Push, Taak afronden, Check, Hulp) rather than raw git commands.
+  Nieuwe taak, Taak afronden, Check, Hulp; in a task window in order:
+  1 Check, 2 Preview, 3 Commit, 4 Push & merge) rather than raw git commands.
   Answer in Dutch.
 
 ## Verification policy (Claude Code)

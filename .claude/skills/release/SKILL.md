@@ -86,8 +86,12 @@ passing local test says nothing about production.
 
 ## 4. Merge and push
 
-Via a GitHub pull request (preferred: the PR shows the Preview links), or by
-hand **from the main folder** (`webxyte/`, where `main` is checked out — a
+Default: the user clicks **4 Push & merge** in the task window
+(`pnpm task merge`). It shows the commits, touched sites/layers and migration
+files, asks for confirmation, merges a newer `main` into the task first (and
+re-runs lint + typecheck), then merges `--no-ff` into `main` in the main folder
+and pushes. Tell the user to click it; run `pnpm task merge --ja` yourself only
+after their explicit OK. By hand, **from the main folder** (`webxyte/`, where `main` is checked out — a
 task folder cannot switch to `main`):
 
 ```bash

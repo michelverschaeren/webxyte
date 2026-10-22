@@ -274,7 +274,7 @@ async function done(name, ...flags) {
   git(['fetch', '--quiet', 'origin', 'main'], { cwd: mainRoot })
   const notMerged = git(['log', '--oneline', `origin/main..${t.branch}`], { cwd: mainRoot })
   if (notMerged && !force && !contentInMain(t.branch)) {
-    fail(`${t.branch} heeft commits die nog niet in main zitten:\n${notMerged.split('\n').map(l => `    ${l}`).join('\n')}\n\n  Eerst mergen (skill release). Echt weggooien? pnpm task done ${t.branch} --force`)
+    fail(`${t.branch} heeft commits die nog niet in main zitten:\n${notMerged.split('\n').map(l => `    ${l}`).join('\n')}\n\n  Eerst live zetten: 4 Push & merge in het taakvenster. Echt weggooien? pnpm task done ${t.branch} --force`)
   }
 
   console.log(`\n→ Map verwijderen: ${t.path}`)
@@ -314,35 +314,51 @@ function setupVscode(dir) {
     ? /--port[ =](\d+)/.exec(JSON.parse(readFileSync(path.join(siteDir, 'package.json'), 'utf8')).scripts?.dev ?? '')?.[1]
     : null
 
-  const button = (label, command, statusbar, extra = {}) => ({
+  const button = (label, command, statusbar, { options = {}, ...extra } = {}) => ({
     label,
     type: 'shell',
     command,
     problemMatcher: [],
     presentation: { panel: 'shared', clear: true, focus: true },
-    options: { statusbar },
+    options: { statusbar, ...options },
     ...extra
   })
 
+  // Volgorde = volgorde in de statusbalk. Links: waar je bent en werken;
+  // daarna de vier stappen om af te ronden, genummerd.
   const tasks = [
     button(`Taak ${branch}`, 'pnpm task status',
       { label: `$(git-branch) ${task}`, tooltip: `Taakmap voor ${isSite ? `sites/${prefix}` : prefix}. Klik: wat is er veranderd?`, color: '#ffffff' }),
     isSite
       ? button(`Start ${prefix}`, `pnpm dev ${prefix}`,
-          { label: `$(play) Start ${prefix}`, tooltip: port ? `http://localhost:${port}` : 'Start deze site', color: '#89d185' },
+          { label: `$(play) Start ${prefix}`, tooltip: port ? `Ontwikkelserver: http://localhost:${port}` : 'Start deze site', color: '#89d185' },
           { isBackground: true, presentation: { panel: 'dedicated', focus: true } })
       : button('Start site', 'pnpm dev',
           { label: '$(play) Start site', tooltip: 'Kies welke site(s) je start', color: '#89d185' },
           { isBackground: true, presentation: { panel: 'dedicated', focus: true, clear: true } }),
+    // Enkel in webxyte-voorstellen: één knop om het voorstel te laten bouwen.
+    ...(isSite && existsSync(path.join(dir, 'scripts', 'bouw.mjs'))
+      ? [button('Bouw voorstel', 'pnpm voorstel bouw',
+          { label: '$(wand) Bouw voorstel', tooltip: 'Ophalen, stijl kiezen, bouwen, laten nakijken en committen (Claude, zonder chat)', color: '#f5a3ff' })]
+      : []),
     button('Bijwerken', 'pnpm task update',
       { label: '$(sync) Bijwerken', tooltip: 'Laatste main in deze taak halen (bv. na een merge van een layer)', color: '#75beff' }),
-    button('Push', 'pnpm task push',
-      { label: '$(cloud-upload) Push', tooltip: 'Commit eerst (Source Control links). Dan: naar GitHub, Preview en link om te mergen', color: '#75beff' }),
-    button('Check', isSite ? `pnpm turbo run lint typecheck --filter=./sites/${prefix}` : 'pnpm turbo run lint typecheck',
-      { label: '$(check-all) Check', tooltip: isSite ? `Lint + typecheck van ${prefix}` : 'Lint + typecheck van alles' }),
+    button('1 Check', isSite ? `pnpm turbo run lint typecheck --filter=./sites/${prefix}` : 'pnpm turbo run lint typecheck',
+      { label: '$(check-all) 1 Check', tooltip: isSite ? `Lint + typecheck van ${prefix}` : 'Lint + typecheck van alles', color: '#e2c08d' }),
+    button('2 Preview', 'pnpm task preview',
+      { label: '$(eye) 2 Preview', tooltip: 'Productiebuild lokaal bekijken, zoals Vercel hem zal tonen (stoppen: Ctrl+C)', color: '#e2c08d' },
+      { isBackground: true, presentation: { panel: 'dedicated', focus: true, clear: true } }),
+    button('3 Commit', 'pnpm task commit',
+      { label: '$(git-commit) 3 Commit', tooltip: 'Alles bewaren in deze taak, met een korte omschrijving', color: '#e2c08d' },
+      { options: { env: { TASK_MESSAGE: '${input:commitMessage}' } } }),
+    button('4 Push & merge', 'pnpm task merge',
+      { label: '$(rocket) 4 Push & merge', tooltip: 'Naar main = live. Vraagt eerst bevestiging.', color: '#f48771' }),
     button('Naar hoofdmap', `code "${mainRoot}"`,
       { label: '$(home) Hoofdmap', tooltip: 'Open het venster van de hoofdmap (daar: Taak afronden na de merge)', color: '#cca700' }),
-    button('Hulp', 'pnpm task help', { label: '$(question) Hulp', tooltip: 'Uitleg bij de knoppen' })
+    button('Hulp', 'pnpm task help', { label: '$(question) Hulp', tooltip: 'Uitleg bij de knoppen' }),
+    // Zonder knop (Ctrl+Shift+P → Tasks: Run Task): pushen zonder mergen,
+    // voor een Vercel Preview online.
+    button('Push zonder merge', 'pnpm task push', { hide: true })
   ]
 
   const vscodeDir = path.join(dir, '.vscode')
@@ -350,7 +366,10 @@ function setupVscode(dir) {
     // Gegenereerd door pnpm task (scripts/task.mjs) voor deze taakmap.
     // git negeert dit bestand hier (skip-worktree).
     version: '2.0.0',
-    tasks
+    tasks,
+    inputs: [
+      { id: 'commitMessage', type: 'promptString', description: 'Wat heb je veranderd? (kort, bv. "foto\'s homepage vervangen")' }
+    ]
   }, null, 2)}\n`)
 
   // Andere kleur voor titel- en statusbalk: je ziet meteen dat dit een taakmap is.
@@ -377,12 +396,43 @@ function setupVscode(dir) {
  * taakmap: origin/main in de taakbranch mergen (bv. na een layer-merge).
  * Daarna pnpm install als de lockfile veranderde.
  */
+/**
+ * origin/main in de taakbranch van `top` mergen. De gegenereerde knoppen even
+ * terugzetten, anders weigert git de merge als main .vscode/ veranderde; daarna
+ * opnieuw genereren. Bij een conflict: uitleg en stoppen.
+ */
+function mergeMainInto(top, again = 'Bijwerken') {
+  const vscodeFiles = ['.vscode/tasks.json', '.vscode/settings.json']
+  git(['update-index', '--no-skip-worktree', ...vscodeFiles], { cwd: top })
+  git(['checkout', '--', ...vscodeFiles], { cwd: top })
+  let ok = true
+  try {
+    git(['merge', '--no-edit', 'origin/main'], { cwd: top })
+  } catch {
+    ok = false
+  }
+  if (!ok) {
+    setupVscode(top)
+    console.error(`
+✗ main en je taak veranderden dezelfde regels (conflict).
+
+  VS Code toont de conflicten in Source Control (links), met knoppen
+  "Accept Current / Incoming / Both". Los ze op, klik 3 Commit, en klik
+  opnieuw ${again}. Of vraag het aan Claude: "los de merge-conflicten op".
+  Liever terug naar hoe het was? In de terminal: git merge --abort
+`)
+    process.exit(1)
+  }
+  // In een nieuw proces: na de merge kan dit script zelf veranderd zijn.
+  spawnSync(process.execPath, [path.join(top, 'scripts', 'task.mjs'), 'vscode', '--stil'], { cwd: top, stdio: 'inherit' })
+}
+
 function update() {
   const top = path.resolve(git(['rev-parse', '--show-toplevel']))
   const branch = git(['branch', '--show-current'])
   const inTask = top !== mainRoot
   if (git(['status', '--porcelain'])) {
-    fail('Er zijn nog niet-gecommitte wijzigingen. Commit ze eerst (Source Control links), dan opnieuw Bijwerken.')
+    fail('Er zijn nog niet-gecommitte wijzigingen. Klik eerst 3 Commit, dan opnieuw Bijwerken.')
   }
   const lockBefore = git(['rev-parse', 'HEAD:pnpm-lock.yaml'])
   const headBefore = git(['rev-parse', 'HEAD'])
@@ -398,29 +448,7 @@ function update() {
       fail('main kan niet gewoon bijgewerkt worden (lokale commits op main?). Vraag het aan Claude.')
     }
   } else {
-    // De gegenereerde knoppen even terugzetten, anders weigert git de merge
-    // als main .vscode/ veranderde. Na de merge opnieuw genereren.
-    const vscodeFiles = ['.vscode/tasks.json', '.vscode/settings.json']
-    git(['update-index', '--no-skip-worktree', ...vscodeFiles])
-    git(['checkout', '--', ...vscodeFiles])
-    let ok = true
-    try {
-      git(['merge', '--no-edit', 'origin/main'])
-    } catch {
-      ok = false
-    }
-    if (!ok) {
-      console.error(`
-✗ main en je taak veranderden dezelfde regels (conflict).
-
-  VS Code toont de conflicten in Source Control (links), met knoppen
-  "Accept Current / Incoming / Both". Los ze op, commit, en klik opnieuw
-  Bijwerken. Of vraag het aan Claude: "los de merge-conflicten op".
-  Liever terug naar hoe het was? In de terminal: git merge --abort
-`)
-      process.exit(1)
-    }
-    setupVscode(top)
+    mergeMainInto(top)
   }
 
   const commits = git(['log', '--oneline', `${headBefore}..HEAD`]).split('\n').filter(Boolean).length
@@ -441,44 +469,225 @@ function push() {
     fail('Je staat op main: pushen zet dat meteen live. Werk op een taakbranch (knop "Nieuwe taak").')
   }
   if (git(['status', '--porcelain'])) {
-    fail('Er zijn nog niet-gecommitte wijzigingen. Commit ze eerst (Source Control, links: bericht typen → Commit).')
+    fail('Er zijn nog niet-gecommitte wijzigingen. Klik eerst 3 Commit.')
   }
   console.log(`\n→ ${branch} naar GitHub pushen…`)
   git(['push', '--quiet', '-u', 'origin', 'HEAD'])
   const remote = git(['remote', 'get-url', 'origin']).replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/')
   console.log(`
-✓ Gepusht. Vercel maakt nu een Preview-deploy van de geraakte site(s).
-
-  Klaar om live te zetten? Open de pull request en klik "Merge":
+✓ Gepusht. Vercel maakt nu een Preview-deploy van de geraakte site(s)
+  (vercel.com → Deployments, of de pull request op GitHub):
   ${remote}/compare/main...${encodeURIComponent(branch).replace(/%2F/g, '/')}?expand=1
 
-  Daarna: knop "Taak afronden" in het venster van de hoofdmap.
+  Live zetten: knop 4 Push & merge in dit venster.
 `)
+}
+
+// ── pnpm task preview [site] ───────────────────────────────────────────────
+/** Site van deze taak (branch-prefix), of null bij een layer/tooling/hoofdmap. */
+function taskSite(top) {
+  const prefix = git(['branch', '--show-current'], { cwd: top }).split('/')[0]
+  return existsSync(path.join(top, 'sites', prefix, 'package.json')) ? prefix : null
+}
+
+/** Productiebuild van één site, lokaal geserveerd: wat Vercel straks toont. */
+async function preview(arg) {
+  const top = path.resolve(git(['rev-parse', '--show-toplevel']))
+  const sites = readdirSync(path.join(top, 'sites'), { withFileTypes: true })
+    .filter(e => e.isDirectory() && existsSync(path.join(top, 'sites', e.name, 'package.json'))).map(e => e.name)
+  let site = arg ? sites.find(s => s.includes(slug(arg))) : taskSite(top)
+  if (!site) {
+    if (sites.length === 1) site = sites[0]
+    else {
+      if (!process.stdin.isTTY) fail(`Welke site? pnpm task preview <site>. Sites: ${sites.join(', ')}`)
+      console.log('\nWelke site bekijken?\n')
+      sites.forEach((s, i) => console.log(`  ${i + 1}. ${s}`))
+      site = sites[Number(await ask('\nNummer: ')) - 1]
+      if (!site) fail('Geen geldige keuze.')
+    }
+  }
+  const siteDir = path.join(top, 'sites', site)
+  const port = /--port[ =](\d+)/.exec(JSON.parse(readFileSync(path.join(siteDir, 'package.json'), 'utf8')).scripts?.dev ?? '')?.[1] ?? '3000'
+
+  console.log(`\n→ Productiebuild van ${site} (1 à 2 minuten)…\n`)
+  if (!run('pnpm', ['build'], siteDir)) fail('De build mislukte: zie de fout hierboven. Klik 1 Check, of vraag het aan Claude.')
+  console.log(`
+→ Preview: http://localhost:${port}
+  Zo ziet Vercel hem straks. Kijk ook op gsm-breedte (F12 → gsm-icoon).
+  Stoppen: Ctrl+C in deze terminal. Tevreden? 3 Commit, dan 4 Push & merge.
+`)
+  run('pnpm', ['preview', '--port', port], siteDir)
+}
+
+// ── pnpm task commit ───────────────────────────────────────────────────────
+/** Alles in deze taak committen; omschrijving uit de knop (TASK_MESSAGE). */
+function commit(...words) {
+  const top = path.resolve(git(['rev-parse', '--show-toplevel']))
+  const branch = git(['branch', '--show-current'])
+  if (top === mainRoot || branch === 'main') {
+    fail('Dit is de hoofdmap (main). Commit in het venster van een taak (paarse balk).')
+  }
+  if (!git(['status', '--porcelain'])) {
+    console.log('\n✓ Niets te committen: alles is al bewaard.\n')
+    return
+  }
+  git(['add', '-A'])
+  // Vangnet bovenop .gitignore: nooit een .env met geheimen in git.
+  const secrets = git(['diff', '--cached', '--name-only']).split('\n')
+    .filter(f => /(^|\/)\.env(\.|$)/.test(f) && !f.endsWith('.env.example'))
+  if (secrets.length) {
+    git(['reset', '--quiet', '--', ...secrets])
+    console.log(`→ Niet mee gecommit (geheimen): ${secrets.join(', ')}`)
+  }
+  if (!git(['diff', '--cached', '--name-only'])) {
+    console.log('\n✓ Niets te committen.\n')
+    return
+  }
+  const message = (words.join(' ') || process.env.TASK_MESSAGE || '').trim()
+    || `${branch.split('/').slice(1).join('/') || branch}: wijzigingen`
+  const files = git(['diff', '--cached', '--name-only']).split('\n').filter(Boolean)
+  git(['commit', '--quiet', '-m', message])
+  console.log(`\n✓ Gecommit: "${message}" (${files.length} bestand(en))`)
+  console.log('  Volgende stap: 4 Push & merge (of eerst verder werken).\n')
+}
+
+// ── pnpm task merge ────────────────────────────────────────────────────────
+/**
+ * De taak live zetten zonder GitHub-website:
+ *   1. alles gecommit? toon wat er live gaat en vraag bevestiging;
+ *   2. nieuwe commits op main? die eerst in de taak + opnieuw lint/typecheck;
+ *   3. in de hoofdmap: main bijwerken, de taak erin mergen, main pushen.
+ * Vercel bouwt daarna de geraakte site(s) (turbo-ignore). Opruimen blijft
+ * "Taak afronden" in de hoofdmap (dit venster staat nog in de taakmap).
+ */
+async function merge(...flags) {
+  const yes = flags.includes('--ja')
+  const top = path.resolve(git(['rev-parse', '--show-toplevel']))
+  const branch = git(['branch', '--show-current'])
+  if (top === mainRoot || !branch || branch === 'main') {
+    fail('Dit doe je in het venster van een taak (paarse balk), niet in de hoofdmap.')
+  }
+  if (git(['status', '--porcelain'])) {
+    fail('Er zijn nog niet-bewaarde wijzigingen. Klik eerst 3 Commit, dan opnieuw 4 Push & merge.')
+  }
+  console.log('\n→ Laatste versie van main ophalen…')
+  git(['fetch', '--quiet', 'origin', 'main'])
+  const commits = git(['log', '--oneline', 'origin/main..HEAD'])
+  if (!commits) fail('Er is niets om live te zetten: deze taak heeft geen commits die nog niet in main zitten.')
+
+  const files = git(['diff', '--name-only', 'origin/main...HEAD']).split('\n').filter(Boolean)
+  const touched = [...new Set(files.map(f => /^(sites|packages)\/[^/]+/.exec(f)?.[0] ?? 'root (scripts, config)'))]
+  const layers = touched.filter(t => t.startsWith('packages/'))
+  const migrations = files.filter(f => /(^|\/)(migrations?|drizzle)\/.+\.(sql|ts)$/.test(f))
+
+  console.log(`\n  Taak:    ${branch}`)
+  console.log(`  Raakt:   ${touched.join(', ')}`)
+  console.log(`  Commits:\n${commits.split('\n').map(l => `    ${l}`).join('\n')}`)
+  console.log(`  ${files.length} bestand(en) gewijzigd.`)
+  if (layers.length) {
+    console.log(`\n  ⚠ Dit verandert een gedeelde layer (${layers.join(', ')}): ELKE site die hem gebruikt, gaat mee live.`)
+  }
+  if (migrations.length) {
+    console.log(`\n  ⚠ Databasemigratie(s): ${migrations.join(', ')}
+    Die draaien NIET vanzelf. Voer de productiemigratie uit vóór of meteen na
+    het live zetten (vraag het aan Claude: skill db-migration).`)
+  }
+  if (!yes) {
+    if (!process.stdin.isTTY) fail('Bevestiging nodig: pnpm task merge --ja')
+    const answer = (await ask('\n  Live zetten (naar main)? Typ j en Enter: ')).toLowerCase()
+    if (!['j', 'ja', 'y', 'yes'].includes(answer)) fail('Gestopt. Er is niets veranderd.')
+  }
+
+  // Nieuwe commits op main (andere taak, voorstellen.json …)? Eerst in de taak,
+  // en dan opnieuw controleren: de combinatie is nog nooit getest.
+  if (git(['log', '--oneline', 'HEAD..origin/main'])) {
+    console.log('\n→ main veranderde intussen: eerst in deze taak mergen…')
+    mergeMainInto(top, '4 Push & merge')
+    const site = taskSite(top)
+    const filter = site && !layers.length ? [`--filter=./sites/${site}`] : []
+    console.log(`→ Opnieuw lint + typecheck (${filter.length ? site : 'alles'})…\n`)
+    if (!run('pnpm', ['turbo', 'run', 'lint', 'typecheck', ...filter], top)) {
+      fail('Na het mergen van main faalt lint/typecheck. Er is niets live gezet. Los het op (of vraag het aan Claude), 3 Commit, dan opnieuw 4 Push & merge.')
+    }
+  }
+
+  // In de hoofdmap: daar staat main.
+  if (git(['branch', '--show-current'], { cwd: mainRoot }) !== 'main') {
+    fail(`De hoofdmap (${mainRoot}) staat niet op main. Vraag het aan Claude.`)
+  }
+  if (git(['status', '--porcelain', '--untracked-files=no'], { cwd: mainRoot })) {
+    fail(`De hoofdmap heeft niet-gecommitte wijzigingen:\n${git(['status', '--short', '--untracked-files=no'], { cwd: mainRoot })}\n  Ruim die eerst op (of vraag het aan Claude). Er is niets live gezet.`)
+  }
+  console.log('\n→ Mergen naar main…')
+  try {
+    git(['merge', '--ff-only', '--quiet', 'origin/main'], { cwd: mainRoot })
+  } catch {
+    fail('main in de hoofdmap heeft eigen commits die niet op GitHub staan. Vraag het aan Claude. Er is niets live gezet.')
+  }
+  const before = git(['rev-parse', 'HEAD'], { cwd: mainRoot })
+  try {
+    git(['merge', '--no-ff', '--quiet', '-m', `Merge ${branch}`, branch], { cwd: mainRoot })
+  } catch (error) {
+    git(['reset', '--quiet', '--merge', before], { cwd: mainRoot })
+    fail(`Mergen in de hoofdmap lukte niet:\n  ${String(error.stderr || error.message).trim().split('\n')[0]}\n  Er is niets live gezet. Vraag het aan Claude.`)
+  }
+  try {
+    git(['push', '--quiet', 'origin', 'main'], { cwd: mainRoot })
+  } catch (error) {
+    // Merge in de hoofdmap terugdraaien: main = weer gelijk aan GitHub.
+    git(['reset', '--quiet', '--keep', before], { cwd: mainRoot })
+    fail(`Pushen naar GitHub lukte niet (main veranderde net, of geen verbinding).\n  ${String(error.stderr || error.message).trim().split('\n')[0]}\n  Er is niets live gezet. Klik opnieuw 4 Push & merge.`)
+  }
+  // De taakbranch op GitHub (als je ooit "Push zonder merge" deed) mag weg.
+  try {
+    if (git(['ls-remote', '--heads', 'origin', branch])) git(['push', '--quiet', 'origin', '--delete', branch])
+  } catch {
+    // Niet erg: Taak afronden probeert het opnieuw.
+  }
+
+  console.log(`
+✓ Live gezet: ${branch} zit in main.
+  Vercel bouwt nu ${touched.filter(t => t.startsWith('sites/')).map(t => t.slice(6)).join(', ') || 'de geraakte site(s)'}: 1 à 3 minuten (vercel.com → Deployments).${migrations.length ? '\n  ⚠ Vergeet de productiemigratie niet.' : ''}
+
+  Volgende stap: sluit dit venster, en klik in de hoofdmap op Taak afronden.
+`)
+  run('code', [mainRoot], mainRoot)
 }
 
 // ── uitleg ─────────────────────────────────────────────────────────────────
 function help() {
   console.log(`
-  KNOPPEN (statusbalk onderaan in VS Code)
+  KNOPPEN IN DE HOOFDMAP (blauwe balk)
 
   ▶ Start site       kies welke site(s) je lokaal wil draaien
   ⎇ Nieuwe taak      vraagt site + taaknaam → eigen branch + eigen map + nieuw venster
   🗀 Nieuwe site      nieuwe site uit de template, als taak in een eigen venster
-  ⟳ Bijwerken        laatste main binnenhalen (hoofdmap: main; taakmap: main in je taak)
-  ☁ Push             je gecommitte werk naar GitHub → Vercel Preview + link om te mergen
-  ▣ Taak afronden    na de merge: map en branch opruimen (in het venster van de hoofdmap)
+  ⟳ Bijwerken        laatste main van GitHub binnenhalen
+  ▣ Taak afronden    na het live zetten: map en branch van een taak opruimen
   ✓ Check            lint + typecheck van alles
+
+  KNOPPEN IN EEN TAAK (paarse balk), van links naar rechts
+
+  ▶ Start <site>     ontwikkelserver (past zich aan terwijl je werkt)
+  ⟳ Bijwerken        laatste main in je taak (bv. na een wijziging aan een layer)
+  1 Check            lint + typecheck
+  2 Preview          productiebuild lokaal bekijken, zoals Vercel hem toont
+  3 Commit           alles bewaren, met een korte omschrijving
+  4 Push & merge     naar main = live (toont eerst wat, vraagt bevestiging)
+  ⌂ Hoofdmap         het venster van de hoofdmap openen
 
   EEN TAAK, VAN BEGIN TOT EINDE
 
-  1. Nieuwe taak       (hoofdvenster)   → er opent een nieuw venster
-  2. Werken            (taakvenster)    → zelf of met Claude
-  3. Commit            (taakvenster)    → Source Control links: bericht typen, Commit
-  4. Push              (taakvenster)    → Preview nakijken, link openen, Merge op GitHub
-  5. Taakvenster sluiten
-  6. Taak afronden     (hoofdvenster)   → kies de taak uit de lijst
+  1. Nieuwe taak          (hoofdvenster)  → er opent een nieuw venster
+  2. Werken               (taakvenster)   → zelf of met Claude, kijken met Start
+  3. 1 Check → 2 Preview → 3 Commit → 4 Push & merge   (taakvenster)
+  4. Taakvenster sluiten, Taak afronden   (hoofdvenster)
 
-  In de terminal: pnpm dev | pnpm task <site> <taak> | pnpm task push | pnpm task done
+  Liever eerst een Vercel Preview online? Ctrl+Shift+P → "Tasks: Run Task" →
+  "Push zonder merge". Mergen kan daarna nog altijd met 4 Push & merge.
+
+  In de terminal: pnpm dev | pnpm task <site> <taak> | pnpm task preview |
+  pnpm task commit "…" | pnpm task merge | pnpm task done
 `)
 }
 
@@ -493,18 +702,24 @@ if (!cmd || cmd === 'help' || cmd === '--help') {
   console.log(`\nTaak: ${branch}\n`)
   console.log(changed ? `Nog niet gecommit:\n${changed.split('\n').map(l => `  ${l}`).join('\n')}\n` : 'Alles gecommit.\n')
   console.log(commits ? `Commits in deze taak (nog niet in main):\n${commits.split('\n').map(l => `  ${l}`).join('\n')}\n` : 'Nog geen commits die niet in main zitten.\n')
-  console.log(changed ? 'Volgende stap: Source Control (links) → bericht typen → Commit, dan Push.' : commits ? 'Volgende stap: Push (en daarna mergen via de link).' : 'Nog niets te pushen.')
+  console.log(changed ? 'Volgende stap: 1 Check → 2 Preview → 3 Commit → 4 Push & merge.' : commits ? 'Volgende stap: 4 Push & merge (zet het live).' : 'Nog niets om live te zetten.')
   console.log()
 } else if (cmd === 'vscode') {
   // Knoppen en kleur (opnieuw) zetten in de taakmap waar je nu staat.
   const top = git(['rev-parse', '--show-toplevel'])
   if (path.resolve(top) === mainRoot) fail('Dit is de hoofdmap; die houdt de gewone knoppen.')
   setupVscode(top)
-  console.log('✓ Knoppen en kleur ingesteld. Herlaad het venster: Ctrl+Shift+P → Developer: Reload Window')
+  if (!rest.includes('--stil')) console.log('✓ Knoppen en kleur ingesteld. Herlaad het venster: Ctrl+Shift+P → Developer: Reload Window')
 } else if (cmd === 'update') {
   update()
 } else if (cmd === 'push') {
   push()
+} else if (cmd === 'preview') {
+  await preview(rest[0])
+} else if (cmd === 'commit') {
+  commit(...rest)
+} else if (cmd === 'merge') {
+  await merge(...rest)
 } else if (cmd === 'list') {
   list()
 } else if (cmd === 'done') {
