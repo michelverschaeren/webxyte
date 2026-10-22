@@ -62,6 +62,16 @@ function worktrees() {
   })
 }
 
+/** git status van een taakmap; null als de map (half) weg is. */
+function taskStatus(dir) {
+  if (!existsSync(path.join(dir, '.git'))) return null
+  try {
+    return git(['status', '--porcelain'], { cwd: dir })
+  } catch {
+    return null
+  }
+}
+
 function slug(value) {
   return value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -76,7 +86,8 @@ function list() {
   }
   console.log('\nOpen taken:\n')
   for (const t of tasks) {
-    const dirty = git(['status', '--porcelain'], { cwd: t.path }) ? '  (niet-gecommitte wijzigingen)' : ''
+    const st = taskStatus(t.path)
+    const dirty = st === null ? '  (map is weg of half verwijderd: Taak afronden ruimt op)' : st ? '  (niet-gecommitte wijzigingen)' : ''
     console.log(`  ${t.branch.padEnd(40)} ${t.path}${dirty}`)
   }
   console.log()
@@ -267,7 +278,7 @@ async function done(name, ...flags) {
   if (path.resolve(process.cwd()).startsWith(path.resolve(t.path))) {
     fail(`Je staat zelf in die map. Ga eerst naar de hoofdmap:\n  cd "${mainRoot}"\n  pnpm task done ${t.branch}`)
   }
-  if (!force && git(['status', '--porcelain'], { cwd: t.path })) {
+  if (!force && taskStatus(t.path)) {
     fail(`${t.branch} heeft nog niet-gecommitte wijzigingen in ${t.path}. Commit of gooi ze weg, dan opnieuw.`)
   }
 
@@ -278,7 +289,19 @@ async function done(name, ...flags) {
   }
 
   console.log(`\n→ Map verwijderen: ${t.path}`)
-  git(['worktree', 'remove', ...(force ? ['--force'] : []), t.path], { cwd: mainRoot })
+  // Zelf verwijderen i.p.v. `git worktree remove`: dat struikelt op Windows
+  // over de node_modules-koppelingen van pnpm ("Directory not empty"). Node
+  // verwijdert koppelingen zonder hun doel aan te raken. Daarna ruimt
+  // `git worktree prune` de registratie op.
+  try {
+    rmSync(t.path, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 })
+  } catch (error) {
+    fail(`De map kon niet (helemaal) weg: ${error.code || error.message}.
+  Waarschijnlijk gebruikt een programma nog bestanden erin. Sluit het
+  taakvenster in VS Code (en een draaiende Start/Preview in een terminal),
+  wacht enkele seconden en klik opnieuw Taak afronden.`)
+  }
+  git(['worktree', 'prune'], { cwd: mainRoot })
   // -D: hierboven al nagekeken dat alles in origin/main zit (of --force).
   git(['branch', '-D', t.branch], { cwd: mainRoot })
   console.log(`→ Lokale branch ${t.branch} verwijderd`)
