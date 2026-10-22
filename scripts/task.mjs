@@ -258,57 +258,85 @@ async function ask(question) {
   return answer.trim()
 }
 
+/**
+ * Alles wat "Taak afronden" kan opruimen: taakmappen (worktrees), lokale
+ * branches zonder map (bv. na een half mislukt opruimen) en branches die
+ * enkel nog op GitHub staan.
+ */
+function cleanupCandidates() {
+  const wts = worktrees().filter(w => path.resolve(w.path) !== mainRoot)
+  const withDir = new Set(wts.map(w => w.branch))
+  const local = git(['for-each-ref', '--format=%(refname:short)', 'refs/heads'], { cwd: mainRoot })
+    .split('\n').filter(b => b && b !== 'main' && !withDir.has(b))
+  const remote = git(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin'], { cwd: mainRoot })
+    .split('\n').map(r => r.replace(/^origin\//, ''))
+    .filter(b => b && b.includes('/') && b !== 'HEAD' && !withDir.has(b) && !local.includes(b))
+  return [
+    ...wts.map(w => ({ branch: w.branch, path: w.path, note: '' })),
+    ...local.map(b => ({ branch: b, path: null, note: '(geen map meer)' })),
+    ...remote.map(b => ({ branch: b, path: null, remoteOnly: true, note: '(enkel nog op GitHub)' }))
+  ]
+}
+
 async function done(name, ...flags) {
   const force = flags.includes('--force')
+  git(['fetch', '--quiet', '--prune', 'origin'], { cwd: mainRoot })
+  const all = cleanupCandidates()
+  let t
   if (!name) {
-    const open = worktrees().filter(w => path.resolve(w.path) !== mainRoot)
-    if (!open.length) fail('Geen open taken om af te ronden.')
+    if (!all.length) fail('Geen open taken of overgebleven branches om op te ruimen.')
     if (!process.stdin.isTTY) fail('Gebruik: pnpm task done <taak> (zie pnpm task list)')
     console.log('\nWelke taak afronden?\n')
-    open.forEach((t, i) => console.log(`  ${i + 1}. ${t.branch}`))
-    const pick = open[Number(await ask('\nNummer: ')) - 1]
-    if (!pick) fail('Geen geldige keuze.')
-    name = pick.branch
+    all.forEach((c, i) => console.log(`  ${i + 1}. ${c.branch}  ${c.note}`))
+    t = all[Number(await ask('\nNummer: ')) - 1]
+    if (!t) fail('Geen geldige keuze.')
+  } else {
+    t = all.find(c => c.branch === name) ?? all.find(c => c.branch.includes(name))
+    if (!t) fail(`Geen open taak "${name}". Zie: pnpm task list`)
+  }
+  // Een map die er nog staat volgens de vaste naam, maar niet meer bij git
+  // gekend is (half verwijderd): mee opruimen.
+  if (!t.path && !t.remoteOnly) {
+    const leftover = path.join(parentDir, `${repoName}-${t.branch.replace(/\//g, '-')}`)
+    if (existsSync(leftover)) t.path = leftover
   }
 
-  const tasks = worktrees().filter(w => path.resolve(w.path) !== mainRoot)
-  const t = tasks.find(w => w.branch === name) ?? tasks.find(w => w.branch.includes(name))
-  if (!t) fail(`Geen open taak "${name}". Zie: pnpm task list`)
-
-  if (path.resolve(process.cwd()).startsWith(path.resolve(t.path))) {
+  if (t.path && path.resolve(process.cwd()).startsWith(path.resolve(t.path))) {
     fail(`Je staat zelf in die map. Ga eerst naar de hoofdmap:\n  cd "${mainRoot}"\n  pnpm task done ${t.branch}`)
   }
-  if (!force && taskStatus(t.path)) {
+  if (t.path && !force && taskStatus(t.path)) {
     fail(`${t.branch} heeft nog niet-gecommitte wijzigingen in ${t.path}. Commit of gooi ze weg, dan opnieuw.`)
   }
 
-  git(['fetch', '--quiet', 'origin', 'main'], { cwd: mainRoot })
-  const notMerged = git(['log', '--oneline', `origin/main..${t.branch}`], { cwd: mainRoot })
-  if (notMerged && !force && !contentInMain(t.branch)) {
-    fail(`${t.branch} heeft commits die nog niet in main zitten:\n${notMerged.split('\n').map(l => `    ${l}`).join('\n')}\n\n  Eerst live zetten: 4 Push & merge in het taakvenster. Echt weggooien? pnpm task done ${t.branch} --force`)
+  const ref = t.remoteOnly ? `origin/${t.branch}` : t.branch
+  const notMerged = git(['log', '--oneline', `origin/main..${ref}`], { cwd: mainRoot })
+  if (notMerged && !force && !contentInMain(ref)) {
+    fail(`${t.branch} heeft werk dat nog niet in main zit:\n${notMerged.split('\n').map(l => `    ${l}`).join('\n')}\n\n  Eerst live zetten: 4 Push & merge in het taakvenster. Echt weggooien? pnpm task done ${t.branch} --force`)
   }
 
-  console.log(`\n→ Map verwijderen: ${t.path}`)
-  // Zelf verwijderen i.p.v. `git worktree remove`: dat struikelt op Windows
-  // over de node_modules-koppelingen van pnpm ("Directory not empty"). Node
-  // verwijdert koppelingen zonder hun doel aan te raken. Daarna ruimt
-  // `git worktree prune` de registratie op.
-  try {
-    rmSync(t.path, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 })
-  } catch (error) {
-    fail(`De map kon niet (helemaal) weg: ${error.code || error.message}.
+  if (t.path && existsSync(t.path)) {
+    console.log(`\n→ Map verwijderen: ${t.path}`)
+    // Zelf verwijderen i.p.v. `git worktree remove`: dat struikelt op Windows
+    // over de node_modules-koppelingen van pnpm ("Directory not empty"). Node
+    // verwijdert koppelingen zonder hun doel aan te raken.
+    try {
+      rmSync(t.path, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 })
+    } catch (error) {
+      fail(`De map kon niet (helemaal) weg: ${error.code || error.message}.
   Waarschijnlijk gebruikt een programma nog bestanden erin. Sluit het
   taakvenster in VS Code (en een draaiende Start/Preview in een terminal),
   wacht enkele seconden en klik opnieuw Taak afronden.`)
+    }
   }
   git(['worktree', 'prune'], { cwd: mainRoot })
-  // -D: hierboven al nagekeken dat alles in origin/main zit (of --force).
-  git(['branch', '-D', t.branch], { cwd: mainRoot })
-  console.log(`→ Lokale branch ${t.branch} verwijderd`)
+  if (!t.remoteOnly) {
+    // -D: hierboven al nagekeken dat alles in origin/main zit (of --force).
+    git(['branch', '-D', t.branch], { cwd: mainRoot })
+    console.log(`→ Lokale branch ${t.branch} verwijderd`)
+  }
 
-  // De branch op GitHub ook weg (als hij er nog is: de knop "Delete branch"
-  // na een pull request doet hetzelfde). Niet bij --force: niet-gemerged werk
-  // op GitHub laten staan.
+  // De branch op GitHub ook weg. Niet bij --force: niet-gemerged werk op
+  // GitHub laten staan.
   if (!force) {
     const onRemote = git(['ls-remote', '--heads', 'origin', t.branch], { cwd: mainRoot })
     if (onRemote) {
@@ -317,7 +345,8 @@ async function done(name, ...flags) {
     }
   }
   git(['fetch', '--quiet', '--prune', 'origin'], { cwd: mainRoot })
-  console.log('\n✓ Opgeruimd.\n')
+  const rest = cleanupCandidates().length
+  console.log(`\n✓ Opgeruimd.${rest ? ` Nog ${rest} om op te ruimen: klik opnieuw Taak afronden.` : ''}\n`)
 }
 
 // ── VS Code in een taakmap: eigen knoppen en kleur ─────────────────────────
