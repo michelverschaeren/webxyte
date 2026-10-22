@@ -41,9 +41,10 @@ Elke site is een eigen Vercel-project dat naar deze repo wijst:
 2. **Settings → Build and Deployment → Root Directory**: `sites/<klant>`.
    Laat "Include files outside the root directory" aan (standaard): de site
    heeft `packages/` nodig. Vercel installeert vanuit de root (pnpm workspace).
-3. **Settings → Git → Ignored Build Step**: `npx turbo-ignore --fallback=HEAD^1`.
-   Een push bouwt dan enkel de sites waarin iets wijzigde, of die een
-   gewijzigde layer gebruiken.
+3. De *Ignored Build Step* (`npx turbo-ignore --fallback=HEAD^1`) staat in
+   `sites/<klant>/vercel.json` (`ignoreCommand`): een push bouwt enkel de
+   sites waarin iets wijzigde, of die een gewijzigde layer gebruiken. Vercel
+   toont hem niet bij het aanmaken; achteraf bij *Settings → Build and Deployment*.
 4. Environment variables blijven per project, zoals voorheen.
 
 ## Branches

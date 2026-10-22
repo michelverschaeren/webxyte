@@ -29,8 +29,9 @@ the header of each layer's `nuxt.config.ts` for what the site must provide.
 Optionally add a "Start <klant>" button to `.vscode/tasks.json` on main later.
 
 Vercel: create a project from the `webxyte` repo with **Root Directory**
-`sites/<name>`, and as **Ignored Build Step** `npx turbo-ignore --fallback=HEAD^1`
-so it only rebuilds when this site or a layer it uses changed.
+`sites/<name>`. The Ignored Build Step (`turbo-ignore`, only rebuild when this
+site or a layer it uses changed) and region come from `sites/<name>/vercel.json`,
+copied from the template — nothing to set by hand.
 
 ## 1. Confirm this clone is actually unstarted
 
